@@ -24,38 +24,62 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun QuestaoScreen(
-    questao: Questao,
     numeroAtual: Int,
     totalQuestoes: Int,
     onOpenFiltro: () -> Unit
 ) {
+    val viewModel: QuestaoViewModel = viewModel()
+
+    val questao = viewModel.questao
+    val isLoading = viewModel.isLoading
+    val erro = viewModel.erro
+
     Column(modifier = Modifier.fillMaxSize()) {
 
-        val viewModel: QuestaoViewModel = viewModel()
-        val questao = viewModel.questao
-        val idQuestao: String = questao.id
         AppHeader(
-            title = "Questão $idQuestao",
-            subtitle = questao.disciplina,
+            title = questao?.let { "Questão ${it.id}" } ?: "Carregando...",
+            subtitle = questao?.disciplina ?: "",
             onBack = { },
             actionText = "⚙",
             onAction = onOpenFiltro
         )
 
-        TopoResumoQuestao(
-            questaoNumero = viewModel.numeroAtual,
-            questoesTotal = viewModel.totalQuestoes
-        )
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
 
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            CorpoQuestao(questao)
+            erro != null -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Erro: $erro")
+                }
+            }
+
+            questao != null -> {
+                TopoResumoQuestao(
+                    questaoNumero = viewModel.numeroAtual,
+                    questoesTotal = viewModel.totalQuestoes
+                )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    CorpoQuestao(questao)
+                }
+
+                RodapeQuestao()
+            }
         }
-
-        RodapeQuestao()
     }
 }
 
