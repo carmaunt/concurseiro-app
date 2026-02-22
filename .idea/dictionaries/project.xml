@@ -21,11 +21,13 @@
       <w>Escolher</w>
       <w>Espera</w>
       <w>Excluir</w>
+      <w>Falha</w>
       <w>Filtrar</w>
       <w>Independência</w>
       <w>Informação</w>
       <w>Instituto</w>
       <w>Limpar</w>
+      <w>Nenhuma</w>
       <w>Questao</w>
       <w>Recursos</w>
       <w>Resolvi</w>
@@ -49,6 +51,7 @@
       <w>criado</w>
       <w>deve</w>
       <w>disciplina</w>
+      <w>encontrada</w>
       <w>enunciado</w>
       <w>erro</w>
       <w>ficar</w>

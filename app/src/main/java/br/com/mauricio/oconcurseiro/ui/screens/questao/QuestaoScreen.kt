@@ -21,14 +21,20 @@ import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 
 @Composable
 fun QuestaoScreen(
+    filtro: FiltroParams,
     numeroAtual: Int,
     totalQuestoes: Int,
     onOpenFiltro: () -> Unit
 ) {
     val viewModel: QuestaoViewModel = viewModel()
+
+    LaunchedEffect(filtro) {
+        viewModel.carregarQuestao(filtro)
+    }
 
     val questao = viewModel.questao
     val isLoading = viewModel.isLoading

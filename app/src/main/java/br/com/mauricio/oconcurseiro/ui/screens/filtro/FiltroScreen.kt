@@ -19,10 +19,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
 
 @Composable
-fun FiltroScreen(onBack: () -> Unit) {
+fun FiltroScreen(onBack: () -> Unit, onAplicarFiltro: (FiltroParams) -> Unit) {
 
     var tab by remember { mutableIntStateOf(0) } // 0 = Simples, 1 = Avançado
     var keyword by remember { mutableStateOf("") }
@@ -209,7 +210,13 @@ fun FiltroScreen(onBack: () -> Unit) {
                 }
 
                 Button(
-                    onClick = { },
+                    onClick = {
+                        onAplicarFiltro(
+                            FiltroParams(
+                                texto = keyword.takeIf { it.isNotBlank() }
+                            )
+                        )
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(52.dp),
