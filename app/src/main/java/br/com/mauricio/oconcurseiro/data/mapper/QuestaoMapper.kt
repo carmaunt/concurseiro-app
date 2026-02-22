@@ -15,6 +15,8 @@ object QuestaoMapper {
             banca = dto.banca,
             orgao = dto.instituicao, // backend = instituicao, app = orgao
             enunciado = dto.enunciado,
+            questao = dto.questao,
+            gabarito = dto.gabarito,
             alternativas = parseAlternativas(dto.alternativas)
         )
     }

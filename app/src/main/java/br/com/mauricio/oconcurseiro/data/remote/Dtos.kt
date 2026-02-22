@@ -23,5 +23,6 @@ data class QuestaoDto(
     val cargo: String,
     val nivel: String,
     val modalidade: String,
+    val gabarito: String,
     val criadoEm: String
 )

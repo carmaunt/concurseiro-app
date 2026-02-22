@@ -8,6 +8,8 @@ data class Questao(
     val banca: String,
     val orgao: String,
     val enunciado: String,
+    val questao: String,
+    val gabarito: String,
     val alternativas: List<Alternativa>
 )
 

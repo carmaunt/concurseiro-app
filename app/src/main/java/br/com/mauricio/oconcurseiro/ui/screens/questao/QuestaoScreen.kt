@@ -2,6 +2,7 @@ package br.com.mauricio.oconcurseiro.ui.screens.questao
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -140,6 +142,7 @@ fun TopoResumoQuestao(
 @Composable
 fun CorpoQuestao(questao: Questao) {
     var selecionada by remember { mutableIntStateOf(-1) }
+    var resolvida by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -155,46 +158,90 @@ fun CorpoQuestao(questao: Questao) {
 
         Spacer(Modifier.height(20.dp))
 
-        Text(
-            text = questao.enunciado,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF111827)
-        )
+        var enunciadoAberto by remember { mutableStateOf(false) }
 
-        Spacer(Modifier.height(24.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(Color(0xFFF3F4F6))
+                .clickable { enunciadoAberto = !enunciadoAberto }
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Texto associado",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF111827),
+                modifier = Modifier.weight(1f)
+            )
+
+            Text(
+                text = if (enunciadoAberto) "−" else "+",
+                fontSize = 28.sp,
+                color = Color(0xFF6B7280)
+            )
+        }
+
+        if (enunciadoAberto) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = questao.enunciado,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF111827)
+            )
+            Spacer(Modifier.height(18.dp))
+        } else {
+            Spacer(Modifier.height(10.dp))
+        }
+
+        if (questao.questao.isNotBlank()) {
+            Spacer(Modifier.height(14.dp))
+            Text(
+                text = questao.questao,
+                fontSize = 18.sp,
+                color = Color(0xFF111827)
+            )
+        }
+
+        Spacer(Modifier.height(20.dp)) // espaço antes das alternativas
 
         questao.alternativas.forEachIndexed { index, alternativa ->
+            val correta = alternativa.letra.equals(questao.gabarito, ignoreCase = true)
+            val foiClicada = selecionada == index
 
             Alternativa(
                 letra = alternativa.letra,
                 texto = alternativa.texto,
-                selecionada = selecionada == index
+                selecionada = foiClicada,
+                resolvida = resolvida,
+                correta = correta
             ) {
-                selecionada = index
+                if (!resolvida) selecionada = index
             }
 
             Spacer(modifier = Modifier.height(12.dp))
         }
 
         Spacer(Modifier.height(12.dp))
-        Spacer(Modifier.weight(1f))
 
         Button(
-            onClick = { },
-            enabled = selecionada != -1,
+            onClick = { resolvida = true },
+            enabled = selecionada != -1 && !resolvida,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (selecionada != -1) Color(0xFFFF6A2A) else Color(0xFFFFC3A8),
+                containerColor = if (selecionada != -1 && !resolvida) Color(0xFFFF6A2A) else Color(0xFFFFC3A8),
                 disabledContainerColor = Color(0xFFFFC3A8)
             )
         ) {
             Text(
-                text = "Resolver",
-                color = if (selecionada != -1) Color.White else Color.White.copy(alpha = 0.5f),
+                text = if (!resolvida) "Resolver" else "Resolvida",
+                color = Color.White.copy(alpha = if (!resolvida) 1f else 0.6f),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -209,29 +256,71 @@ fun Alternativa(
     letra: String,
     texto: String,
     selecionada: Boolean,
+    resolvida: Boolean,
+    correta: Boolean,
     onClick: () -> Unit
 ) {
-    val bg = if (selecionada) Color(0xFFFFE7DD) else Color(0xFFF3F4F6)
+    // Cores base
+    val neutralBg = Color(0xFFF3F4F6)
+    val neutralBorder = Color.Transparent
+
+    // Estados após resolver:
+    val okBg = Color(0xFFDCFCE7)      // verde claro
+    val okBorder = Color(0xFF16A34A)  // verde
+
+    val errBg = Color(0xFFFEE2E2)     // vermelho claro
+    val errBorder = Color(0xFFEF4444) // vermelho
+
+    val selectedBg = Color(0xFFFFE7DD) // laranja claro antigo
+
+    val (bg, border, icon) = when {
+        !resolvida && selecionada -> Triple(selectedBg, neutralBorder, null)
+        !resolvida -> Triple(neutralBg, neutralBorder, null)
+        correta -> Triple(okBg, okBorder, "✓")
+        selecionada && !correta -> Triple(errBg, errBorder, "✕")
+        else -> Triple(neutralBg, neutralBorder, null)
+    }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(bg, shape = RoundedCornerShape(16.dp))
+            .then(
+                if (border != Color.Transparent) Modifier.border(2.dp, border, RoundedCornerShape(16.dp))
+                else Modifier
+            )
             .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .background(Color(0xFFE5E7EB), shape = CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = letra,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF6B7280)
-            )
+
+        // Ícone de certo/errado (estilo da imagem)
+        if (icon != null) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(border.copy(alpha = 0.15f), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = icon,
+                    fontWeight = FontWeight.Bold,
+                    color = border
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(Color(0xFFE5E7EB), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = letra,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF6B7280)
+                )
+            }
         }
 
         Spacer(Modifier.width(16.dp))
