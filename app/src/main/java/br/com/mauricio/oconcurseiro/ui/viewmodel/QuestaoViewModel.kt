@@ -9,6 +9,7 @@ import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import kotlinx.coroutines.launch
+import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
 
 class QuestaoViewModel : ViewModel() {
 
@@ -39,7 +40,8 @@ class QuestaoViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val lista = repository.listarQuestoes(
+                val resp = repository.buscarPagina(
+                    page = 0,
                     size = 1,
                     texto = filtro.texto,
                     disciplina = filtro.disciplina,
@@ -47,7 +49,10 @@ class QuestaoViewModel : ViewModel() {
                     ano = filtro.ano
                 )
 
-                val q = lista.firstOrNull()
+                totalQuestoes = resp.totalElements.toInt()
+
+                val dto = resp.content.firstOrNull()
+                val q = dto?.let { QuestaoMapper.fromDto(it) }
                 questao = q
 
                 if (q == null) {
@@ -55,7 +60,6 @@ class QuestaoViewModel : ViewModel() {
                     totalQuestoes = 0
                 } else {
                     numeroAtual = 1
-                    totalQuestoes = 1
                 }
 
             } catch (e: Exception) {
