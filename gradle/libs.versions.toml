@@ -15,7 +15,7 @@ material3 = "1.4.0"
 foundation = "1.10.3"
 okhttp = "5.3.2"
 retrofit = "3.0.0"
-ksp = "2.0.21-1.0.29"
+ksp = "2.0.21-1.0.28"
 room = "2.7.1"
 
 [libraries]
