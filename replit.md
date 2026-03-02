@@ -37,7 +37,11 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
     ├── screens/
     │   ├── filtro/FiltroScreen.kt
     │   └── questao/QuestaoScreen.kt
+    ├── state/UiState.kt
     ├── theme/
+    │   ├── Color.kt (semantic brand colors)
+    │   ├── Theme.kt (Material 3 color scheme)
+    │   └── Type.kt (typography scale)
     └── viewmodel/QuestaoViewModel.kt
 ```
 
@@ -54,14 +58,28 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - **Filter params**: texto, disciplina, disciplinaId, assunto, assuntoId, banca, bancaId, instituicao, instituicaoId, ano, cargo, nivel, modalidade
 
 ## Configuration
-- Base URL is configured in `RetrofitClient.kt` (currently `http://192.168.10.20:8080/`)
-- `usesCleartextTraffic=true` in AndroidManifest.xml for HTTP traffic
+- Base URL is configured via `BuildConfig.BASE_URL` (debug: `http://192.168.10.20:8080/`, release: `https://api.oconcurseiro.com.br/`)
+- `usesCleartextTraffic=true` in AndroidManifest.xml for HTTP traffic in debug
+- Network timeouts: connect 15s, read 30s, write 30s
+
+## Theme & Design System
+- **Brand color**: Orange (#FF6A2A) with light/disabled/background variants
+- **Semantic colors**: All defined in `Color.kt` — no hardcoded colors in screens
+- **Typography**: Full scale defined in `Type.kt` (display, headline, title, body, label)
+- **Dynamic color disabled**: App always uses brand orange theme regardless of Android 12+ wallpaper
+- Theme wraps app via `OConcurseiroTheme` in MainActivity
 
 ## Key Patterns
 - **Shared ViewModel**: QuestaoViewModel is created at AppNavigation level and shared between QuestaoScreen and FiltroScreen
 - **Catalog-based filtering**: FiltroScreen uses DropdownSelector components backed by catalog data from backend API (disciplinas, bancas, instituicoes, assuntos)
 - **Reactive catalog loading**: LaunchedEffect restores selections when catalog data arrives asynchronously
 - **Cascading filters**: Selecting a disciplina triggers loading of related assuntos; clearing disciplina clears assuntos
+- **Error handling**: User-friendly error messages for network errors (UnknownHostException, SocketTimeoutException, HTTP codes), auto-retry for catalog failures, manual retry via `recarregar()`
+- **Empty state**: Distinct UI for "no results" vs "error" states with actionable buttons
+
+## Permissions
+- `android.permission.INTERNET` (required for Retrofit)
+- `android.permission.ACCESS_NETWORK_STATE` (connectivity checks)
 
 ## Notes
 - This is an Android project requiring Android SDK to build — cannot be compiled in Replit environment

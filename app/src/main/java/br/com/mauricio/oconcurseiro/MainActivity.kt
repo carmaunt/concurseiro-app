@@ -6,25 +6,29 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import br.com.mauricio.oconcurseiro.ui.navigation.AppNavigation
+import br.com.mauricio.oconcurseiro.ui.theme.BrandOrange
+import br.com.mauricio.oconcurseiro.ui.theme.OConcurseiroTheme
+import br.com.mauricio.oconcurseiro.ui.theme.SurfaceBackground
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color(0xFFFF6A2A).toArgb()),
+            statusBarStyle = SystemBarStyle.dark(BrandOrange.toArgb()),
             navigationBarStyle = SystemBarStyle.light(
-                Color(0xFFF6F7FB).toArgb(),
-                Color(0xFFF6F7FB).toArgb()
+                SurfaceBackground.toArgb(),
+                SurfaceBackground.toArgb()
             )
         )
 
         setContent {
-            AppNavigation()
+            OConcurseiroTheme {
+                AppNavigation()
+            }
         }
     }
 }
@@ -32,5 +36,7 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewApp() {
-    AppNavigation()
+    OConcurseiroTheme {
+        AppNavigation()
+    }
 }

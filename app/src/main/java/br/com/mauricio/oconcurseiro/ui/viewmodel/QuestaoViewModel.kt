@@ -9,8 +9,12 @@ import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class QuestaoViewModel : ViewModel() {
 
@@ -23,6 +27,9 @@ class QuestaoViewModel : ViewModel() {
         private set
 
     var erro: String? by mutableStateOf(null)
+        private set
+
+    var isEmpty: Boolean by mutableStateOf(false)
         private set
 
     var numeroAtual: Int by mutableStateOf(1)
@@ -60,10 +67,28 @@ class QuestaoViewModel : ViewModel() {
         carregarCatalogos()
     }
 
+    private fun mapErrorMessage(e: Exception): String {
+        return when (e) {
+            is UnknownHostException -> "Sem conexão com a internet"
+            is SocketTimeoutException -> "Servidor não respondeu. Tente novamente."
+            is HttpException -> {
+                when (e.code()) {
+                    400 -> "Requisição inválida"
+                    404 -> "Recurso não encontrado"
+                    500 -> "Erro interno do servidor"
+                    503 -> "Servidor indisponível no momento"
+                    else -> "Erro do servidor (${e.code()})"
+                }
+            }
+            else -> e.message ?: "Falha ao carregar questão."
+        }
+    }
+
     fun carregarQuestao(filtro: FiltroParams = filtroAtual) {
         filtroAtual = filtro
         isLoading = true
         erro = null
+        isEmpty = false
 
         viewModelScope.launch {
             try {
@@ -80,7 +105,7 @@ class QuestaoViewModel : ViewModel() {
                 questao = q
 
                 if (q == null) {
-                    erro = "Nenhuma questão encontrada para esse filtro."
+                    isEmpty = true
                     totalQuestoes = 0
                 } else {
                     numeroAtual = paginaAtual + 1
@@ -88,11 +113,15 @@ class QuestaoViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 questao = null
-                erro = e.message ?: "Falha ao carregar questão."
+                erro = mapErrorMessage(e)
             } finally {
                 isLoading = false
             }
         }
+    }
+
+    fun recarregar() {
+        carregarQuestao(filtroAtual)
     }
 
     fun aplicarFiltro(filtro: FiltroParams) {
@@ -127,19 +156,34 @@ class QuestaoViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 disciplinas = repository.listarDisciplinas().map { QuestaoMapper.catalogoFromDto(it) }
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+                delay(2000)
+                try {
+                    disciplinas = repository.listarDisciplinas().map { QuestaoMapper.catalogoFromDto(it) }
+                } catch (_: Exception) { }
+            }
             verificarCompleto()
         }
         viewModelScope.launch {
             try {
                 bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+                delay(2000)
+                try {
+                    bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
+                } catch (_: Exception) { }
+            }
             verificarCompleto()
         }
         viewModelScope.launch {
             try {
                 instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+                delay(2000)
+                try {
+                    instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
+                } catch (_: Exception) { }
+            }
             verificarCompleto()
         }
     }

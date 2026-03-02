@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
+import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
 
 @Composable
@@ -105,9 +106,8 @@ fun FiltroScreen(
 
             Text(
                 text = "Escolher filtros",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF111827)
+                style = MaterialTheme.typography.headlineLarge,
+                color = TextPrimary
             )
 
             Spacer(Modifier.height(12.dp))
@@ -117,11 +117,11 @@ fun FiltroScreen(
                     .fillMaxWidth()
                     .height(44.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFF3F4F6))
+                    .background(SurfaceCard)
                     .padding(4.dp)
             ) {
-                val bgSimples = if (tab == 0) Color(0xFFFFE7DD) else Color.Transparent
-                val fgSimples = if (tab == 0) Color(0xFFFF6A2A) else Color(0xFF6B7280)
+                val bgSimples = if (tab == 0) BrandOrangeLight else Color.Transparent
+                val fgSimples = if (tab == 0) BrandOrange else TextSecondary
 
                 Box(
                     modifier = Modifier
@@ -137,8 +137,8 @@ fun FiltroScreen(
 
                 Spacer(Modifier.width(8.dp))
 
-                val bgAvancado = if (tab == 1) Color(0xFFFFE7DD) else Color.Transparent
-                val fgAvancado = if (tab == 1) Color(0xFFFF6A2A) else Color(0xFF6B7280)
+                val bgAvancado = if (tab == 1) BrandOrangeLight else Color.Transparent
+                val fgAvancado = if (tab == 1) BrandOrange else TextSecondary
 
                 Box(
                     modifier = Modifier
@@ -233,7 +233,7 @@ fun FiltroScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            Text("Anos", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
+            Text("Anos", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
             Spacer(Modifier.height(12.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -251,7 +251,7 @@ fun FiltroScreen(
 
             Spacer(Modifier.height(18.dp))
 
-            Text("Apenas questões que", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
+            Text("Apenas questões que", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
             Spacer(Modifier.height(12.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -266,7 +266,7 @@ fun FiltroScreen(
 
             Spacer(Modifier.height(22.dp))
 
-            Text("Excluir questões", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
+            Text("Excluir questões", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
             Spacer(Modifier.height(12.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -279,7 +279,7 @@ fun FiltroScreen(
             }
         }
 
-        Surface(shadowElevation = 8.dp, color = Color(0xFFF6F7FB)) {
+        Surface(shadowElevation = 8.dp, color = SurfaceBackground) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -307,9 +307,9 @@ fun FiltroScreen(
                         .weight(1f)
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE5E7EB))
+                    border = BorderStroke(1.dp, BorderDefault)
                 ) {
-                    Text("Limpar filtros", color = Color(0xFF6B7280), fontWeight = FontWeight.SemiBold)
+                    Text("Limpar filtros", color = TextSecondary, fontWeight = FontWeight.SemiBold)
                 }
 
                 Button(
@@ -336,7 +336,7 @@ fun FiltroScreen(
                         .weight(1f)
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6A2A))
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
                 ) {
                     Text("Filtrar", fontWeight = FontWeight.SemiBold)
                 }
@@ -362,9 +362,8 @@ fun DropdownSelector(
     Column {
         Text(
             text = label,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF374151).copy(alpha = alpha),
+            style = MaterialTheme.typography.labelMedium,
+            color = TextLabel.copy(alpha = alpha),
             modifier = Modifier.padding(bottom = 6.dp)
         )
 
@@ -376,10 +375,10 @@ fun DropdownSelector(
                     .clip(RoundedCornerShape(14.dp))
                     .border(
                         1.dp,
-                        if (selecionado != null) Color(0xFFFF6A2A) else Color(0xFFE5E7EB),
+                        if (selecionado != null) BrandOrange else BorderDefault,
                         RoundedCornerShape(14.dp)
                     )
-                    .background(if (selecionado != null) Color(0xFFFFF7F3) else Color.White)
+                    .background(if (selecionado != null) BrandOrangeBackground else SurfaceWhite)
                     .clickable(enabled = isEnabled && itens.isNotEmpty()) { expandido = true }
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -392,8 +391,8 @@ fun DropdownSelector(
 
                 Text(
                     text = displayText,
-                    fontSize = 16.sp,
-                    color = if (selecionado != null) Color(0xFF111827) else Color(0xFF9CA3AF).copy(alpha = alpha),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (selecionado != null) TextPrimary else TextPlaceholder.copy(alpha = alpha),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -402,8 +401,8 @@ fun DropdownSelector(
                 if (selecionado != null) {
                     Text(
                         text = "✕",
-                        fontSize = 16.sp,
-                        color = Color(0xFF6B7280),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary,
                         modifier = Modifier
                             .clip(RoundedCornerShape(999.dp))
                             .clickable { onSelecionar(null) }
@@ -413,7 +412,7 @@ fun DropdownSelector(
                     Text(
                         text = "▾",
                         fontSize = 18.sp,
-                        color = Color(0xFF6B7280).copy(alpha = alpha)
+                        color = TextSecondary.copy(alpha = alpha)
                     )
                 }
             }
@@ -430,8 +429,8 @@ fun DropdownSelector(
                         text = {
                             Text(
                                 "Nenhum item disponível",
-                                color = Color(0xFF9CA3AF),
-                                fontSize = 14.sp
+                                color = TextPlaceholder,
+                                style = MaterialTheme.typography.bodySmall
                             )
                         },
                         onClick = { expandido = false }
@@ -445,7 +444,7 @@ fun DropdownSelector(
                                     text = item.nome,
                                     fontSize = 15.sp,
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                    color = if (isSelected) Color(0xFFFF6A2A) else Color(0xFF111827)
+                                    color = if (isSelected) BrandOrange else TextPrimary
                                 )
                             },
                             onClick = {
@@ -453,7 +452,7 @@ fun DropdownSelector(
                                 expandido = false
                             },
                             modifier = Modifier.background(
-                                if (isSelected) Color(0xFFFFF7F3) else Color.Transparent
+                                if (isSelected) BrandOrangeBackground else Color.Transparent
                             )
                         )
                     }
@@ -472,9 +471,8 @@ fun CampoTexto(
     Column {
         Text(
             text = placeholder,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF374151),
+            style = MaterialTheme.typography.labelMedium,
+            color = TextLabel,
             modifier = Modifier.padding(bottom = 6.dp)
         )
 
@@ -483,8 +481,8 @@ fun CampoTexto(
                 .fillMaxWidth()
                 .height(48.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
-                .background(Color.White)
+                .border(1.dp, BorderDefault, RoundedCornerShape(14.dp))
+                .background(SurfaceWhite)
                 .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -492,11 +490,11 @@ fun CampoTexto(
                 value = valor,
                 onValueChange = onValueChange,
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF111827)),
+                textStyle = TextStyle(fontSize = 16.sp, color = TextPrimary),
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (valor.isBlank()) {
-                        Text("Digite aqui...", color = Color(0xFF9CA3AF), fontSize = 16.sp)
+                        Text("Digite aqui...", color = TextPlaceholder, style = MaterialTheme.typography.bodyMedium)
                     }
                     inner()
                 }
@@ -507,9 +505,9 @@ fun CampoTexto(
 
 @Composable
 fun ChipAno(texto: String, selecionado: Boolean, onClick: () -> Unit) {
-    val bg = if (selecionado) Color(0xFFFFE7DD) else Color(0xFFF9FAFB)
-    val border = if (selecionado) Color(0xFFFF6A2A) else Color(0xFFE5E7EB)
-    val textColor = if (selecionado) Color(0xFFFF6A2A) else Color(0xFF6B7280)
+    val bg = if (selecionado) BrandOrangeLight else SurfaceChip
+    val border = if (selecionado) BrandOrange else BorderDefault
+    val textColor = if (selecionado) BrandOrange else TextSecondary
 
     Box(
         modifier = Modifier
@@ -521,7 +519,7 @@ fun ChipAno(texto: String, selecionado: Boolean, onClick: () -> Unit) {
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(texto, color = textColor, fontSize = 16.sp)
+        Text(texto, color = textColor, style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -529,9 +527,9 @@ fun ChipAno(texto: String, selecionado: Boolean, onClick: () -> Unit) {
 fun ChipFiltro(texto: String) {
     var selecionado by remember { mutableStateOf(false) }
 
-    val bg = if (selecionado) Color(0xFFFFE7DD) else Color(0xFFF9FAFB)
-    val border = if (selecionado) Color(0xFFFF6A2A) else Color(0xFFE5E7EB)
-    val textColor = if (selecionado) Color(0xFFFF6A2A) else Color(0xFF6B7280)
+    val bg = if (selecionado) BrandOrangeLight else SurfaceChip
+    val border = if (selecionado) BrandOrange else BorderDefault
+    val textColor = if (selecionado) BrandOrange else TextSecondary
 
     Box(
         modifier = Modifier
@@ -543,6 +541,6 @@ fun ChipFiltro(texto: String) {
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(texto, color = textColor, fontSize = 16.sp)
+        Text(texto, color = textColor, style = MaterialTheme.typography.labelSmall)
     }
 }

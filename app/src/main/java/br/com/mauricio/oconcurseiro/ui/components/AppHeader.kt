@@ -14,10 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.mauricio.oconcurseiro.ui.theme.BrandOrange
+import br.com.mauricio.oconcurseiro.ui.theme.TextOnBrand
 
 @Composable
 fun AppHeader(
@@ -31,14 +32,14 @@ fun AppHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(130.dp)
-            .background(Color(0xFFFF6A2A))
+            .background(BrandOrange)
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         if (onBack != null) {
             Text(
                 text = "‹",
-                color = Color.White,
+                color = TextOnBrand,
                 fontSize = 28.sp,
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -49,7 +50,7 @@ fun AppHeader(
         if (actionText != null && onAction != null) {
             Text(
                 text = actionText,
-                color = Color.White,
+                color = TextOnBrand,
                 fontSize = 20.sp,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -63,7 +64,7 @@ fun AppHeader(
         ) {
             Text(
                 text = title,
-                color = Color.White,
+                color = TextOnBrand,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -71,7 +72,7 @@ fun AppHeader(
             if (!subtitle.isNullOrBlank()) {
                 Text(
                     text = subtitle,
-                    color = Color.White.copy(alpha = 0.9f),
+                    color = TextOnBrand.copy(alpha = 0.9f),
                     fontSize = 14.sp
                 )
             }
