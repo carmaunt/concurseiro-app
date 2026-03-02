@@ -35,3 +35,18 @@ data class CatalogoItemDto(
     val id: Long,
     val nome: String
 )
+
+data class ComentarioResponseDto(
+    val id: Long,
+    val questaoId: String,
+    val autor: String,
+    val texto: String,
+    val curtidas: Int,
+    val descurtidas: Int,
+    val criadoEm: String
+)
+
+data class ComentarioRequestDto(
+    val autor: String,
+    val texto: String
+)

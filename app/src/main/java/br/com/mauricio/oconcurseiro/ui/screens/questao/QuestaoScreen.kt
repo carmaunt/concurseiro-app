@@ -35,7 +35,8 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.RespostaAnterior
 fun QuestaoScreen(
     viewModel: QuestaoViewModel,
     onOpenFiltro: () -> Unit,
-    onBack: (() -> Unit)? = null
+    onBack: (() -> Unit)? = null,
+    onAbrirComentarios: ((questaoId: String) -> Unit)? = null
 ) {
     val questao = viewModel.questao
     val isLoading = viewModel.isLoading
@@ -153,7 +154,8 @@ fun QuestaoScreen(
             questao != null -> {
                 TopoResumoQuestao(
                     questaoNumero = viewModel.numeroAtual,
-                    questoesTotal = viewModel.totalQuestoes
+                    questoesTotal = viewModel.totalQuestoes,
+                    onAbrirComentarios = { questao?.id?.let { id -> onAbrirComentarios?.invoke(id) } }
                 )
 
                 Box(
@@ -190,7 +192,8 @@ fun QuestaoScreen(
 @Composable
 fun TopoResumoQuestao(
     questaoNumero: Int,
-    questoesTotal: Int
+    questoesTotal: Int,
+    onAbrirComentarios: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -224,16 +227,51 @@ fun TopoResumoQuestao(
 
         Spacer(Modifier.weight(1f))
 
-        OutlinedButton(
-            onClick = { },
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier.height(40.dp)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "+ Recursos",
-                color = BrandOrange,
-                fontWeight = FontWeight.SemiBold
-            )
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(SurfaceCard)
+                    .clickable { },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "🎓",
+                    fontSize = 18.sp
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(SurfaceCard)
+                    .clickable { onAbrirComentarios() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "💬",
+                    fontSize = 18.sp
+                )
+            }
+
+            OutlinedButton(
+                onClick = { },
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.height(36.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp)
+            ) {
+                Text(
+                    text = "+ Recursos",
+                    color = BrandOrange,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp
+                )
+            }
         }
     }
 }

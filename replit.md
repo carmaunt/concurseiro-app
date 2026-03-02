@@ -63,6 +63,10 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
   - `GET /api/v1/catalogo/bancas` - List boards
   - `GET /api/v1/catalogo/instituicoes` - List institutions
   - `GET /api/v1/catalogo/disciplinas/{id}/assuntos` - Subjects by discipline
+  - `GET /api/v1/questoes/{questaoId}/comentarios` - List comments (params: page, size, ordenar=curtidas|recentes)
+  - `POST /api/v1/questoes/{questaoId}/comentarios` - Create comment (body: autor, texto)
+  - `POST /api/v1/comentarios/{id}/curtir` - Like a comment
+  - `POST /api/v1/comentarios/{id}/descurtir` - Dislike a comment
 - **Filter params**: texto, disciplina, disciplinaId, assunto, assuntoId, banca, bancaId, instituicao, instituicaoId, ano, cargo, nivel, modalidade
 
 ## Configuration
@@ -86,6 +90,7 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - **Cascading filters**: Selecting a disciplina triggers loading of related assuntos; clearing disciplina clears assuntos
 - **Error handling**: User-friendly error messages for network errors (UnknownHostException, SocketTimeoutException, HTTP codes), auto-retry for catalog failures, manual retry via `recarregar()`
 - **Empty state**: Distinct UI for "no results" vs "error" states with actionable buttons
+- **Comments**: Full comments system with like/dislike, sorting (most liked / most recent), pagination, and optimistic UI updates for likes. Backend files in `backend-changes/` directory need to be applied to Spring Boot project.
 
 ## Permissions
 - `android.permission.INTERNET` (required for Retrofit)

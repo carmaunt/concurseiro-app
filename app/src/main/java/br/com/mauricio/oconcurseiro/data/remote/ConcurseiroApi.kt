@@ -1,6 +1,8 @@
 package br.com.mauricio.oconcurseiro.data.remote
 
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -49,4 +51,28 @@ interface ConcurseiroApi {
     suspend fun listarSubAssuntos(
         @Path("assuntoId") assuntoId: Long
     ): List<CatalogoItemDto>
+
+    @GET("/api/v1/questoes/{questaoId}/comentarios")
+    suspend fun listarComentarios(
+        @Path("questaoId") questaoId: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20,
+        @Query("ordenar") ordenar: String = "curtidas"
+    ): PageResponse<ComentarioResponseDto>
+
+    @POST("/api/v1/questoes/{questaoId}/comentarios")
+    suspend fun criarComentario(
+        @Path("questaoId") questaoId: String,
+        @Body request: ComentarioRequestDto
+    ): ComentarioResponseDto
+
+    @POST("/api/v1/comentarios/{id}/curtir")
+    suspend fun curtirComentario(
+        @Path("id") id: Long
+    ): ComentarioResponseDto
+
+    @POST("/api/v1/comentarios/{id}/descurtir")
+    suspend fun descurtirComentario(
+        @Path("id") id: Long
+    ): ComentarioResponseDto
 }

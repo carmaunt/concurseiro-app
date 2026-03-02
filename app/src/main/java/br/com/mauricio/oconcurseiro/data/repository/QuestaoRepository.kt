@@ -2,6 +2,8 @@ package br.com.mauricio.oconcurseiro.data.repository
 
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
+import br.com.mauricio.oconcurseiro.data.remote.ComentarioRequestDto
+import br.com.mauricio.oconcurseiro.data.remote.ComentarioResponseDto
 import br.com.mauricio.oconcurseiro.data.remote.PageResponse
 import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
 import br.com.mauricio.oconcurseiro.data.remote.RetrofitClient
@@ -55,5 +57,30 @@ class QuestaoRepository {
 
     suspend fun listarSubAssuntos(assuntoId: Long): List<CatalogoItemDto> {
         return RetrofitClient.api.listarSubAssuntos(assuntoId)
+    }
+
+    suspend fun listarComentarios(
+        questaoId: String,
+        page: Int = 0,
+        size: Int = 20,
+        ordenar: String = "curtidas"
+    ): PageResponse<ComentarioResponseDto> {
+        return RetrofitClient.api.listarComentarios(questaoId, page, size, ordenar)
+    }
+
+    suspend fun criarComentario(
+        questaoId: String,
+        autor: String,
+        texto: String
+    ): ComentarioResponseDto {
+        return RetrofitClient.api.criarComentario(questaoId, ComentarioRequestDto(autor, texto))
+    }
+
+    suspend fun curtirComentario(id: Long): ComentarioResponseDto {
+        return RetrofitClient.api.curtirComentario(id)
+    }
+
+    suspend fun descurtirComentario(id: Long): ComentarioResponseDto {
+        return RetrofitClient.api.descurtirComentario(id)
     }
 }
