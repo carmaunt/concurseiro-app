@@ -62,8 +62,10 @@ class QuestaoViewModel : ViewModel() {
     var catalogosCarregando: Boolean by mutableStateOf(true)
         private set
 
+    var jaCarregou: Boolean by mutableStateOf(false)
+        private set
+
     init {
-        carregarQuestao(FiltroParams())
         carregarCatalogos()
     }
 
@@ -89,6 +91,7 @@ class QuestaoViewModel : ViewModel() {
         isLoading = true
         erro = null
         isEmpty = false
+        jaCarregou = true
 
         viewModelScope.launch {
             try {

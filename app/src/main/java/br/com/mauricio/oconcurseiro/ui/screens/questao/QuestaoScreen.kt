@@ -33,7 +33,8 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
 @Composable
 fun QuestaoScreen(
     viewModel: QuestaoViewModel,
-    onOpenFiltro: () -> Unit
+    onOpenFiltro: () -> Unit,
+    onBack: (() -> Unit)? = null
 ) {
     val questao = viewModel.questao
     val isLoading = viewModel.isLoading
@@ -45,7 +46,7 @@ fun QuestaoScreen(
         AppHeader(
             title = questao?.let { "Questão ${it.id}" } ?: "Carregando...",
             subtitle = questao?.disciplina ?: "",
-            onBack = null,
+            onBack = onBack,
             actionText = "⚙",
             onAction = onOpenFiltro
         )

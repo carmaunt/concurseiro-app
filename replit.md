@@ -36,13 +36,16 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
     ├── navigation/AppNavigation.kt
     ├── screens/
     │   ├── filtro/FiltroScreen.kt
+    │   ├── home/HomeScreen.kt
     │   └── questao/QuestaoScreen.kt
     ├── state/UiState.kt
     ├── theme/
     │   ├── Color.kt (semantic brand colors)
     │   ├── Theme.kt (Material 3 color scheme)
     │   └── Type.kt (typography scale)
-    └── viewmodel/QuestaoViewModel.kt
+    └── viewmodel/
+        ├── HomeViewModel.kt
+        └── QuestaoViewModel.kt
 ```
 
 ## Backend API
@@ -70,6 +73,7 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - Theme wraps app via `OConcurseiroTheme` in MainActivity
 
 ## Key Patterns
+- **Home screen**: HomeScreen loads stats (total questions, disciplinas, bancas, instituicoes counts) via HomeViewModel on startup; questions are only loaded when user navigates to QuestaoScreen
 - **Shared ViewModel**: QuestaoViewModel is created at AppNavigation level and shared between QuestaoScreen and FiltroScreen
 - **Catalog-based filtering**: FiltroScreen uses DropdownSelector components backed by catalog data from backend API (disciplinas, bancas, instituicoes, assuntos)
 - **Reactive catalog loading**: LaunchedEffect restores selections when catalog data arrives asynchronously
