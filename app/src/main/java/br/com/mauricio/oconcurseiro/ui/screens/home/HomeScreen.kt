@@ -1,30 +1,38 @@
 package br.com.mauricio.oconcurseiro.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountBalance
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.FilterList
-import androidx.compose.material.icons.outlined.MenuBook
-import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Quiz
-import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
+import androidx.compose.foundation.Canvas
 
 @Composable
 fun HomeScreen(
@@ -37,15 +45,12 @@ fun HomeScreen(
             .fillMaxSize()
             .background(SurfaceBackground)
     ) {
-        HomeHeader()
-
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
         ) {
-            Spacer(Modifier.height(24.dp))
+            HomeHeader()
 
             if (viewModel.isLoading) {
                 Box(
@@ -62,13 +67,37 @@ fun HomeScreen(
                     onRetry = { viewModel.carregarEstatisticas() }
                 )
             } else {
-                StatsSection(viewModel)
-                Spacer(Modifier.height(28.dp))
-                ActionsSection(onStartPractice, onOpenFilters)
-            }
+                ResolverQuestoesCard(onStartPractice)
 
-            Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(6.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Segmento: Concursos Públicos",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                ContinueSection(viewModel, onOpenFilters, onStartPractice)
+
+                Spacer(Modifier.height(20.dp))
+
+                DesempenhoSection()
+
+                Spacer(Modifier.height(24.dp))
+            }
         }
+
+        BottomNavBar(onOpenFilters)
     }
 }
 
@@ -79,124 +108,179 @@ private fun HomeHeader() {
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(BrandOrange, BrandOrange.copy(alpha = 0.85f))
+                    colors = listOf(BrandOrange, BrandOrange.copy(alpha = 0.88f))
                 )
             )
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-            .padding(horizontal = 20.dp, vertical = 24.dp)
+            .padding(horizontal = 20.dp)
+            .padding(top = 18.dp, bottom = 22.dp)
     ) {
-        Column {
-            Text(
-                text = "O Concurseiro",
-                color = TextOnBrand,
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = "Sua preparação começa aqui",
-                color = TextOnBrand.copy(alpha = 0.85f),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-@Composable
-private fun StatsSection(viewModel: HomeViewModel) {
-    Text(
-        text = "Banco de Questões",
-        style = MaterialTheme.typography.titleSmall,
-        color = TextPrimary
-    )
-
-    Spacer(Modifier.height(14.dp))
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        StatCard(
-            icon = Icons.Outlined.Quiz,
-            value = formatNumber(viewModel.totalQuestoes),
-            label = "Questões",
-            modifier = Modifier.weight(1f)
-        )
-        StatCard(
-            icon = Icons.Outlined.MenuBook,
-            value = viewModel.totalDisciplinas.toString(),
-            label = "Disciplinas",
-            modifier = Modifier.weight(1f)
-        )
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        StatCard(
-            icon = Icons.Outlined.School,
-            value = viewModel.totalBancas.toString(),
-            label = "Bancas",
-            modifier = Modifier.weight(1f)
-        )
-        StatCard(
-            icon = Icons.Outlined.AccountBalance,
-            value = viewModel.totalInstituicoes.toString(),
-            label = "Instituições",
-            modifier = Modifier.weight(1f)
+        Text(
+            text = "Olá, Concurseiro!",
+            color = TextOnBrand,
+            style = MaterialTheme.typography.headlineLarge
         )
     }
 }
 
 @Composable
-private fun StatCard(
-    icon: ImageVector,
-    value: String,
-    label: String,
-    modifier: Modifier = Modifier
-) {
+private fun ResolverQuestoesCard(onClick: () -> Unit) {
     Surface(
-        modifier = modifier,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .offset(y = (-14).dp),
         shape = RoundedCornerShape(16.dp),
         color = SurfaceWhite,
-        shadowElevation = 1.dp
+        shadowElevation = 4.dp,
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 18.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(46.dp)
                     .clip(CircleShape)
                     .background(BrandOrangeBackground),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = icon,
+                    imageVector = Icons.Outlined.Quiz,
                     contentDescription = null,
                     tint = BrandOrange,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(14.dp))
 
-            Column {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Bold
+            Text(
+                text = "Resolver questões",
+                style = MaterialTheme.typography.titleSmall,
+                color = TextPrimary,
+                modifier = Modifier.weight(1f)
+            )
+
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = TextPlaceholder,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContinueSection(
+    viewModel: HomeViewModel,
+    onOpenFilters: () -> Unit,
+    onStartPractice: () -> Unit
+) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Continue de onde parou",
+                style = MaterialTheme.typography.titleSmall,
+                color = TextPrimary
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(BrandOrangeBackground)
+                    .clickable { onOpenFilters() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.GridView,
+                    contentDescription = null,
+                    tint = BrandOrange,
+                    modifier = Modifier.size(20.dp)
                 )
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
+            }
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.FilterList,
+                contentDescription = null,
+                tint = TextSecondary,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = "Último filtro acessado",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = SurfaceWhite,
+            shadowElevation = 1.dp,
+            onClick = onStartPractice
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(SurfaceCard),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+                Spacer(Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Todas as questões",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "${formatNumber(viewModel.totalQuestoes)} Questões disponíveis",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                }
+
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = TextPlaceholder,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -204,63 +288,201 @@ private fun StatCard(
 }
 
 @Composable
-private fun ActionsSection(
-    onStartPractice: () -> Unit,
-    onOpenFilters: () -> Unit
-) {
-    Text(
-        text = "Comece agora",
-        style = MaterialTheme.typography.titleSmall,
-        color = TextPrimary
-    )
-
-    Spacer(Modifier.height(14.dp))
-
-    Button(
-        onClick = onStartPractice,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.PlayArrow,
-            contentDescription = null,
-            tint = TextOnBrand,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(Modifier.width(10.dp))
+private fun DesempenhoSection() {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = "Praticar Questões",
-            color = TextOnBrand,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold
+            text = "Acompanhe seu desempenho",
+            style = MaterialTheme.typography.titleSmall,
+            color = TextPrimary
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = SurfaceWhite,
+            shadowElevation = 1.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PercentageCircle(percentage = 0)
+
+                    Spacer(Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = "Últimos 7 dias",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Row {
+                            Text(
+                                text = "Resolvidas: 0",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextSecondary
+                            )
+                            Text(
+                                text = "  •  ",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextPlaceholder
+                            )
+                            Text(
+                                text = "Certas: 0",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = SuccessBorder
+                            )
+                            Text(
+                                text = "  •  ",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextPlaceholder
+                            )
+                            Text(
+                                text = "Erradas: 0",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = ErrorBorder
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    text = "Comece a resolver questões para ver seu desempenho",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextPlaceholder,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PercentageCircle(percentage: Int) {
+    val progressColor = if (percentage > 0) SuccessBorder else TextPlaceholder
+    val bgColor = BorderDefault
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(60.dp)
+    ) {
+        Canvas(modifier = Modifier.size(60.dp)) {
+            drawArc(
+                color = bgColor,
+                startAngle = -90f,
+                sweepAngle = 360f,
+                useCenter = false,
+                style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
+            )
+            if (percentage > 0) {
+                drawArc(
+                    color = progressColor,
+                    startAngle = -90f,
+                    sweepAngle = 360f * percentage / 100f,
+                    useCenter = false,
+                    style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
+                )
+            }
+        }
+        Text(
+            text = "$percentage%",
+            style = MaterialTheme.typography.labelMedium,
+            color = progressColor,
+            fontWeight = FontWeight.Bold
         )
     }
+}
 
-    Spacer(Modifier.height(12.dp))
+@Composable
+private fun BottomNavBar(onOpenFilters: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = SurfaceWhite,
+        shadowElevation = 8.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    bottom = WindowInsets.navigationBars
+                        .asPaddingValues()
+                        .calculateBottomPadding()
+                )
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BottomNavItem(
+                icon = Icons.Filled.Home,
+                label = "Painel",
+                selected = true,
+                onClick = { }
+            )
+            BottomNavItem(
+                icon = Icons.Filled.BarChart,
+                label = "Desempenho",
+                selected = false,
+                onClick = { }
+            )
+            BottomNavItem(
+                icon = Icons.Filled.FilterList,
+                label = "Filtros",
+                selected = false,
+                onClick = onOpenFilters
+            )
+            BottomNavItem(
+                icon = Icons.Outlined.EmojiEvents,
+                label = "Desafios",
+                selected = false,
+                onClick = { }
+            )
+            BottomNavItem(
+                icon = Icons.AutoMirrored.Filled.MenuBook,
+                label = "Cursos",
+                selected = false,
+                onClick = { }
+            )
+        }
+    }
+}
 
-    OutlinedButton(
-        onClick = onOpenFilters,
+@Composable
+private fun BottomNavItem(
+    icon: ImageVector,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(16.dp),
-        border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         Icon(
-            imageVector = Icons.Outlined.FilterList,
-            contentDescription = null,
-            tint = BrandOrange,
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (selected) BrandOrange else TextPlaceholder,
             modifier = Modifier.size(24.dp)
         )
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.height(2.dp))
         Text(
-            text = "Filtrar e Praticar",
-            color = BrandOrange,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (selected) BrandOrange else TextPlaceholder,
+            fontSize = 11.sp
         )
     }
 }
@@ -271,7 +493,9 @@ private fun ErrorCard(
     onRetry: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 16.dp),
         shape = RoundedCornerShape(16.dp),
         color = ErrorBg
     ) {
@@ -302,8 +526,8 @@ private fun ErrorCard(
 
 private fun formatNumber(value: Long): String {
     return when {
-        value >= 1_000_000 -> String.format("%.1fM", value / 1_000_000.0)
-        value >= 1_000 -> String.format("%.1fK", value / 1_000.0)
+        value >= 1_000_000 -> String.format("%,d", value)
+        value >= 1_000 -> String.format("%,d", value)
         else -> value.toString()
     }
 }
