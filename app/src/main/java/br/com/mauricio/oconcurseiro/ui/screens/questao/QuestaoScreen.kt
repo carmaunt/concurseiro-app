@@ -85,7 +85,12 @@ fun QuestaoScreen(
                     CorpoQuestao(questao)
                 }
 
-                RodapeQuestao()
+                RodapeQuestao(
+                    podeAnterior = viewModel.paginaAtual > 0,
+                    podeProximo = viewModel.paginaAtual < ((viewModel.totalQuestoes - 1) / 1),
+                    onAnterior = { viewModel.anterior(filtro) },
+                    onProximo = { viewModel.proxima(filtro) }
+                )
             }
         }
     }
@@ -334,7 +339,15 @@ fun Alternativa(
 }
 
 @Composable
-fun RodapeQuestao() {
+fun RodapeQuestao(
+    podeAnterior: Boolean,
+    podeProximo: Boolean,
+    onAnterior: () -> Unit,
+    onProximo: () -> Unit
+) {
+    val corAtiva = Color(0xFF6B7280)
+    val corInativa = Color(0xFF6B7280).copy(alpha = 0.35f)
+
     Surface(
         shadowElevation = 8.dp,
         color = Color(0xFFF6F7FB)
@@ -350,11 +363,20 @@ fun RodapeQuestao() {
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "‹  Anterior",
-                color = Color(0xFF6B7280),
-                fontSize = 16.sp
-            )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (podeAnterior) Color.Transparent else Color(0xFFE5E7EB))
+                    .clickable(enabled = podeAnterior) { onAnterior() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "‹  Anterior",
+                    color = if (podeAnterior) Color(0xFF6B7280) else Color(0xFF9CA3AF),
+                    fontSize = 16.sp,
+                    fontWeight = if (podeAnterior) FontWeight.SemiBold else FontWeight.Medium
+                )
+            }
 
             Spacer(Modifier.weight(1f))
 
@@ -373,11 +395,20 @@ fun RodapeQuestao() {
 
             Spacer(Modifier.weight(1f))
 
-            Text(
-                text = "Próximo  ›",
-                color = Color(0xFF6B7280),
-                fontSize = 16.sp
-            )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (podeProximo) Color.Transparent else Color(0xFFE5E7EB))
+                    .clickable(enabled = podeProximo) { onProximo() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Próximo  ›",
+                    color = if (podeProximo) Color(0xFF6B7280) else Color(0xFF9CA3AF),
+                    fontSize = 16.sp,
+                    fontWeight = if (podeProximo) FontWeight.SemiBold else FontWeight.Medium
+                )
+            }
         }
     }
 }

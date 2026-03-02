@@ -30,6 +30,9 @@ class QuestaoViewModel : ViewModel() {
     var totalQuestoes: Int by mutableStateOf(0)
         private set
 
+    var paginaAtual: Int by mutableStateOf(0)
+        private set
+
     init {
         carregarQuestao(FiltroParams())
     }
@@ -41,7 +44,7 @@ class QuestaoViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val resp = repository.buscarPagina(
-                    page = 0,
+                    page = paginaAtual,
                     size = 1,
                     texto = filtro.texto,
                     disciplina = filtro.disciplina,
@@ -59,7 +62,7 @@ class QuestaoViewModel : ViewModel() {
                     erro = "Nenhuma questão encontrada para esse filtro."
                     totalQuestoes = 0
                 } else {
-                    numeroAtual = 1
+                    numeroAtual = paginaAtual+1
                 }
 
             } catch (e: Exception) {
@@ -68,6 +71,21 @@ class QuestaoViewModel : ViewModel() {
             } finally {
                 isLoading = false
             }
+        }
+    }
+
+    fun proxima(filtro: FiltroParams = FiltroParams()) {
+        val ultimaPagina = if (totalQuestoes == 0) 0 else (totalQuestoes - 1) / 1
+        if (paginaAtual < ultimaPagina) {
+            paginaAtual++
+            carregarQuestao(filtro)
+        }
+    }
+
+    fun anterior(filtro: FiltroParams = FiltroParams()) {
+        if (paginaAtual > 0) {
+            paginaAtual--
+            carregarQuestao(filtro)
         }
     }
 }

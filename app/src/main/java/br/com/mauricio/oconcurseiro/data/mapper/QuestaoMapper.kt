@@ -7,6 +7,14 @@ import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
 object QuestaoMapper {
 
     fun fromDto(dto: QuestaoDto): Questao {
+
+        val alternativas = parseAlternativas(dto.alternativas).toMutableList()
+
+        if (dto.modalidade.equals("CERTO_ERRADO", ignoreCase = true) && alternativas.isEmpty()) {
+            alternativas.add(Alternativa(letra = "C", texto = "Certo"))
+            alternativas.add(Alternativa(letra = "E", texto = "Errado"))
+        }
+
         return Questao(
             id = dto.idQuestion,
             disciplina = dto.disciplina,
@@ -17,7 +25,7 @@ object QuestaoMapper {
             enunciado = dto.enunciado,
             questao = dto.questao,
             gabarito = dto.gabarito,
-            alternativas = parseAlternativas(dto.alternativas)
+            alternativas = alternativas
         )
     }
 
