@@ -1,6 +1,5 @@
 package br.com.mauricio.oconcurseiro.data.remote
 
-import br.com.mauricio.oconcurseiro.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val BASE_URL = BuildConfig.BASE_URL
+    private const val BASE_URL = "http://192.168.10.20:8080/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
