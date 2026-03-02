@@ -49,6 +49,12 @@ class QuestaoViewModel : ViewModel() {
     var assuntos: List<CatalogoItem> by mutableStateOf(emptyList())
         private set
 
+    var subassuntos: List<CatalogoItem> by mutableStateOf(emptyList())
+        private set
+
+    var catalogosCarregando: Boolean by mutableStateOf(true)
+        private set
+
     init {
         carregarQuestao(FiltroParams())
         carregarCatalogos()
@@ -110,20 +116,31 @@ class QuestaoViewModel : ViewModel() {
     }
 
     private fun carregarCatalogos() {
+        catalogosCarregando = true
+        var pendentes = 3
+
+        fun verificarCompleto() {
+            pendentes--
+            if (pendentes <= 0) catalogosCarregando = false
+        }
+
         viewModelScope.launch {
             try {
                 disciplinas = repository.listarDisciplinas().map { QuestaoMapper.catalogoFromDto(it) }
             } catch (_: Exception) { }
+            verificarCompleto()
         }
         viewModelScope.launch {
             try {
                 bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
             } catch (_: Exception) { }
+            verificarCompleto()
         }
         viewModelScope.launch {
             try {
                 instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
             } catch (_: Exception) { }
+            verificarCompleto()
         }
     }
 
@@ -134,6 +151,22 @@ class QuestaoViewModel : ViewModel() {
                     .map { QuestaoMapper.catalogoFromDto(it) }
             } catch (_: Exception) {
                 assuntos = emptyList()
+            }
+        }
+    }
+
+    fun limparAssuntos() {
+        assuntos = emptyList()
+        subassuntos = emptyList()
+    }
+
+    fun carregarSubAssuntos(assuntoId: Long) {
+        viewModelScope.launch {
+            try {
+                subassuntos = repository.listarSubAssuntos(assuntoId)
+                    .map { QuestaoMapper.catalogoFromDto(it) }
+            } catch (_: Exception) {
+                subassuntos = emptyList()
             }
         }
     }

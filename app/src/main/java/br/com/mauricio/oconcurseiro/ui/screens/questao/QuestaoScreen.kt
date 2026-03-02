@@ -22,22 +22,12 @@ import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 
 @Composable
 fun QuestaoScreen(
-    filtro: FiltroParams,
-    numeroAtual: Int,
-    totalQuestoes: Int,
+    viewModel: QuestaoViewModel,
     onOpenFiltro: () -> Unit
 ) {
-    val viewModel: QuestaoViewModel = viewModel()
-
-    LaunchedEffect(filtro) {
-        viewModel.carregarQuestao(filtro)
-    }
-
     val questao = viewModel.questao
     val isLoading = viewModel.isLoading
     val erro = viewModel.erro
@@ -88,8 +78,8 @@ fun QuestaoScreen(
                 RodapeQuestao(
                     podeAnterior = viewModel.paginaAtual > 0,
                     podeProximo = viewModel.paginaAtual < ((viewModel.totalQuestoes - 1) / 1),
-                    onAnterior = { viewModel.anterior(filtro) },
-                    onProximo = { viewModel.proxima(filtro) }
+                    onAnterior = { viewModel.anterior() },
+                    onProximo = { viewModel.proxima() }
                 )
             }
         }

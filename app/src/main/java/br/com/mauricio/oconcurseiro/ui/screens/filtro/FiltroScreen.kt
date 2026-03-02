@@ -17,29 +17,75 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
+import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
 
 @Composable
 fun FiltroScreen(
-    filtroAtual: FiltroParams = FiltroParams(),
+    viewModel: QuestaoViewModel,
     onBack: () -> Unit,
     onAplicarFiltro: (FiltroParams) -> Unit
 ) {
+    val filtroAtual = viewModel.filtroAtual
+    val catalogosCarregando = viewModel.catalogosCarregando
 
     var tab by remember { mutableIntStateOf(0) }
     var keyword by remember { mutableStateOf(filtroAtual.texto ?: "") }
-    var disciplina by remember { mutableStateOf(filtroAtual.disciplina ?: "") }
-    var assunto by remember { mutableStateOf(filtroAtual.assunto ?: "") }
-    var banca by remember { mutableStateOf(filtroAtual.banca ?: "") }
-    var instituicao by remember { mutableStateOf(filtroAtual.instituicao ?: "") }
+
+    var disciplinaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
+    var assuntoSelecionado by remember { mutableStateOf<CatalogoItem?>(null) }
+    var bancaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
+    var instituicaoSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
+
     var cargo by remember { mutableStateOf(filtroAtual.cargo ?: "") }
     var nivel by remember { mutableStateOf(filtroAtual.nivel ?: "") }
     var modalidade by remember { mutableStateOf(filtroAtual.modalidade ?: "") }
     var anoSelecionado by remember { mutableStateOf(filtroAtual.ano) }
     val scroll = rememberScrollState()
+
+    var disciplinaRestaurada by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewModel.disciplinas) {
+        if (!disciplinaRestaurada && viewModel.disciplinas.isNotEmpty() && filtroAtual.disciplinaId != null) {
+            disciplinaSelecionada = viewModel.disciplinas.find { it.id == filtroAtual.disciplinaId }
+            disciplinaRestaurada = true
+        }
+    }
+
+    LaunchedEffect(viewModel.bancas) {
+        if (viewModel.bancas.isNotEmpty() && filtroAtual.bancaId != null && bancaSelecionada == null) {
+            bancaSelecionada = viewModel.bancas.find { it.id == filtroAtual.bancaId }
+        }
+    }
+
+    LaunchedEffect(viewModel.instituicoes) {
+        if (viewModel.instituicoes.isNotEmpty() && filtroAtual.instituicaoId != null && instituicaoSelecionada == null) {
+            instituicaoSelecionada = viewModel.instituicoes.find { it.id == filtroAtual.instituicaoId }
+        }
+    }
+
+    LaunchedEffect(viewModel.assuntos) {
+        if (viewModel.assuntos.isNotEmpty() && filtroAtual.assuntoId != null && assuntoSelecionado == null) {
+            assuntoSelecionado = viewModel.assuntos.find { it.id == filtroAtual.assuntoId }
+        }
+    }
+
+    LaunchedEffect(disciplinaSelecionada) {
+        val id = disciplinaSelecionada?.id
+        if (id != null) {
+            viewModel.carregarAssuntosPorDisciplina(id)
+        } else {
+            viewModel.limparAssuntos()
+        }
+        if (disciplinaRestaurada) {
+            assuntoSelecionado = null
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -74,7 +120,6 @@ fun FiltroScreen(
                     .background(Color(0xFFF3F4F6))
                     .padding(4.dp)
             ) {
-
                 val bgSimples = if (tab == 0) Color(0xFFFFE7DD) else Color.Transparent
                 val fgSimples = if (tab == 0) Color(0xFFFF6A2A) else Color(0xFF6B7280)
 
@@ -108,9 +153,9 @@ fun FiltroScreen(
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(16.dp))
 
-            CampoFiltro(
+            CampoTexto(
                 valor = keyword,
                 placeholder = "Palavra-chave",
                 onValueChange = { keyword = it }
@@ -118,40 +163,52 @@ fun FiltroScreen(
 
             Spacer(Modifier.height(14.dp))
 
-            CampoFiltro(
-                valor = disciplina,
-                placeholder = "Disciplina",
-                onValueChange = { disciplina = it }
+            DropdownSelector(
+                label = "Disciplina",
+                itens = viewModel.disciplinas,
+                selecionado = disciplinaSelecionada,
+                onSelecionar = {
+                    disciplinaRestaurada = true
+                    disciplinaSelecionada = it
+                },
+                carregando = catalogosCarregando
             )
 
             Spacer(Modifier.height(14.dp))
 
-            CampoFiltro(
-                valor = assunto,
-                placeholder = "Assunto",
-                onValueChange = { assunto = it }
+            DropdownSelector(
+                label = "Assunto",
+                itens = viewModel.assuntos,
+                selecionado = assuntoSelecionado,
+                onSelecionar = { assuntoSelecionado = it },
+                enabled = disciplinaSelecionada != null,
+                placeholder = if (disciplinaSelecionada == null) "Selecione a disciplina primeiro" else "Selecione o assunto"
             )
 
             Spacer(Modifier.height(14.dp))
 
-            CampoFiltro(
-                valor = banca,
-                placeholder = "Banca",
-                onValueChange = { banca = it }
+            DropdownSelector(
+                label = "Banca",
+                itens = viewModel.bancas,
+                selecionado = bancaSelecionada,
+                onSelecionar = { bancaSelecionada = it },
+                carregando = catalogosCarregando
             )
 
             Spacer(Modifier.height(14.dp))
 
-            CampoFiltro(
-                valor = instituicao,
-                placeholder = "Instituição / Órgão",
-                onValueChange = { instituicao = it }
+            DropdownSelector(
+                label = "Instituição / Órgão",
+                itens = viewModel.instituicoes,
+                selecionado = instituicaoSelecionada,
+                onSelecionar = { instituicaoSelecionada = it },
+                carregando = catalogosCarregando
             )
 
             if (tab == 1) {
                 Spacer(Modifier.height(14.dp))
 
-                CampoFiltro(
+                CampoTexto(
                     valor = cargo,
                     placeholder = "Cargo",
                     onValueChange = { cargo = it }
@@ -159,7 +216,7 @@ fun FiltroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                CampoFiltro(
+                CampoTexto(
                     valor = nivel,
                     placeholder = "Nível",
                     onValueChange = { nivel = it }
@@ -167,7 +224,7 @@ fun FiltroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                CampoFiltro(
+                CampoTexto(
                     valor = modalidade,
                     placeholder = "Modalidade",
                     onValueChange = { modalidade = it }
@@ -237,10 +294,10 @@ fun FiltroScreen(
                 OutlinedButton(
                     onClick = {
                         keyword = ""
-                        disciplina = ""
-                        assunto = ""
-                        banca = ""
-                        instituicao = ""
+                        disciplinaSelecionada = null
+                        assuntoSelecionado = null
+                        bancaSelecionada = null
+                        instituicaoSelecionada = null
                         cargo = ""
                         nivel = ""
                         modalidade = ""
@@ -260,10 +317,14 @@ fun FiltroScreen(
                         onAplicarFiltro(
                             FiltroParams(
                                 texto = keyword.takeIf { it.isNotBlank() },
-                                disciplina = disciplina.takeIf { it.isNotBlank() },
-                                assunto = assunto.takeIf { it.isNotBlank() },
-                                banca = banca.takeIf { it.isNotBlank() },
-                                instituicao = instituicao.takeIf { it.isNotBlank() },
+                                disciplinaId = disciplinaSelecionada?.id,
+                                disciplina = disciplinaSelecionada?.nome,
+                                assuntoId = assuntoSelecionado?.id,
+                                assunto = assuntoSelecionado?.nome,
+                                bancaId = bancaSelecionada?.id,
+                                banca = bancaSelecionada?.nome,
+                                instituicaoId = instituicaoSelecionada?.id,
+                                instituicao = instituicaoSelecionada?.nome,
                                 ano = anoSelecionado,
                                 cargo = cargo.takeIf { it.isNotBlank() },
                                 nivel = nivel.takeIf { it.isNotBlank() },
@@ -285,34 +346,162 @@ fun FiltroScreen(
 }
 
 @Composable
-fun CampoFiltro(
+fun DropdownSelector(
+    label: String,
+    itens: List<CatalogoItem>,
+    selecionado: CatalogoItem?,
+    onSelecionar: (CatalogoItem?) -> Unit,
+    enabled: Boolean = true,
+    carregando: Boolean = false,
+    placeholder: String = "Selecione $label"
+) {
+    var expandido by remember { mutableStateOf(false) }
+    val isEnabled = enabled && !carregando
+    val alpha = if (isEnabled) 1f else 0.5f
+
+    Column {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF374151).copy(alpha = alpha),
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .border(
+                        1.dp,
+                        if (selecionado != null) Color(0xFFFF6A2A) else Color(0xFFE5E7EB),
+                        RoundedCornerShape(14.dp)
+                    )
+                    .background(if (selecionado != null) Color(0xFFFFF7F3) else Color.White)
+                    .clickable(enabled = isEnabled && itens.isNotEmpty()) { expandido = true }
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val displayText = when {
+                    selecionado != null -> selecionado.nome
+                    carregando -> "Carregando..."
+                    else -> placeholder
+                }
+
+                Text(
+                    text = displayText,
+                    fontSize = 16.sp,
+                    color = if (selecionado != null) Color(0xFF111827) else Color(0xFF9CA3AF).copy(alpha = alpha),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (selecionado != null) {
+                    Text(
+                        text = "✕",
+                        fontSize = 16.sp,
+                        color = Color(0xFF6B7280),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .clickable { onSelecionar(null) }
+                            .padding(4.dp)
+                    )
+                } else {
+                    Text(
+                        text = "▾",
+                        fontSize = 18.sp,
+                        color = Color(0xFF6B7280).copy(alpha = alpha)
+                    )
+                }
+            }
+
+            DropdownMenu(
+                expanded = expandido,
+                onDismissRequest = { expandido = false },
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .heightIn(max = 300.dp)
+            ) {
+                if (itens.isEmpty()) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                "Nenhum item disponível",
+                                color = Color(0xFF9CA3AF),
+                                fontSize = 14.sp
+                            )
+                        },
+                        onClick = { expandido = false }
+                    )
+                } else {
+                    itens.forEach { item ->
+                        val isSelected = selecionado?.id == item.id
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = item.nome,
+                                    fontSize = 15.sp,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                    color = if (isSelected) Color(0xFFFF6A2A) else Color(0xFF111827)
+                                )
+                            },
+                            onClick = {
+                                onSelecionar(item)
+                                expandido = false
+                            },
+                            modifier = Modifier.background(
+                                if (isSelected) Color(0xFFFFF7F3) else Color.Transparent
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CampoTexto(
     valor: String,
     placeholder: String,
     onValueChange: (String) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
-            .background(Color.White)
-            .padding(horizontal = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        BasicTextField(
-            value = valor,
-            onValueChange = onValueChange,
-            singleLine = true,
-            textStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF111827)),
-            modifier = Modifier.fillMaxWidth(),
-            decorationBox = { inner ->
-                if (valor.isBlank()) {
-                    Text(placeholder, color = Color(0xFF9CA3AF), fontSize = 16.sp)
-                }
-                inner()
-            }
+    Column {
+        Text(
+            text = placeholder,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF374151),
+            modifier = Modifier.padding(bottom = 6.dp)
         )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
+                .background(Color.White)
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BasicTextField(
+                value = valor,
+                onValueChange = onValueChange,
+                singleLine = true,
+                textStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF111827)),
+                modifier = Modifier.fillMaxWidth(),
+                decorationBox = { inner ->
+                    if (valor.isBlank()) {
+                        Text("Digite aqui...", color = Color(0xFF9CA3AF), fontSize = 16.sp)
+                    }
+                    inner()
+                }
+            )
+        }
     }
 }
 
@@ -356,37 +545,4 @@ fun ChipFiltro(texto: String) {
     ) {
         Text(texto, color = textColor, fontSize = 16.sp)
     }
-}
-
-@Composable
-fun LinhaFiltro(label: String, count: Int, enabled: Boolean) {
-    val alpha = if (enabled) 1f else 0.35f
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .clickable(enabled = enabled) { }
-            .padding(horizontal = 2.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(label, fontSize = 18.sp, color = Color(0xFF111827).copy(alpha = alpha))
-        Spacer(Modifier.weight(1f))
-
-        Box(
-            modifier = Modifier
-                .height(30.dp)
-                .clip(RoundedCornerShape(999.dp))
-                .background(Color(0xFFF3F4F6))
-                .padding(horizontal = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("$count", color = Color(0xFF6B7280), fontWeight = FontWeight.SemiBold)
-        }
-
-        Spacer(Modifier.width(10.dp))
-        Text("›", fontSize = 26.sp, color = Color(0xFF6B7280).copy(alpha = alpha))
-    }
-
-    HorizontalDivider(color = Color(0xFFE5E7EB))
 }

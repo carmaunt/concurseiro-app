@@ -57,6 +57,12 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - Base URL is configured in `RetrofitClient.kt` (currently `http://192.168.10.20:8080/`)
 - `usesCleartextTraffic=true` in AndroidManifest.xml for HTTP traffic
 
+## Key Patterns
+- **Shared ViewModel**: QuestaoViewModel is created at AppNavigation level and shared between QuestaoScreen and FiltroScreen
+- **Catalog-based filtering**: FiltroScreen uses DropdownSelector components backed by catalog data from backend API (disciplinas, bancas, instituicoes, assuntos)
+- **Reactive catalog loading**: LaunchedEffect restores selections when catalog data arrives asynchronously
+- **Cascading filters**: Selecting a disciplina triggers loading of related assuntos; clearing disciplina clears assuntos
+
 ## Notes
 - This is an Android project requiring Android SDK to build — cannot be compiled in Replit environment
 - Single Activity architecture with Compose navigation

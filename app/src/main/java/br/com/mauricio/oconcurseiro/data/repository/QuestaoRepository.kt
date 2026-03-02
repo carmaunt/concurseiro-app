@@ -52,4 +52,8 @@ class QuestaoRepository {
     suspend fun listarInstituicoes(): List<CatalogoItemDto> {
         return RetrofitClient.api.listarInstituicoes()
     }
+
+    suspend fun listarSubAssuntos(assuntoId: Long): List<CatalogoItemDto> {
+        return RetrofitClient.api.listarSubAssuntos(assuntoId)
+    }
 }
