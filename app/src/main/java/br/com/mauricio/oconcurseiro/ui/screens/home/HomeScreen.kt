@@ -91,7 +91,7 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                DesempenhoSection()
+                DesempenhoSection(viewModel)
 
                 Spacer(Modifier.height(24.dp))
             }
@@ -288,7 +288,7 @@ private fun ContinueSection(
 }
 
 @Composable
-private fun DesempenhoSection() {
+private fun DesempenhoSection(viewModel: HomeViewModel) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = "Acompanhe seu desempenho",
@@ -312,7 +312,7 @@ private fun DesempenhoSection() {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PercentageCircle(percentage = 0)
+                    PercentageCircle(percentage = viewModel.porcentagem7dias)
 
                     Spacer(Modifier.width(16.dp))
 
@@ -326,7 +326,7 @@ private fun DesempenhoSection() {
                         Spacer(Modifier.height(4.dp))
                         Row {
                             Text(
-                                text = "Resolvidas: 0",
+                                text = "Resolvidas: ${viewModel.resolvidas7dias}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = TextSecondary
                             )
@@ -336,7 +336,7 @@ private fun DesempenhoSection() {
                                 color = TextPlaceholder
                             )
                             Text(
-                                text = "Certas: 0",
+                                text = "Certas: ${viewModel.acertos7dias}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = SuccessBorder
                             )
@@ -346,7 +346,7 @@ private fun DesempenhoSection() {
                                 color = TextPlaceholder
                             )
                             Text(
-                                text = "Erradas: 0",
+                                text = "Erradas: ${viewModel.erros7dias}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = ErrorBorder
                             )
@@ -354,15 +354,17 @@ private fun DesempenhoSection() {
                     }
                 }
 
-                Spacer(Modifier.height(12.dp))
+                if (viewModel.resolvidas7dias == 0) {
+                    Spacer(Modifier.height(12.dp))
 
-                Text(
-                    text = "Comece a resolver questões para ver seu desempenho",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextPlaceholder,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+                    Text(
+                        text = "Comece a resolver questões para ver seu desempenho",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextPlaceholder,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

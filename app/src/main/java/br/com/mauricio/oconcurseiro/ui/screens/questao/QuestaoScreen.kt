@@ -160,7 +160,18 @@ fun QuestaoScreen(
                         .weight(1f)
                         .fillMaxWidth()
                 ) {
-                    CorpoQuestao(questao)
+                    CorpoQuestao(
+                        questao = questao,
+                        onResolver = { respostaSelecionada, acertou ->
+                            viewModel.salvarResposta(
+                                questaoId = questao.id,
+                                disciplina = questao.disciplina,
+                                respostaSelecionada = respostaSelecionada,
+                                gabarito = questao.gabarito,
+                                acertou = acertou
+                            )
+                        }
+                    )
                 }
 
                 RodapeQuestao(
@@ -226,7 +237,10 @@ fun TopoResumoQuestao(
 }
 
 @Composable
-fun CorpoQuestao(questao: Questao) {
+fun CorpoQuestao(
+    questao: Questao,
+    onResolver: (respostaSelecionada: String, acertou: Boolean) -> Unit = { _, _ -> }
+) {
     var selecionada by remember(questao.id) { mutableIntStateOf(-1) }
     var resolvida by remember(questao.id) { mutableStateOf(false) }
 
@@ -321,7 +335,14 @@ fun CorpoQuestao(questao: Questao) {
         Spacer(Modifier.height(12.dp))
 
         Button(
-            onClick = { resolvida = true },
+            onClick = {
+                resolvida = true
+                if (selecionada >= 0 && selecionada < questao.alternativas.size) {
+                    val letraSelecionada = questao.alternativas[selecionada].letra
+                    val acertou = letraSelecionada.equals(questao.gabarito, ignoreCase = true)
+                    onResolver(letraSelecionada, acertou)
+                }
+            },
             enabled = selecionada != -1 && !resolvida,
             modifier = Modifier
                 .fillMaxWidth()

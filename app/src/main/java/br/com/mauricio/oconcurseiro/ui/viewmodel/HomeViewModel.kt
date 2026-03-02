@@ -1,19 +1,23 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.mauricio.oconcurseiro.data.local.AppDatabase
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = QuestaoRepository()
+    private val respostaDao = AppDatabase.getInstance(application).respostaDao()
 
     var totalQuestoes: Long by mutableStateOf(0L)
         private set
@@ -35,6 +39,24 @@ class HomeViewModel : ViewModel() {
 
     var statsCarregadas: Boolean by mutableStateOf(false)
         private set
+
+    var resolvidas7dias: Int by mutableIntStateOf(0)
+        private set
+
+    var acertos7dias: Int by mutableIntStateOf(0)
+        private set
+
+    var erros7dias: Int by mutableIntStateOf(0)
+        private set
+
+    var totalResolvidas: Int by mutableIntStateOf(0)
+        private set
+
+    var totalAcertos: Int by mutableIntStateOf(0)
+        private set
+
+    val porcentagem7dias: Int
+        get() = if (resolvidas7dias > 0) (acertos7dias * 100) / resolvidas7dias else 0
 
     init {
         carregarEstatisticas()
@@ -71,10 +93,17 @@ class HomeViewModel : ViewModel() {
                     } catch (_: Exception) { }
                 }
 
+                val historicoJob = launch {
+                    try {
+                        carregarDesempenho()
+                    } catch (_: Exception) { }
+                }
+
                 questoesJob.join()
                 disciplinasJob.join()
                 bancasJob.join()
                 instituicoesJob.join()
+                historicoJob.join()
 
                 statsCarregadas = totalQuestoes > 0 || totalDisciplinas > 0 || totalBancas > 0 || totalInstituicoes > 0
 
@@ -91,5 +120,24 @@ class HomeViewModel : ViewModel() {
                 isLoading = false
             }
         }
+    }
+
+    fun atualizarDesempenho() {
+        viewModelScope.launch {
+            try {
+                carregarDesempenho()
+            } catch (_: Exception) { }
+        }
+    }
+
+    private suspend fun carregarDesempenho() {
+        val seteDiasAtras = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
+
+        resolvidas7dias = respostaDao.totalRespostasDesde(seteDiasAtras)
+        acertos7dias = respostaDao.totalAcertosDesde(seteDiasAtras)
+        erros7dias = respostaDao.totalErrosDesde(seteDiasAtras)
+
+        totalResolvidas = respostaDao.totalRespostas()
+        totalAcertos = respostaDao.totalAcertos()
     }
 }

@@ -43,7 +43,10 @@ fun AppNavigation() {
             QuestaoScreen(
                 viewModel = questaoViewModel,
                 onOpenFiltro = { currentScreen = Screen.Filtro },
-                onBack = { currentScreen = Screen.Home }
+                onBack = {
+                    homeViewModel.atualizarDesempenho()
+                    currentScreen = Screen.Home
+                }
             )
         }
 

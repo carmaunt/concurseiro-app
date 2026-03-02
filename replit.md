@@ -7,6 +7,7 @@ Native Android application for Brazilian public examination (concursos públicos
 - **Language**: Kotlin 2.0.21
 - **UI**: Jetpack Compose with Material 3
 - **Networking**: Retrofit 3.0.0 + OkHttp 5.3.2
+- **Local DB**: Room 2.6.1 (with KSP 2.0.21-1.0.28)
 - **JSON**: Gson
 - **Build**: Gradle (Kotlin DSL) with Version Catalogs
 - **Min SDK**: 24 (Android 7.0) / **Target SDK**: 36
@@ -22,6 +23,10 @@ MVVM pattern with Clean Architecture inspiration:
 app/src/main/java/br/com/mauricio/oconcurseiro/
 ├── MainActivity.kt
 ├── data/
+│   ├── local/
+│   │   ├── AppDatabase.kt (Room singleton)
+│   │   ├── RespostaDao.kt (DAO + DesempenhoStats)
+│   │   └── RespostaEntity.kt (answer history entity)
 │   ├── mapper/QuestaoMapper.kt
 │   ├── model/
 │   │   ├── FiltroParams.kt
@@ -73,7 +78,8 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - Theme wraps app via `OConcurseiroTheme` in MainActivity
 
 ## Key Patterns
-- **Home screen**: HomeScreen loads stats (total questions, disciplinas, bancas, instituicoes counts) via HomeViewModel on startup; questions are only loaded when user navigates to QuestaoScreen
+- **Home screen**: HomeScreen loads stats (total questions, disciplinas, bancas, instituicoes counts) and local performance data (last 7 days) via HomeViewModel on startup; stats refresh when returning from questions
+- **Answer history**: When user taps "Resolver", the answer is saved to Room DB (questaoId, disciplina, acertou, respostaSelecionada, gabarito, timestamp). Performance stats on Home screen reflect real data.
 - **Shared ViewModel**: QuestaoViewModel is created at AppNavigation level and shared between QuestaoScreen and FiltroScreen
 - **Catalog-based filtering**: FiltroScreen uses DropdownSelector components backed by catalog data from backend API (disciplinas, bancas, instituicoes, assuntos)
 - **Reactive catalog loading**: LaunchedEffect restores selections when catalog data arrives asynchronously
@@ -88,4 +94,5 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 ## Notes
 - This is an Android project requiring Android SDK to build — cannot be compiled in Replit environment
 - Single Activity architecture with Compose navigation
-- No local database (Room) — relies entirely on remote API
+- Both ViewModels use AndroidViewModel for database access (Application context)
+- Room database `concurseiro.db` stores answer history locally

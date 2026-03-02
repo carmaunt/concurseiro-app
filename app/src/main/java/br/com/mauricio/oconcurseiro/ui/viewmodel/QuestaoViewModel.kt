@@ -1,10 +1,13 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.mauricio.oconcurseiro.data.local.AppDatabase
+import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
 import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.model.Questao
@@ -16,9 +19,10 @@ import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-class QuestaoViewModel : ViewModel() {
+class QuestaoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = QuestaoRepository()
+    private val respostaDao = AppDatabase.getInstance(application).respostaDao()
 
     var questao: Questao? by mutableStateOf(null)
         private set
@@ -120,6 +124,22 @@ class QuestaoViewModel : ViewModel() {
             } finally {
                 isLoading = false
             }
+        }
+    }
+
+    fun salvarResposta(questaoId: String, disciplina: String, respostaSelecionada: String, gabarito: String, acertou: Boolean) {
+        viewModelScope.launch {
+            try {
+                respostaDao.inserir(
+                    RespostaEntity(
+                        questaoId = questaoId,
+                        disciplina = disciplina,
+                        acertou = acertou,
+                        respostaSelecionada = respostaSelecionada,
+                        gabarito = gabarito
+                    )
+                )
+            } catch (_: Exception) { }
         }
     }
 
