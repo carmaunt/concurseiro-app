@@ -32,31 +32,31 @@ class QuestaoRepository {
             cargo = filtro.cargo,
             nivel = filtro.nivel,
             modalidade = filtro.modalidade
-        )
+        ).data
     }
 
     suspend fun buscarQuestao(idQuestion: String): QuestaoDto {
-        return RetrofitClient.api.buscarQuestao(idQuestion)
+        return RetrofitClient.api.buscarQuestao(idQuestion).data
     }
 
     suspend fun listarDisciplinas(): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarDisciplinas()
+        return RetrofitClient.api.listarDisciplinas().data
     }
 
     suspend fun listarAssuntosPorDisciplina(disciplinaId: Long): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarAssuntosPorDisciplina(disciplinaId)
+        return RetrofitClient.api.listarAssuntosPorDisciplina(disciplinaId).data
     }
 
     suspend fun listarBancas(): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarBancas()
+        return RetrofitClient.api.listarBancas().data
     }
 
     suspend fun listarInstituicoes(): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarInstituicoes()
+        return RetrofitClient.api.listarInstituicoes().data
     }
 
     suspend fun listarSubAssuntos(assuntoId: Long): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarSubAssuntos(assuntoId)
+        return RetrofitClient.api.listarSubAssuntos(assuntoId).data
     }
 
     suspend fun listarComentarios(
@@ -65,7 +65,7 @@ class QuestaoRepository {
         size: Int = 20,
         ordenar: String = "curtidas"
     ): PageResponse<ComentarioResponseDto> {
-        return RetrofitClient.api.listarComentarios(questaoId, page, size, ordenar)
+        return RetrofitClient.api.listarComentarios(questaoId, page, size, ordenar).data
     }
 
     suspend fun criarComentario(
@@ -73,14 +73,14 @@ class QuestaoRepository {
         autor: String,
         texto: String
     ): ComentarioResponseDto {
-        return RetrofitClient.api.criarComentario(questaoId, ComentarioRequestDto(autor, texto))
+        return RetrofitClient.api.criarComentario(questaoId, ComentarioRequestDto(autor, texto)).data
     }
 
     suspend fun curtirComentario(id: Long): ComentarioResponseDto {
-        return RetrofitClient.api.curtirComentario(id)
+        return RetrofitClient.api.curtirComentario(id).data
     }
 
     suspend fun descurtirComentario(id: Long): ComentarioResponseDto {
-        return RetrofitClient.api.descurtirComentario(id)
+        return RetrofitClient.api.descurtirComentario(id).data
     }
 }

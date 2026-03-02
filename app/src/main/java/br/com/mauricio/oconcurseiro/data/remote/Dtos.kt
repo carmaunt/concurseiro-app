@@ -1,5 +1,12 @@
 package br.com.mauricio.oconcurseiro.data.remote
 
+data class ApiResponse<T>(
+    val success: Boolean,
+    val data: T,
+    val timestamp: String? = null,
+    val path: String? = null
+)
+
 data class PageResponse<T>(
     val content: List<T>,
     val number: Int,

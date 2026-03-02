@@ -1,0 +1,241 @@
+--------- beginning of main
+2026-03-02 15:52:47.529 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/questoes?page=0&size=1&sort=criadoEm%2Cdesc
+2026-03-02 15:52:47.529 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:47.530 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/disciplinas
+2026-03-02 15:52:47.530 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:47.531 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/bancas
+2026-03-02 15:52:47.531 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:47.532 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/instituicoes
+2026-03-02 15:52:47.532 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:47.618 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/bancas (86ms)
+2026-03-02 15:52:47.618 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:47.618 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/instituicoes (85ms)
+2026-03-02 15:52:47.618 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:47.618 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:47.618 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:47.619 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:47.619 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:47.619 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:47.619 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:47.619 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:47.619 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:47.619 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:47.619 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:47.619 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:47.619 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:47.620 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:47.620 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:47.620 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:47.620 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:47.620 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:48 GMT
+2026-03-02 15:52:47.620 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:47.620 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:47.620 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:47.620 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:47.620 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:47.621 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:47.621 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:48 GMT
+2026-03-02 15:52:47.621 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:47.621 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:47.623 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:47.623 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":1,"nome":"PC-BA"},{"id":2,"nome":"TRT-BA"}],"timestamp":"2026-03-02T15:52:48.392867619-03:00","path":"/api/v1/catalogo/instituicoes"}
+2026-03-02 15:52:47.623 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (89ms, 163-byte body)
+2026-03-02 15:52:47.624 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:47.625 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":1,"nome":"CEBRASPE"},{"id":2,"nome":"FGV"}],"timestamp":"2026-03-02T15:52:48.39194147-03:00","path":"/api/v1/catalogo/bancas"}
+2026-03-02 15:52:47.625 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (91ms, 156-byte body)
+2026-03-02 15:52:47.625 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/disciplinas (94ms)
+2026-03-02 15:52:47.626 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/questoes?page=0&size=1&sort=criadoEm%2Cdesc (95ms)
+2026-03-02 15:52:47.626 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:47.626 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:47.626 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:47.626 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:47.626 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:47.627 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:47.627 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:47.627 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:47.627 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:47.627 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:47.627 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:47.627 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:47.628 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:47.628 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:47.628 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:47.628 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:47.628 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:47.628 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:47.628 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:47.628 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:47.628 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:48 GMT
+2026-03-02 15:52:47.628 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:47.629 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:47.629 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:48 GMT
+2026-03-02 15:52:47.629 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:47.630 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:47.630 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:47.630 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:47.632 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:47.632 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:47.633 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":{"content":[{"idQuestion":"Q28E21CD2AE45463","enunciado":"A Constituição Federal de 1988 estabelece um conjunto de direitos e garantias fundamentais que possuem aplicação imediata.","questao":"Considerando os direitos fundamentais previstos na Constituição Federal, assinale a alternativa correta.","alternativas":"A) Os direitos fundamentais dependem de regulamentação para terem validade.\nB) Os direitos fundamentais possuem aplicação imediata.\nC) Os direitos fundamentais não vinculam o Poder Judiciário.\nD) Apenas brasileiros natos possuem direitos fundamentais.\nE) Os direitos fundamentais podem ser abolidos por emenda constitucional.","disciplina":"Direito Constitucional","disciplinaId":null,"assunto":"Direitos Fundamentais","assuntoId":null,"banca":"CEBRASPE","bancaId":null,"instituicao":"PC-BA","instituicaoId":1,"ano":2026,"cargo":"Agente de Polícia","nivel":"Superior","modalidade":"A_E","gabarito":"B","criadoEm":"2026-02-27T02:05:12.098253Z"}],"page":{"size":1,"number":0,"totalElements":13,"totalPages":13}},"timestamp":"2026-03-02T15:52:48.402030387-03:00","path":"/api/v1/questoes"}
+2026-03-02 15:52:47.633 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (101ms, 1141-byte body)
+2026-03-02 15:52:47.633 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":3,"nome":"Direito Administrativo"},{"id":1,"nome":"Direito Constitucional"},{"id":2,"nome":"Direito Penal"}],"timestamp":"2026-03-02T15:52:48.399949072-03:00","path":"/api/v1/catalogo/disciplinas"}
+2026-03-02 15:52:47.633 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (101ms, 227-byte body)
+2026-03-02 15:52:48.237 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/disciplinas
+2026-03-02 15:52:48.237 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/questoes?page=0&size=1&sort=criadoEm%2Cdesc
+2026-03-02 15:52:48.237 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.238 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.238 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/bancas
+2026-03-02 15:52:48.238 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.239 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/instituicoes
+2026-03-02 15:52:48.239 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.278 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/disciplinas (40ms)
+2026-03-02 15:52:48.279 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/instituicoes (38ms)
+2026-03-02 15:52:48.279 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/bancas (39ms)
+2026-03-02 15:52:48.279 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.279 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.279 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.279 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.279 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.279 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.280 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.280 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.280 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.280 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.280 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.280 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.280 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.280 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.280 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.280 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.281 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.281 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.281 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.281 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.281 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.281 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.281 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.281 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.281 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.281 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.281 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.281 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.282 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.282 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.282 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.282 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.282 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.282 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.282 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.282 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.282 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.282 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.283 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.283 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.283 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.284 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.284 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.285 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":1,"nome":"PC-BA"},{"id":2,"nome":"TRT-BA"}],"timestamp":"2026-03-02T15:52:49.056973937-03:00","path":"/api/v1/catalogo/instituicoes"}
+2026-03-02 15:52:48.285 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (44ms, 163-byte body)
+2026-03-02 15:52:48.285 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.286 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":1,"nome":"CEBRASPE"},{"id":2,"nome":"FGV"}],"timestamp":"2026-03-02T15:52:49.05698083-03:00","path":"/api/v1/catalogo/bancas"}
+2026-03-02 15:52:48.286 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (46ms, 156-byte body)
+2026-03-02 15:52:48.286 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.286 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":3,"nome":"Direito Administrativo"},{"id":1,"nome":"Direito Constitucional"},{"id":2,"nome":"Direito Penal"}],"timestamp":"2026-03-02T15:52:49.056938324-03:00","path":"/api/v1/catalogo/disciplinas"}
+2026-03-02 15:52:48.287 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (47ms, 227-byte body)
+2026-03-02 15:52:48.290 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/questoes?page=0&size=1&sort=criadoEm%2Cdesc (52ms)
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.291 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.292 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.292 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.292 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.292 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.292 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.305 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.306 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":{"content":[{"idQuestion":"Q28E21CD2AE45463","enunciado":"A Constituição Federal de 1988 estabelece um conjunto de direitos e garantias fundamentais que possuem aplicação imediata.","questao":"Considerando os direitos fundamentais previstos na Constituição Federal, assinale a alternativa correta.","alternativas":"A) Os direitos fundamentais dependem de regulamentação para terem validade.\nB) Os direitos fundamentais possuem aplicação imediata.\nC) Os direitos fundamentais não vinculam o Poder Judiciário.\nD) Apenas brasileiros natos possuem direitos fundamentais.\nE) Os direitos fundamentais podem ser abolidos por emenda constitucional.","disciplina":"Direito Constitucional","disciplinaId":null,"assunto":"Direitos Fundamentais","assuntoId":null,"banca":"CEBRASPE","bancaId":null,"instituicao":"PC-BA","instituicaoId":1,"ano":2026,"cargo":"Agente de Polícia","nivel":"Superior","modalidade":"A_E","gabarito":"B","criadoEm":"2026-02-27T02:05:12.098253Z"}],"page":{"size":1,"number":0,"totalElements":13,"totalPages":13}},"timestamp":"2026-03-02T15:52:49.068293171-03:00","path":"/api/v1/questoes"}
+2026-03-02 15:52:48.306 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (66ms, 1141-byte body)
+2026-03-02 15:52:48.832 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/questoes?page=0&size=1&sort=criadoEm%2Cdesc
+2026-03-02 15:52:48.832 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.834 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/bancas
+2026-03-02 15:52:48.834 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/disciplinas
+2026-03-02 15:52:48.834 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.834 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.835 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  --> GET http://192.168.10.20:8080/api/v1/catalogo/instituicoes
+2026-03-02 15:52:48.835 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  --> END GET
+2026-03-02 15:52:48.864 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/instituicoes (29ms)
+2026-03-02 15:52:48.864 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/disciplinas (29ms)
+2026-03-02 15:52:48.864 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.864 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.865 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/catalogo/bancas (29ms)
+2026-03-02 15:52:48.865 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.865 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.865 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.865 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.865 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.865 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.865 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.865 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.865 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.865 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.865 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.866 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.866 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.866 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.866 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.866 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.866 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.866 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.866 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.866 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.866 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.867 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.867 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.867 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.867 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.867 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.867 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.867 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.867 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.867 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.867 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.868 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.868 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.868 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.868 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.868 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.868 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.868 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.869 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.869 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.870 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.871 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.871 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.871 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":1,"nome":"PC-BA"},{"id":2,"nome":"TRT-BA"}],"timestamp":"2026-03-02T15:52:49.641072247-03:00","path":"/api/v1/catalogo/instituicoes"}
+2026-03-02 15:52:48.871 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":1,"nome":"CEBRASPE"},{"id":2,"nome":"FGV"}],"timestamp":"2026-03-02T15:52:49.640714438-03:00","path":"/api/v1/catalogo/bancas"}
+2026-03-02 15:52:48.871 30124-30174 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (34ms, 163-byte body)
+2026-03-02 15:52:48.871 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":[{"id":3,"nome":"Direito Administrativo"},{"id":1,"nome":"Direito Constitucional"},{"id":2,"nome":"Direito Penal"}],"timestamp":"2026-03-02T15:52:49.641072817-03:00","path":"/api/v1/catalogo/disciplinas"}
+2026-03-02 15:52:48.871 30124-30144 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (35ms, 157-byte body)
+2026-03-02 15:52:48.872 30124-30142 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (34ms, 227-byte body)
+2026-03-02 15:52:48.874 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- 200 http://192.168.10.20:8080/api/v1/questoes?page=0&size=1&sort=criadoEm%2Cdesc (41ms)
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Origin
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Method
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Vary: Access-Control-Request-Headers
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Content-Type-Options: nosniff
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-XSS-Protection: 0
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Pragma: no-cache
+2026-03-02 15:52:48.875 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Expires: 0
+2026-03-02 15:52:48.876 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  X-Frame-Options: DENY
+2026-03-02 15:52:48.876 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Content-Type: application/json
+2026-03-02 15:52:48.876 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Transfer-Encoding: chunked
+2026-03-02 15:52:48.876 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Date: Mon, 02 Mar 2026 18:52:49 GMT
+2026-03-02 15:52:48.876 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Keep-Alive: timeout=60
+2026-03-02 15:52:48.876 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  Connection: keep-alive
+2026-03-02 15:52:48.878 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  
+2026-03-02 15:52:48.878 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  {"success":true,"data":{"content":[{"idQuestion":"Q28E21CD2AE45463","enunciado":"A Constituição Federal de 1988 estabelece um conjunto de direitos e garantias fundamentais que possuem aplicação imediata.","questao":"Considerando os direitos fundamentais previstos na Constituição Federal, assinale a alternativa correta.","alternativas":"A) Os direitos fundamentais dependem de regulamentação para terem validade.\nB) Os direitos fundamentais possuem aplicação imediata.\nC) Os direitos fundamentais não vinculam o Poder Judiciário.\nD) Apenas brasileiros natos possuem direitos fundamentais.\nE) Os direitos fundamentais podem ser abolidos por emenda constitucional.","disciplina":"Direito Constitucional","disciplinaId":null,"assunto":"Direitos Fundamentais","assuntoId":null,"banca":"CEBRASPE","bancaId":null,"instituicao":"PC-BA","instituicaoId":1,"ano":2026,"cargo":"Agente de Polícia","nivel":"Superior","modalidade":"A_E","gabarito":"B","criadoEm":"2026-02-27T02:05:12.098253Z"}],"page":{"size":1,"number":0,"totalElements":13,"totalPages":13}},"timestamp":"2026-03-02T15:52:49.652238758-03:00","path":"/api/v1/questoes"}
+2026-03-02 15:52:48.878 30124-30147 OkHttp                  br.com.mauricio.oconcurseiro         I  <-- END HTTP (44ms, 1141-byte body)

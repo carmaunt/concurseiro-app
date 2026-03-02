@@ -26,31 +26,31 @@ interface ConcurseiroApi {
         @Query("cargo") cargo: String? = null,
         @Query("nivel") nivel: String? = null,
         @Query("modalidade") modalidade: String? = null
-    ): PageResponse<QuestaoDto>
+    ): ApiResponse<PageResponse<QuestaoDto>>
 
     @GET("/api/v1/questoes/{idQuestion}")
     suspend fun buscarQuestao(
         @Path("idQuestion") idQuestion: String
-    ): QuestaoDto
+    ): ApiResponse<QuestaoDto>
 
     @GET("/api/v1/catalogo/disciplinas")
-    suspend fun listarDisciplinas(): List<CatalogoItemDto>
+    suspend fun listarDisciplinas(): ApiResponse<List<CatalogoItemDto>>
 
     @GET("/api/v1/catalogo/disciplinas/{disciplinaId}/assuntos")
     suspend fun listarAssuntosPorDisciplina(
         @Path("disciplinaId") disciplinaId: Long
-    ): List<CatalogoItemDto>
+    ): ApiResponse<List<CatalogoItemDto>>
 
     @GET("/api/v1/catalogo/bancas")
-    suspend fun listarBancas(): List<CatalogoItemDto>
+    suspend fun listarBancas(): ApiResponse<List<CatalogoItemDto>>
 
     @GET("/api/v1/catalogo/instituicoes")
-    suspend fun listarInstituicoes(): List<CatalogoItemDto>
+    suspend fun listarInstituicoes(): ApiResponse<List<CatalogoItemDto>>
 
     @GET("/api/v1/catalogo/assuntos/{assuntoId}/subassuntos")
     suspend fun listarSubAssuntos(
         @Path("assuntoId") assuntoId: Long
-    ): List<CatalogoItemDto>
+    ): ApiResponse<List<CatalogoItemDto>>
 
     @GET("/api/v1/questoes/{questaoId}/comentarios")
     suspend fun listarComentarios(
@@ -58,21 +58,21 @@ interface ConcurseiroApi {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("ordenar") ordenar: String = "curtidas"
-    ): PageResponse<ComentarioResponseDto>
+    ): ApiResponse<PageResponse<ComentarioResponseDto>>
 
     @POST("/api/v1/questoes/{questaoId}/comentarios")
     suspend fun criarComentario(
         @Path("questaoId") questaoId: String,
         @Body request: ComentarioRequestDto
-    ): ComentarioResponseDto
+    ): ApiResponse<ComentarioResponseDto>
 
     @POST("/api/v1/comentarios/{id}/curtir")
     suspend fun curtirComentario(
         @Path("id") id: Long
-    ): ComentarioResponseDto
+    ): ApiResponse<ComentarioResponseDto>
 
     @POST("/api/v1/comentarios/{id}/descurtir")
     suspend fun descurtirComentario(
         @Path("id") id: Long
-    ): ComentarioResponseDto
+    ): ApiResponse<ComentarioResponseDto>
 }
