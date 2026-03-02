@@ -37,4 +37,7 @@ interface RespostaDao {
 
     @Query("SELECT COUNT(*) FROM respostas WHERE questaoId = :questaoId")
     suspend fun jaRespondeu(questaoId: String): Int
+
+    @Query("SELECT * FROM respostas WHERE questaoId = :questaoId ORDER BY respondidaEm DESC LIMIT 1")
+    suspend fun ultimaRespostaPorQuestao(questaoId: String): RespostaEntity?
 }

@@ -29,6 +29,7 @@ import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
+import br.com.mauricio.oconcurseiro.ui.viewmodel.RespostaAnterior
 
 @Composable
 fun QuestaoScreen(
@@ -162,6 +163,7 @@ fun QuestaoScreen(
                 ) {
                     CorpoQuestao(
                         questao = questao,
+                        respostaAnterior = viewModel.respostaAnterior,
                         onResolver = { respostaSelecionada, acertou ->
                             viewModel.salvarResposta(
                                 questaoId = questao.id,
@@ -239,10 +241,12 @@ fun TopoResumoQuestao(
 @Composable
 fun CorpoQuestao(
     questao: Questao,
+    respostaAnterior: RespostaAnterior? = null,
     onResolver: (respostaSelecionada: String, acertou: Boolean) -> Unit = { _, _ -> }
 ) {
     var selecionada by remember(questao.id) { mutableIntStateOf(-1) }
     var resolvida by remember(questao.id) { mutableStateOf(false) }
+    var bannerVisivel by remember(questao.id) { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -250,6 +254,14 @@ fun CorpoQuestao(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
+        if (respostaAnterior != null && bannerVisivel) {
+            RespostaAnteriorBanner(
+                acertou = respostaAnterior.acertou,
+                onOcultar = { bannerVisivel = false }
+            )
+            Spacer(Modifier.height(14.dp))
+        }
+
         Text(
             text = "Ano: ${questao.ano}  Banca: ${questao.banca}\nÓrgão: ${questao.orgao}  Cargo: ${questao.cargo}",
             style = MaterialTheme.typography.bodySmall,
@@ -513,5 +525,59 @@ fun RodapeQuestao(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun RespostaAnteriorBanner(
+    acertou: Boolean,
+    onOcultar: () -> Unit
+) {
+    val bgColor = if (acertou) SuccessBg else ErrorBg
+    val borderColor = if (acertou) SuccessBorder else ErrorBorder
+    val texto = if (acertou) "Você acertou essa questão anteriormente" else "Você errou essa questão anteriormente"
+    val icone = if (acertou) "✓" else "✕"
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(bgColor, shape = RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(borderColor.copy(alpha = 0.15f), shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = icone,
+                color = borderColor,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp
+            )
+        }
+
+        Spacer(Modifier.width(10.dp))
+
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.bodySmall,
+            color = borderColor,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
+
+        Text(
+            text = "Ocultar",
+            style = MaterialTheme.typography.bodySmall,
+            color = borderColor,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .clickable { onOcultar() }
+                .padding(4.dp)
+        )
     }
 }

@@ -19,6 +19,12 @@ import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
+data class RespostaAnterior(
+    val acertou: Boolean,
+    val respostaSelecionada: String,
+    val gabarito: String
+)
+
 class QuestaoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = QuestaoRepository()
@@ -69,6 +75,11 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
     var jaCarregou: Boolean by mutableStateOf(false)
         private set
 
+    var respostaAnterior: RespostaAnterior? by mutableStateOf(null)
+        private set
+
+    private val respondidasNaSessao = mutableSetOf<String>()
+
     init {
         carregarCatalogos()
     }
@@ -96,6 +107,7 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
         erro = null
         isEmpty = false
         jaCarregou = true
+        respostaAnterior = null
 
         viewModelScope.launch {
             try {
@@ -116,6 +128,7 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
                     totalQuestoes = 0
                 } else {
                     numeroAtual = paginaAtual + 1
+                    verificarRespostaAnterior(q.id)
                 }
 
             } catch (e: Exception) {
@@ -127,7 +140,25 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    private suspend fun verificarRespostaAnterior(questaoId: String) {
+        if (questaoId in respondidasNaSessao) {
+            respostaAnterior = null
+            return
+        }
+        try {
+            val resposta = respostaDao.ultimaRespostaPorQuestao(questaoId)
+            respostaAnterior = resposta?.let {
+                RespostaAnterior(
+                    acertou = it.acertou,
+                    respostaSelecionada = it.respostaSelecionada,
+                    gabarito = it.gabarito
+                )
+            }
+        } catch (_: Exception) { }
+    }
+
     fun salvarResposta(questaoId: String, disciplina: String, respostaSelecionada: String, gabarito: String, acertou: Boolean) {
+        respondidasNaSessao.add(questaoId)
         viewModelScope.launch {
             try {
                 respostaDao.inserir(
