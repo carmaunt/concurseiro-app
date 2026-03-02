@@ -29,6 +29,7 @@ fun AppNavigation() {
 
         Screen.Filtro -> {
             FiltroScreen(
+                filtroAtual = filtroAtual,
                 onBack = { currentScreen = Screen.Questao },
                 onAplicarFiltro = { novoFiltro ->
                     filtroAtual = novoFiltro

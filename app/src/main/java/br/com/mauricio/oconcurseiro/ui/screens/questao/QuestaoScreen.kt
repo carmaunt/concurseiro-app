@@ -156,7 +156,7 @@ fun CorpoQuestao(questao: Questao) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Ano: ${questao.ano}  Banca: ${questao.banca}\nÓrgão: ${questao.orgao}",
+            text = "Ano: ${questao.ano}  Banca: ${questao.banca}\nÓrgão: ${questao.orgao}  Cargo: ${questao.cargo}",
             fontSize = 14.sp,
             color = Color(0xFF6B7280)
         )

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
@@ -33,11 +34,28 @@ class QuestaoViewModel : ViewModel() {
     var paginaAtual: Int by mutableStateOf(0)
         private set
 
+    var filtroAtual: FiltroParams by mutableStateOf(FiltroParams())
+        private set
+
+    var disciplinas: List<CatalogoItem> by mutableStateOf(emptyList())
+        private set
+
+    var bancas: List<CatalogoItem> by mutableStateOf(emptyList())
+        private set
+
+    var instituicoes: List<CatalogoItem> by mutableStateOf(emptyList())
+        private set
+
+    var assuntos: List<CatalogoItem> by mutableStateOf(emptyList())
+        private set
+
     init {
         carregarQuestao(FiltroParams())
+        carregarCatalogos()
     }
 
-    fun carregarQuestao(filtro: FiltroParams = FiltroParams()) {
+    fun carregarQuestao(filtro: FiltroParams = filtroAtual) {
+        filtroAtual = filtro
         isLoading = true
         erro = null
 
@@ -46,10 +64,7 @@ class QuestaoViewModel : ViewModel() {
                 val resp = repository.buscarPagina(
                     page = paginaAtual,
                     size = 1,
-                    texto = filtro.texto,
-                    disciplina = filtro.disciplina,
-                    banca = filtro.banca,
-                    ano = filtro.ano
+                    filtro = filtro
                 )
 
                 totalQuestoes = resp.totalElements.toInt()
@@ -62,7 +77,7 @@ class QuestaoViewModel : ViewModel() {
                     erro = "Nenhuma questão encontrada para esse filtro."
                     totalQuestoes = 0
                 } else {
-                    numeroAtual = paginaAtual+1
+                    numeroAtual = paginaAtual + 1
                 }
 
             } catch (e: Exception) {
@@ -74,7 +89,12 @@ class QuestaoViewModel : ViewModel() {
         }
     }
 
-    fun proxima(filtro: FiltroParams = FiltroParams()) {
+    fun aplicarFiltro(filtro: FiltroParams) {
+        paginaAtual = 0
+        carregarQuestao(filtro)
+    }
+
+    fun proxima(filtro: FiltroParams = filtroAtual) {
         val ultimaPagina = if (totalQuestoes == 0) 0 else (totalQuestoes - 1) / 1
         if (paginaAtual < ultimaPagina) {
             paginaAtual++
@@ -82,10 +102,39 @@ class QuestaoViewModel : ViewModel() {
         }
     }
 
-    fun anterior(filtro: FiltroParams = FiltroParams()) {
+    fun anterior(filtro: FiltroParams = filtroAtual) {
         if (paginaAtual > 0) {
             paginaAtual--
             carregarQuestao(filtro)
+        }
+    }
+
+    private fun carregarCatalogos() {
+        viewModelScope.launch {
+            try {
+                disciplinas = repository.listarDisciplinas().map { QuestaoMapper.catalogoFromDto(it) }
+            } catch (_: Exception) { }
+        }
+        viewModelScope.launch {
+            try {
+                bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
+            } catch (_: Exception) { }
+        }
+        viewModelScope.launch {
+            try {
+                instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
+            } catch (_: Exception) { }
+        }
+    }
+
+    fun carregarAssuntosPorDisciplina(disciplinaId: Long) {
+        viewModelScope.launch {
+            try {
+                assuntos = repository.listarAssuntosPorDisciplina(disciplinaId)
+                    .map { QuestaoMapper.catalogoFromDto(it) }
+            } catch (_: Exception) {
+                assuntos = emptyList()
+            }
         }
     }
 }
