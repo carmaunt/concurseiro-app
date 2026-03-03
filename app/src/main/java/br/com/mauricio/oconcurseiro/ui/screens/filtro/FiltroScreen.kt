@@ -196,16 +196,6 @@ fun FiltroScreen(
                     carregando = catalogosCarregando
                 )
 
-                Spacer(Modifier.height(14.dp))
-
-                DropdownSelector(
-                    label = "Instituição / Órgão",
-                    itens = viewModel.instituicoes,
-                    selecionado = instituicaoSelecionada,
-                    onSelecionar = { instituicaoSelecionada = it },
-                    carregando = catalogosCarregando
-                )
-
                 Spacer(Modifier.height(20.dp))
 
                 Text("Anos", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
@@ -223,6 +213,16 @@ fun FiltroScreen(
                     ChipAno("2021", selecionado = anoSelecionado == 2021) { anoSelecionado = if (anoSelecionado == 2021) null else 2021 }
                     ChipAno("2020", selecionado = anoSelecionado == 2020) { anoSelecionado = if (anoSelecionado == 2020) null else 2020 }
                 }
+            }
+
+            if (tab == 1) {
+                DropdownSelector(
+                    label = "Instituição / Órgão",
+                    itens = viewModel.instituicoes,
+                    selecionado = instituicaoSelecionada,
+                    onSelecionar = { instituicaoSelecionada = it },
+                    carregando = catalogosCarregando
+                )
             }
         }
 
