@@ -522,13 +522,15 @@ fun RodapeQuestao(
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (podeAnterior) Color.Transparent else BorderDefault)
                     .clickable(enabled = podeAnterior) { onAnterior() }
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "‹  Anterior",
+                    text = "‹ Anterior",
                     color = if (podeAnterior) TextSecondary else TextPlaceholder,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (podeAnterior) FontWeight.SemiBold else FontWeight.Medium
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = if (podeAnterior) FontWeight.SemiBold else FontWeight.Medium,
+                    maxLines = 1
                 )
             }
 
@@ -537,13 +539,16 @@ fun RodapeQuestao(
             Button(
                 onClick = onFiltro,
                 shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.height(44.dp),
+                modifier = Modifier.height(40.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
             ) {
                 Text(
                     text = "Filtros",
                     color = TextOnBrand,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
                 )
             }
 
@@ -554,13 +559,15 @@ fun RodapeQuestao(
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (podeProximo) Color.Transparent else BorderDefault)
                     .clickable(enabled = podeProximo) { onProximo() }
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Próximo  ›",
+                    text = "Próximo ›",
                     color = if (podeProximo) TextSecondary else TextPlaceholder,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (podeProximo) FontWeight.SemiBold else FontWeight.Medium
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = if (podeProximo) FontWeight.SemiBold else FontWeight.Medium,
+                    maxLines = 1
                 )
             }
         }
