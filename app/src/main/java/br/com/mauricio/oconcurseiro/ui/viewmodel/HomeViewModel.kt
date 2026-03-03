@@ -71,7 +71,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 val questoesJob = launch {
                     try {
                         val resp = repository.buscarPagina(page = 0, size = 1, filtro = FiltroParams())
-                        totalQuestoes = resp.totalElements
+                        totalQuestoes = resp.resolvedTotalElements
                     } catch (_: Exception) { }
                 }
 

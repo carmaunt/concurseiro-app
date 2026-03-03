@@ -117,7 +117,7 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
                     filtro = filtro
                 )
 
-                totalQuestoes = resp.totalElements.toInt()
+                totalQuestoes = resp.resolvedTotalElements.toInt()
 
                 val dto = resp.content.firstOrNull()
                 val q = dto?.let { QuestaoMapper.fromDto(it) }

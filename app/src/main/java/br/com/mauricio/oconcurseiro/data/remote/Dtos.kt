@@ -9,12 +9,26 @@ data class ApiResponse<T>(
 
 data class PageResponse<T>(
     val content: List<T>,
-    val number: Int,
-    val size: Int,
-    val totalElements: Long,
-    val totalPages: Int,
-    val first: Boolean,
-    val last: Boolean
+    val number: Int = 0,
+    val size: Int = 0,
+    val totalElements: Long = 0,
+    val totalPages: Int = 0,
+    val first: Boolean = true,
+    val last: Boolean = true,
+    val page: PageInfo? = null
+) {
+    val resolvedTotalElements: Long
+        get() = page?.totalElements ?: totalElements
+
+    val resolvedTotalPages: Int
+        get() = page?.totalPages ?: totalPages
+}
+
+data class PageInfo(
+    val size: Int = 0,
+    val number: Int = 0,
+    val totalElements: Long = 0,
+    val totalPages: Int = 0
 )
 
 data class QuestaoDto(
