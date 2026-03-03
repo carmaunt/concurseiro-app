@@ -9,12 +9,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,7 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -279,7 +274,7 @@ private fun BottomNavBar(onOpenFilters: () -> Unit) {
         color = SurfaceWhite,
         shadowElevation = 8.dp
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -288,70 +283,30 @@ private fun BottomNavBar(onOpenFilters: () -> Unit) {
                         .calculateBottomPadding()
                 )
                 .padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
+            contentAlignment = Alignment.Center
         ) {
-            BottomNavItem(
-                icon = Icons.Filled.Home,
-                label = "Painel",
-                selected = true,
-                onClick = { }
-            )
-            BottomNavItem(
-                icon = Icons.Filled.BarChart,
-                label = "Desempenho",
-                selected = false,
-                onClick = { }
-            )
-            BottomNavItem(
-                icon = Icons.Filled.FilterList,
-                label = "Filtros",
-                selected = false,
-                onClick = onOpenFilters
-            )
-            BottomNavItem(
-                icon = Icons.Outlined.EmojiEvents,
-                label = "Desafios",
-                selected = false,
-                onClick = { }
-            )
-            BottomNavItem(
-                icon = Icons.AutoMirrored.Filled.MenuBook,
-                label = "Cursos",
-                selected = false,
-                onClick = { }
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onOpenFilters() }
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.FilterList,
+                    contentDescription = "Filtros",
+                    tint = BrandOrange,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = "Filtros",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = BrandOrange,
+                    fontSize = 11.sp
+                )
+            }
         }
-    }
-}
-
-@Composable
-private fun BottomNavItem(
-    icon: ImageVector,
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = if (selected) BrandOrange else TextPlaceholder,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(Modifier.height(2.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (selected) BrandOrange else TextPlaceholder,
-            fontSize = 11.sp
-        )
     }
 }
 
