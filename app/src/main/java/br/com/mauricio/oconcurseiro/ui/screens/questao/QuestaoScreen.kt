@@ -182,7 +182,8 @@ fun QuestaoScreen(
                     podeAnterior = viewModel.paginaAtual > 0,
                     podeProximo = viewModel.paginaAtual < ((viewModel.totalQuestoes - 1) / 1),
                     onAnterior = { viewModel.anterior() },
-                    onProximo = { viewModel.proxima() }
+                    onProximo = { viewModel.proxima() },
+                    onFiltro = onOpenFiltro
                 )
             }
         }
@@ -498,7 +499,8 @@ fun RodapeQuestao(
     podeAnterior: Boolean,
     podeProximo: Boolean,
     onAnterior: () -> Unit,
-    onProximo: () -> Unit
+    onProximo: () -> Unit,
+    onFiltro: () -> Unit
 ) {
     Surface(
         shadowElevation = 8.dp,
@@ -532,15 +534,15 @@ fun RodapeQuestao(
 
             Spacer(Modifier.weight(1f))
 
-            OutlinedButton(
-                onClick = { },
+            Button(
+                onClick = onFiltro,
                 shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(1.dp, BorderDefault),
-                modifier = Modifier.height(44.dp)
+                modifier = Modifier.height(44.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
             ) {
                 Text(
-                    text = "Ir para questão",
-                    color = TextSecondary,
+                    text = "Filtros",
+                    color = TextOnBrand,
                     fontWeight = FontWeight.SemiBold
                 )
             }
