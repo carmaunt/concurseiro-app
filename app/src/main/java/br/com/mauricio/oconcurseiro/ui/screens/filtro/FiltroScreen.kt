@@ -44,8 +44,8 @@ fun FiltroScreen(
     var instituicaoSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
 
     var cargo by remember { mutableStateOf(filtroAtual.cargo ?: "") }
-    var nivel by remember { mutableStateOf(filtroAtual.nivel ?: "") }
-    var modalidade by remember { mutableStateOf(filtroAtual.modalidade ?: "") }
+    var nivelSelecionado by remember { mutableStateOf(filtroAtual.nivel) }
+    var modalidadeSelecionada by remember { mutableStateOf(filtroAtual.modalidade) }
     var anoSelecionado by remember { mutableStateOf(filtroAtual.ano) }
     val scroll = rememberScrollState()
 
@@ -223,6 +223,37 @@ fun FiltroScreen(
                     onSelecionar = { instituicaoSelecionada = it },
                     carregando = catalogosCarregando
                 )
+
+                Spacer(Modifier.height(20.dp))
+
+                Text("Modalidade", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
+                Spacer(Modifier.height(12.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    ChipOpcao("Múltipla Escolha", selecionado = modalidadeSelecionada == "MULTIPLA_ESCOLHA") {
+                        modalidadeSelecionada = if (modalidadeSelecionada == "MULTIPLA_ESCOLHA") null else "MULTIPLA_ESCOLHA"
+                    }
+                    ChipOpcao("Certo/Errado", selecionado = modalidadeSelecionada == "CERTO_ERRADO") {
+                        modalidadeSelecionada = if (modalidadeSelecionada == "CERTO_ERRADO") null else "CERTO_ERRADO"
+                    }
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                Text("Nível", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
+                Spacer(Modifier.height(12.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    ChipOpcao("Superior", selecionado = nivelSelecionado == "SUPERIOR") {
+                        nivelSelecionado = if (nivelSelecionado == "SUPERIOR") null else "SUPERIOR"
+                    }
+                    ChipOpcao("Médio", selecionado = nivelSelecionado == "MEDIO") {
+                        nivelSelecionado = if (nivelSelecionado == "MEDIO") null else "MEDIO"
+                    }
+                    ChipOpcao("Fundamental", selecionado = nivelSelecionado == "FUNDAMENTAL") {
+                        nivelSelecionado = if (nivelSelecionado == "FUNDAMENTAL") null else "FUNDAMENTAL"
+                    }
+                }
             }
         }
 
@@ -246,8 +277,8 @@ fun FiltroScreen(
                         bancaSelecionada = null
                         instituicaoSelecionada = null
                         cargo = ""
-                        nivel = ""
-                        modalidade = ""
+                        nivelSelecionado = null
+                        modalidadeSelecionada = null
                         anoSelecionado = null
                     },
                     modifier = Modifier
@@ -274,8 +305,8 @@ fun FiltroScreen(
                                 instituicao = instituicaoSelecionada?.nome,
                                 ano = anoSelecionado,
                                 cargo = cargo.takeIf { it.isNotBlank() },
-                                nivel = nivel.takeIf { it.isNotBlank() },
-                                modalidade = modalidade.takeIf { it.isNotBlank() }
+                                nivel = nivelSelecionado,
+                                modalidade = modalidadeSelecionada
                             )
                         )
                     },
@@ -452,6 +483,11 @@ fun CampoTexto(
 
 @Composable
 fun ChipAno(texto: String, selecionado: Boolean, onClick: () -> Unit) {
+    ChipOpcao(texto = texto, selecionado = selecionado, onClick = onClick)
+}
+
+@Composable
+fun ChipOpcao(texto: String, selecionado: Boolean, onClick: () -> Unit) {
     val bg = if (selecionado) BrandOrangeLight else SurfaceChip
     val border = if (selecionado) BrandOrange else BorderDefault
     val textColor = if (selecionado) BrandOrange else TextSecondary
