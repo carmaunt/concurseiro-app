@@ -155,98 +155,74 @@ fun FiltroScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            CampoTexto(
-                valor = keyword,
-                placeholder = "Palavra-chave",
-                onValueChange = { keyword = it }
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            DropdownSelector(
-                label = "Disciplina",
-                itens = viewModel.disciplinas,
-                selecionado = disciplinaSelecionada,
-                onSelecionar = {
-                    disciplinaRestaurada = true
-                    disciplinaSelecionada = it
-                },
-                carregando = catalogosCarregando
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            DropdownSelector(
-                label = "Assunto",
-                itens = viewModel.assuntos,
-                selecionado = assuntoSelecionado,
-                onSelecionar = { assuntoSelecionado = it },
-                enabled = disciplinaSelecionada != null,
-                placeholder = if (disciplinaSelecionada == null) "Selecione a disciplina primeiro" else "Selecione o assunto"
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            DropdownSelector(
-                label = "Banca",
-                itens = viewModel.bancas,
-                selecionado = bancaSelecionada,
-                onSelecionar = { bancaSelecionada = it },
-                carregando = catalogosCarregando
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            DropdownSelector(
-                label = "Instituição / Órgão",
-                itens = viewModel.instituicoes,
-                selecionado = instituicaoSelecionada,
-                onSelecionar = { instituicaoSelecionada = it },
-                carregando = catalogosCarregando
-            )
-
-            if (tab == 1) {
-                Spacer(Modifier.height(14.dp))
-
+            if (tab == 0) {
                 CampoTexto(
-                    valor = cargo,
-                    placeholder = "Cargo",
-                    onValueChange = { cargo = it }
+                    valor = keyword,
+                    placeholder = "Palavra-chave",
+                    onValueChange = { keyword = it }
                 )
 
                 Spacer(Modifier.height(14.dp))
 
-                CampoTexto(
-                    valor = nivel,
-                    placeholder = "Nível",
-                    onValueChange = { nivel = it }
+                DropdownSelector(
+                    label = "Disciplina",
+                    itens = viewModel.disciplinas,
+                    selecionado = disciplinaSelecionada,
+                    onSelecionar = {
+                        disciplinaRestaurada = true
+                        disciplinaSelecionada = it
+                    },
+                    carregando = catalogosCarregando
                 )
 
                 Spacer(Modifier.height(14.dp))
 
-                CampoTexto(
-                    valor = modalidade,
-                    placeholder = "Modalidade",
-                    onValueChange = { modalidade = it }
+                DropdownSelector(
+                    label = "Assunto",
+                    itens = viewModel.assuntos,
+                    selecionado = assuntoSelecionado,
+                    onSelecionar = { assuntoSelecionado = it },
+                    enabled = disciplinaSelecionada != null,
+                    placeholder = if (disciplinaSelecionada == null) "Selecione a disciplina primeiro" else "Selecione o assunto"
                 )
-            }
 
-            Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(14.dp))
 
-            Text("Anos", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
-            Spacer(Modifier.height(12.dp))
+                DropdownSelector(
+                    label = "Banca",
+                    itens = viewModel.bancas,
+                    selecionado = bancaSelecionada,
+                    onSelecionar = { bancaSelecionada = it },
+                    carregando = catalogosCarregando
+                )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ChipAno("2026", selecionado = anoSelecionado == 2026) { anoSelecionado = if (anoSelecionado == 2026) null else 2026 }
-                ChipAno("2025", selecionado = anoSelecionado == 2025) { anoSelecionado = if (anoSelecionado == 2025) null else 2025 }
-                ChipAno("2024", selecionado = anoSelecionado == 2024) { anoSelecionado = if (anoSelecionado == 2024) null else 2024 }
-                ChipAno("2023", selecionado = anoSelecionado == 2023) { anoSelecionado = if (anoSelecionado == 2023) null else 2023 }
-            }
-            Spacer(Modifier.height(10.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ChipAno("2022", selecionado = anoSelecionado == 2022) { anoSelecionado = if (anoSelecionado == 2022) null else 2022 }
-                ChipAno("2021", selecionado = anoSelecionado == 2021) { anoSelecionado = if (anoSelecionado == 2021) null else 2021 }
-                ChipAno("2020", selecionado = anoSelecionado == 2020) { anoSelecionado = if (anoSelecionado == 2020) null else 2020 }
+                Spacer(Modifier.height(14.dp))
+
+                DropdownSelector(
+                    label = "Instituição / Órgão",
+                    itens = viewModel.instituicoes,
+                    selecionado = instituicaoSelecionada,
+                    onSelecionar = { instituicaoSelecionada = it },
+                    carregando = catalogosCarregando
+                )
+
+                Spacer(Modifier.height(20.dp))
+
+                Text("Anos", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
+                Spacer(Modifier.height(12.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    ChipAno("2026", selecionado = anoSelecionado == 2026) { anoSelecionado = if (anoSelecionado == 2026) null else 2026 }
+                    ChipAno("2025", selecionado = anoSelecionado == 2025) { anoSelecionado = if (anoSelecionado == 2025) null else 2025 }
+                    ChipAno("2024", selecionado = anoSelecionado == 2024) { anoSelecionado = if (anoSelecionado == 2024) null else 2024 }
+                    ChipAno("2023", selecionado = anoSelecionado == 2023) { anoSelecionado = if (anoSelecionado == 2023) null else 2023 }
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    ChipAno("2022", selecionado = anoSelecionado == 2022) { anoSelecionado = if (anoSelecionado == 2022) null else 2022 }
+                    ChipAno("2021", selecionado = anoSelecionado == 2021) { anoSelecionado = if (anoSelecionado == 2021) null else 2021 }
+                    ChipAno("2020", selecionado = anoSelecionado == 2020) { anoSelecionado = if (anoSelecionado == 2020) null else 2020 }
+                }
             }
         }
 
