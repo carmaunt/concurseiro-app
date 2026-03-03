@@ -248,35 +248,6 @@ fun FiltroScreen(
                 ChipAno("2021", selecionado = anoSelecionado == 2021) { anoSelecionado = if (anoSelecionado == 2021) null else 2021 }
                 ChipAno("2020", selecionado = anoSelecionado == 2020) { anoSelecionado = if (anoSelecionado == 2020) null else 2020 }
             }
-
-            Spacer(Modifier.height(18.dp))
-
-            Text("Apenas questões que", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
-            Spacer(Modifier.height(12.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ChipFiltro("Não resolvi")
-                ChipFiltro("Resolvi")
-            }
-            Spacer(Modifier.height(10.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ChipFiltro("Acertei")
-                ChipFiltro("Errei")
-            }
-
-            Spacer(Modifier.height(22.dp))
-
-            Text("Excluir questões", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
-            Spacer(Modifier.height(12.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ChipFiltro("Dos meus cadernos")
-            }
-            Spacer(Modifier.height(10.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ChipFiltro("Anuladas")
-                ChipFiltro("Desatualizadas")
-            }
         }
 
         Surface(shadowElevation = 8.dp, color = SurfaceBackground) {
@@ -523,24 +494,3 @@ fun ChipAno(texto: String, selecionado: Boolean, onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun ChipFiltro(texto: String) {
-    var selecionado by remember { mutableStateOf(false) }
-
-    val bg = if (selecionado) BrandOrangeLight else SurfaceChip
-    val border = if (selecionado) BrandOrange else BorderDefault
-    val textColor = if (selecionado) BrandOrange else TextSecondary
-
-    Box(
-        modifier = Modifier
-            .height(40.dp)
-            .clip(RoundedCornerShape(999.dp))
-            .background(bg)
-            .border(1.dp, border, RoundedCornerShape(999.dp))
-            .clickable { selecionado = !selecionado }
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(texto, color = textColor, style = MaterialTheme.typography.labelSmall)
-    }
-}
