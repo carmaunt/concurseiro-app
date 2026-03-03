@@ -193,27 +193,27 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                         Row {
                             Text(
                                 text = "Resolvidas: ${viewModel.resolvidas7dias}",
-                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 12.sp,
                                 color = TextSecondary
                             )
                             Text(
-                                text = "  •  ",
-                                style = MaterialTheme.typography.bodySmall,
+                                text = " • ",
+                                fontSize = 12.sp,
                                 color = TextPlaceholder
                             )
                             Text(
                                 text = "Certas: ${viewModel.acertos7dias}",
-                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 12.sp,
                                 color = SuccessBorder
                             )
                             Text(
-                                text = "  •  ",
-                                style = MaterialTheme.typography.bodySmall,
+                                text = " • ",
+                                fontSize = 12.sp,
                                 color = TextPlaceholder
                             )
                             Text(
                                 text = "Erradas: ${viewModel.erros7dias}",
-                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 12.sp,
                                 color = ErrorBorder
                             )
                         }
