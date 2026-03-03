@@ -7,7 +7,7 @@ Native Android application for Brazilian public examination (concursos públicos
 - **Language**: Kotlin 2.0.21
 - **UI**: Jetpack Compose with Material 3
 - **Networking**: Retrofit 3.0.0 + OkHttp 5.3.2
-- **Local DB**: Room 2.6.1 (with KSP 2.0.21-1.0.28)
+- **Local DB**: Room 2.7.1 (with KSP 2.0.21-1.0.28)
 - **JSON**: Gson
 - **Build**: Gradle (Kotlin DSL) with Version Catalogs
 - **Min SDK**: 24 (Android 7.0) / **Target SDK**: 36
@@ -70,7 +70,7 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - **Filter params**: texto, disciplina, disciplinaId, assunto, assuntoId, banca, bancaId, instituicao, instituicaoId, ano, cargo, nivel, modalidade
 
 ## Configuration
-- Base URL is configured via `BuildConfig.BASE_URL` (debug: `http://192.168.10.20:8080/`, release: `https://api.oconcurseiro.com.br/`)
+- Base URL is configured via `BuildConfig.BASE_URL` (debug: `http://172.20.10.3:8080/`, release: `https://api.oconcurseiro.com.br/`)
 - `usesCleartextTraffic=true` in AndroidManifest.xml for HTTP traffic in debug
 - Network timeouts: connect 15s, read 30s, write 30s
 

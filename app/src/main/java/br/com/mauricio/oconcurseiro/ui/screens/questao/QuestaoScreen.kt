@@ -342,8 +342,7 @@ fun CorpoQuestao(
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = questao.enunciado,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleMedium,
                     color = TextPrimary
                 )
                 Spacer(Modifier.height(18.dp))

@@ -1,5 +1,6 @@
 package br.com.mauricio.oconcurseiro.ui.screens.home
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,8 +15,6 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.EmojiEvents
-import androidx.compose.material.icons.outlined.FilterList
-import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
-import androidx.compose.foundation.Canvas
 
 @Composable
 fun HomeScreen(
@@ -69,27 +67,7 @@ fun HomeScreen(
             } else {
                 ResolverQuestoesCard(onStartPractice)
 
-                Spacer(Modifier.height(6.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Segmento: Concursos Públicos",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
-                }
-
-                Spacer(Modifier.height(20.dp))
-
-                ContinueSection(viewModel, onOpenFilters, onStartPractice)
-
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(12.dp))
 
                 DesempenhoSection(viewModel)
 
@@ -171,118 +149,6 @@ private fun ResolverQuestoesCard(onClick: () -> Unit) {
                 tint = TextPlaceholder,
                 modifier = Modifier.size(28.dp)
             )
-        }
-    }
-}
-
-@Composable
-private fun ContinueSection(
-    viewModel: HomeViewModel,
-    onOpenFilters: () -> Unit,
-    onStartPractice: () -> Unit
-) {
-    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Continue de onde parou",
-                style = MaterialTheme.typography.titleSmall,
-                color = TextPrimary
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(BrandOrangeBackground)
-                    .clickable { onOpenFilters() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.GridView,
-                    contentDescription = null,
-                    tint = BrandOrange,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
-
-        Spacer(Modifier.height(6.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(vertical = 4.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.FilterList,
-                contentDescription = null,
-                tint = TextSecondary,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = "Último filtro acessado",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
-            )
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            color = SurfaceWhite,
-            shadowElevation = 1.dp,
-            onClick = onStartPractice
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(SurfaceCard),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                        contentDescription = null,
-                        tint = TextSecondary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-
-                Spacer(Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Todas as questões",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextPrimary,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "${formatNumber(viewModel.totalQuestoes)} Questões disponíveis",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
-                }
-
-                Icon(
-                    imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = null,
-                    tint = TextPlaceholder,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
         }
     }
 }
@@ -523,13 +389,5 @@ private fun ErrorCard(
                 )
             }
         }
-    }
-}
-
-private fun formatNumber(value: Long): String {
-    return when {
-        value >= 1_000_000 -> String.format("%,d", value)
-        value >= 1_000 -> String.format("%,d", value)
-        else -> value.toString()
     }
 }
