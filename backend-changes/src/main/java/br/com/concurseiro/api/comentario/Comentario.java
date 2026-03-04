@@ -1,7 +1,7 @@
-package br.com.oconcurseiro.api.comentario;
+package br.com.concurseiro.api.comentario;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "comentarios")
@@ -14,7 +14,7 @@ public class Comentario {
     @Column(name = "questao_id", nullable = false)
     private String questaoId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String autor;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -27,7 +27,7 @@ public class Comentario {
     private Integer descurtidas = 0;
 
     @Column(name = "criado_em", nullable = false)
-    private LocalDateTime criadoEm = LocalDateTime.now();
+    private OffsetDateTime criadoEm = OffsetDateTime.now();
 
     public Comentario() {}
 
@@ -35,9 +35,6 @@ public class Comentario {
         this.questaoId = questaoId;
         this.autor = autor;
         this.texto = texto;
-        this.curtidas = 0;
-        this.descurtidas = 0;
-        this.criadoEm = LocalDateTime.now();
     }
 
     public Long getId() { return id; }
@@ -58,6 +55,6 @@ public class Comentario {
     public Integer getDescurtidas() { return descurtidas; }
     public void setDescurtidas(Integer descurtidas) { this.descurtidas = descurtidas; }
 
-    public LocalDateTime getCriadoEm() { return criadoEm; }
-    public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }
 }

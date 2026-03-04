@@ -70,7 +70,7 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - **Filter params**: texto, disciplina, disciplinaId, assunto, assuntoId, banca, bancaId, instituicao, instituicaoId, ano, cargo, nivel, modalidade
 
 ## Configuration
-- Base URL is configured via `BuildConfig.BASE_URL` (debug: `http://172.20.10.3:8080/`, release: `https://api.oconcurseiro.com.br/`)
+- Base URL is configured via `BuildConfig.BASE_URL` (debug: `http://192.168.10.20:8080/`, release: `https://api.oconcurseiro.com.br/`)
 - `usesCleartextTraffic=true` in AndroidManifest.xml for HTTP traffic in debug
 - Network timeouts: connect 15s, read 30s, write 30s
 
@@ -90,7 +90,7 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - **Cascading filters**: Selecting a disciplina triggers loading of related assuntos; clearing disciplina clears assuntos
 - **Error handling**: User-friendly error messages for network errors (UnknownHostException, SocketTimeoutException, HTTP codes), auto-retry for catalog failures, manual retry via `recarregar()`
 - **Empty state**: Distinct UI for "no results" vs "error" states with actionable buttons
-- **Comments**: Full comments system with like/dislike, sorting (most liked / most recent), pagination, and optimistic UI updates for likes. Backend files in `backend-changes/` directory need to be applied to Spring Boot project.
+- **Comments**: Full comments system with like/dislike, sorting (most liked / most recent), pagination, and optimistic UI updates for likes. Backend files in `backend-changes/` directory need to be copied to the concurseiro-api Spring Boot project under `src/main/java/br/com/concurseiro/api/comentario/`. Backend package is `br.com.concurseiro.api` (not oconcurseiro). The backend's `ApiResponseEnvelopeAdvice` auto-wraps all `/api/v1/` responses in `{"success":true,"data":...}` format. Table auto-created by JPA ddl-auto=update.
 
 ## Permissions
 - `android.permission.INTERNET` (required for Retrofit)
