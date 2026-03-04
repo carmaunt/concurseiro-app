@@ -48,9 +48,7 @@ fun QuestaoScreen(
         AppHeader(
             title = questao?.let { "Questão ${it.id}" } ?: "Carregando...",
             subtitle = questao?.disciplina ?: "",
-            onBack = onBack,
-            actionText = "⚙",
-            onAction = onOpenFiltro
+            onBack = onBack
         )
 
         when {
