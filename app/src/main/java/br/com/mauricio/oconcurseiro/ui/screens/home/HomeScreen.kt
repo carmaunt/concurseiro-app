@@ -81,7 +81,7 @@ private fun HomeHeader() {
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(BrandPrimary, BrandPrimary.copy(alpha = 0.88f))
+                    colors = listOf(HeaderBackground, HeaderBackground.copy(alpha = 0.88f))
                 )
             )
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.OConcurseiro" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.OConcurseiro" parent="android:Theme.Material.NoActionBar">
         <item name="android:statusBarColor">@color/brand_primary</item>
-        <item name="android:navigationBarColor">@color/surface_background</item>
+        <item name="android:navigationBarColor">@color/dark_surface</item>
         <item name="android:windowBackground">@color/brand_primary</item>
     </style>
 </resources>

@@ -40,9 +40,11 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
     ├── components/AppHeader.kt
     ├── navigation/AppNavigation.kt
     ├── screens/
+    │   ├── comentarios/ComentariosScreen.kt
     │   ├── filtro/FiltroScreen.kt
     │   ├── home/HomeScreen.kt
-    │   └── questao/QuestaoScreen.kt
+    │   ├── questao/QuestaoScreen.kt
+    │   └── splash/SplashScreen.kt
     ├── state/UiState.kt
     ├── theme/
     │   ├── Color.kt (semantic brand colors)
@@ -76,10 +78,12 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 
 ## Theme & Design System
 - **Brand identity**: Navy blue (#2D3E50) + Cream (#F2E6D0) + Sage accent (#7D9B91) — derived from logo
-- **Color tokens**: `BrandPrimary` (navy), `BrandPrimaryLight` (selected backgrounds), `BrandPrimaryDisabled` (muted), `BrandPrimaryBackground` (subtle), `BrandCream` (warm surfaces), `BrandAccent`/`BrandAccentLight` (sage green)
+- **Color tokens**: `BrandPrimary` (navy), `BrandPrimaryLight` (selected backgrounds), `BrandPrimaryDisabled` (muted), `BrandPrimaryBackground` (subtle), `BrandCream` (warm surfaces), `BrandAccent`/`BrandAccentLight` (sage green), `HeaderBackground` (always navy, used for app bar and splash)
+- **Dark mode**: Fully supported — colors in `Color.kt` use computed getters backed by `mutableStateOf` for the dark flag, so all screens automatically adapt without code changes. Dark palette uses lighter navy (#5B8AB5) for accents/buttons, dark surfaces (#0F1419), and light text (#E4E8EC). `setDarkMode()` is called in `OConcurseiroTheme`. System follows `isSystemInDarkTheme()`.
 - **Semantic colors**: All defined in `Color.kt` — no hardcoded colors in screens
 - **Typography**: Full scale defined in `Type.kt` (display, headline, title, body, label)
 - **Dynamic color disabled**: App always uses brand theme regardless of Android 12+ wallpaper
+- **Splash screen**: Compose-based splash at `ui/screens/splash/SplashScreen.kt` — shows logo (R.drawable.splash_logo) with fade-in animation, brand name, and tagline on navy background. Auto-transitions to Home after 2.2 seconds. XML theme sets `windowBackground` to navy for seamless cold start.
 - Theme wraps app via `OConcurseiroTheme` in MainActivity
 
 ## Key Patterns

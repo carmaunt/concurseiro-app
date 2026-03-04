@@ -7,11 +7,13 @@ import br.com.mauricio.oconcurseiro.ui.screens.comentarios.ComentariosScreen
 import br.com.mauricio.oconcurseiro.ui.screens.filtro.FiltroScreen
 import br.com.mauricio.oconcurseiro.ui.screens.home.HomeScreen
 import br.com.mauricio.oconcurseiro.ui.screens.questao.QuestaoScreen
+import br.com.mauricio.oconcurseiro.ui.screens.splash.SplashScreen
 import br.com.mauricio.oconcurseiro.ui.viewmodel.ComentariosViewModel
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
 
 sealed class Screen {
+    object Splash : Screen()
     object Home : Screen()
     object Questao : Screen()
     object Filtro : Screen()
@@ -25,9 +27,15 @@ fun AppNavigation() {
     val questaoViewModel: QuestaoViewModel = viewModel()
     val comentariosViewModel: ComentariosViewModel = viewModel()
 
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
+    var currentScreen by remember { mutableStateOf<Screen>(Screen.Splash) }
 
     when (val screen = currentScreen) {
+        Screen.Splash -> {
+            SplashScreen(
+                onFinished = { currentScreen = Screen.Home }
+            )
+        }
+
         Screen.Home -> {
             HomeScreen(
                 viewModel = homeViewModel,
