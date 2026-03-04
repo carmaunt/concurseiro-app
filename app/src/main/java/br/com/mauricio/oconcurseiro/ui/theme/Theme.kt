@@ -21,24 +21,24 @@ fun OConcurseiroTheme(
 
     val colorScheme = if (darkTheme) {
         darkColorScheme(
-            primary = Color(0xFF5B8AB5),
+            primary = Color(0xFF6EA8D4),
             onPrimary = Color.White,
-            primaryContainer = Color(0xFF1C2B38),
-            onPrimaryContainer = Color(0xFFB0C8DC),
-            secondary = Color(0xFF8FB5A8),
+            primaryContainer = Color(0xFF253A50),
+            onPrimaryContainer = Color(0xFFC2D8EC),
+            secondary = Color(0xFF9ECAB8),
             onSecondary = Color.White,
-            secondaryContainer = Color(0xFF1A2B25),
-            onSecondaryContainer = Color(0xFF8FB5A8),
-            background = Color(0xFF0F1419),
-            onBackground = Color(0xFFE4E8EC),
-            surface = Color(0xFF151D28),
-            onSurface = Color(0xFFE4E8EC),
-            surfaceVariant = Color(0xFF1A2230),
-            onSurfaceVariant = Color(0xFF9BAABC),
-            outline = Color(0xFF283848),
-            error = Color(0xFFEF4444),
+            secondaryContainer = Color(0xFF1E3530),
+            onSecondaryContainer = Color(0xFF9ECAB8),
+            background = Color(0xFF101820),
+            onBackground = Color(0xFFECF0F4),
+            surface = Color(0xFF1A2535),
+            onSurface = Color(0xFFECF0F4),
+            surfaceVariant = Color(0xFF1E2A38),
+            onSurfaceVariant = Color(0xFFAABBCC),
+            outline = Color(0xFF334858),
+            error = Color(0xFFFF6B6B),
             onError = Color.White,
-            errorContainer = Color(0xFF2D1215)
+            errorContainer = Color(0xFF351820)
         )
     } else {
         lightColorScheme(
@@ -69,7 +69,7 @@ fun OConcurseiroTheme(
             val window = (view.context as Activity).window
             window.statusBarColor = HeaderBackground.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-            val navBarColor = if (darkTheme) Color(0xFF0F1419).toArgb() else Color(0xFFF5F6FA).toArgb()
+            val navBarColor = if (darkTheme) Color(0xFF101820).toArgb() else Color(0xFFF5F6FA).toArgb()
             window.navigationBarColor = navBarColor
             WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }
