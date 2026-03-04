@@ -75,10 +75,11 @@ app/src/main/java/br/com/mauricio/oconcurseiro/
 - Network timeouts: connect 15s, read 30s, write 30s
 
 ## Theme & Design System
-- **Brand color**: Orange (#FF6A2A) with light/disabled/background variants
+- **Brand identity**: Navy blue (#2D3E50) + Cream (#F2E6D0) + Sage accent (#7D9B91) — derived from logo
+- **Color tokens**: `BrandPrimary` (navy), `BrandPrimaryLight` (selected backgrounds), `BrandPrimaryDisabled` (muted), `BrandPrimaryBackground` (subtle), `BrandCream` (warm surfaces), `BrandAccent`/`BrandAccentLight` (sage green)
 - **Semantic colors**: All defined in `Color.kt` — no hardcoded colors in screens
 - **Typography**: Full scale defined in `Type.kt` (display, headline, title, body, label)
-- **Dynamic color disabled**: App always uses brand orange theme regardless of Android 12+ wallpaper
+- **Dynamic color disabled**: App always uses brand theme regardless of Android 12+ wallpaper
 - Theme wraps app via `OConcurseiroTheme` in MainActivity
 
 ## Key Patterns

@@ -9,12 +9,14 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColorScheme = lightColorScheme(
-    primary = BrandOrange,
+    primary = BrandPrimary,
     onPrimary = TextOnBrand,
-    primaryContainer = BrandOrangeLight,
-    onPrimaryContainer = BrandOrange,
-    secondary = TextSecondary,
+    primaryContainer = BrandPrimaryLight,
+    onPrimaryContainer = BrandPrimary,
+    secondary = BrandAccent,
     onSecondary = TextOnBrand,
+    secondaryContainer = BrandAccentLight,
+    onSecondaryContainer = BrandAccent,
     background = SurfaceBackground,
     onBackground = TextPrimary,
     surface = SurfaceWhite,
@@ -28,11 +30,11 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BrandOrange,
+    primary = BrandAccent,
     onPrimary = TextOnBrand,
-    primaryContainer = BrandOrangeLight,
-    onPrimaryContainer = BrandOrange,
-    secondary = TextSecondary,
+    primaryContainer = BrandPrimary,
+    onPrimaryContainer = BrandPrimaryLight,
+    secondary = BrandAccent,
     onSecondary = TextOnBrand,
     background = TextPrimary,
     onBackground = SurfaceBackground,

@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import br.com.mauricio.oconcurseiro.ui.navigation.AppNavigation
-import br.com.mauricio.oconcurseiro.ui.theme.BrandOrange
+import br.com.mauricio.oconcurseiro.ui.theme.BrandPrimary
 import br.com.mauricio.oconcurseiro.ui.theme.OConcurseiroTheme
 import br.com.mauricio.oconcurseiro.ui.theme.SurfaceBackground
 
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(BrandOrange.toArgb()),
+            statusBarStyle = SystemBarStyle.dark(BrandPrimary.toArgb()),
             navigationBarStyle = SystemBarStyle.light(
                 SurfaceBackground.toArgb(),
                 SurfaceBackground.toArgb()

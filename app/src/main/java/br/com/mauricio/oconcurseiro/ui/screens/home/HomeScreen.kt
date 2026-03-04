@@ -52,7 +52,7 @@ fun HomeScreen(
                         .padding(vertical = 48.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = BrandOrange)
+                    CircularProgressIndicator(color = BrandPrimary)
                 }
             } else if (viewModel.erro != null && !viewModel.statsCarregadas) {
                 ErrorCard(
@@ -81,7 +81,7 @@ private fun HomeHeader() {
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(BrandOrange, BrandOrange.copy(alpha = 0.88f))
+                    colors = listOf(BrandPrimary, BrandPrimary.copy(alpha = 0.88f))
                 )
             )
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
@@ -118,13 +118,13 @@ private fun ResolverQuestoesCard(onClick: () -> Unit) {
                 modifier = Modifier
                     .size(46.dp)
                     .clip(CircleShape)
-                    .background(BrandOrangeBackground),
+                    .background(BrandPrimaryBackground),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Quiz,
                     contentDescription = null,
-                    tint = BrandOrange,
+                    tint = BrandPrimary,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -295,14 +295,14 @@ private fun BottomNavBar(onOpenFilters: () -> Unit) {
                 Icon(
                     imageVector = Icons.Filled.FilterList,
                     contentDescription = "Filtros",
-                    tint = BrandOrange,
+                    tint = BrandPrimary,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "Filtros",
                     style = MaterialTheme.typography.labelMedium,
-                    color = BrandOrange,
+                    color = BrandPrimary,
                     fontSize = 11.sp
                 )
             }
@@ -335,7 +335,7 @@ private fun ErrorCard(
             Button(
                 onClick = onRetry,
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
+                colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
             ) {
                 Text(
                     text = "Tentar novamente",

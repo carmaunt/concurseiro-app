@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-import br.com.mauricio.oconcurseiro.ui.theme.BrandOrange
+import br.com.mauricio.oconcurseiro.ui.theme.BrandPrimary
 import br.com.mauricio.oconcurseiro.ui.theme.TextOnBrand
 
 @Composable
@@ -33,7 +33,7 @@ fun AppHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(130.dp)
-            .background(BrandOrange)
+            .background(BrandPrimary)
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {

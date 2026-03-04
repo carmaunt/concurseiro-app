@@ -57,7 +57,7 @@ fun QuestaoScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = BrandOrange)
+                    CircularProgressIndicator(color = BrandPrimary)
                 }
             }
 
@@ -92,7 +92,7 @@ fun QuestaoScreen(
                         Button(
                             onClick = onOpenFiltro,
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
                         ) {
                             Text(
                                 text = "Alterar filtros",
@@ -136,7 +136,7 @@ fun QuestaoScreen(
                         Button(
                             onClick = { viewModel.carregarQuestao() },
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
                         ) {
                             Text(
                                 text = "Tentar novamente",
@@ -220,7 +220,7 @@ fun TopoResumoQuestao(
                 modifier = Modifier
                     .width(40.dp)
                     .height(4.dp)
-                    .background(BrandOrange, shape = RoundedCornerShape(999.dp))
+                    .background(BrandPrimary, shape = RoundedCornerShape(999.dp))
             )
         }
 
@@ -364,8 +364,8 @@ fun CorpoQuestao(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (selecionada != -1 && !resolvida) BrandOrange else BrandOrangeDisabled,
-                disabledContainerColor = BrandOrangeDisabled
+                containerColor = if (selecionada != -1 && !resolvida) BrandPrimary else BrandPrimaryDisabled,
+                disabledContainerColor = BrandPrimaryDisabled
             )
         ) {
             Text(
@@ -398,7 +398,7 @@ fun Alternativa(
     val errBg = ErrorBg
     val errBorder = ErrorBorder
 
-    val selectedBg = BrandOrangeLight
+    val selectedBg = BrandPrimaryLight
 
     val (bg, border, icon) = when {
         !resolvida && selecionada -> Triple(selectedBg, neutralBorder, null)
@@ -506,7 +506,7 @@ fun RodapeQuestao(
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.height(40.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
+                colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
             ) {
                 Text(
                     text = "Filtros",

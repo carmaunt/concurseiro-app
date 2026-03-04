@@ -120,8 +120,8 @@ fun FiltroScreen(
                     .background(SurfaceCard)
                     .padding(4.dp)
             ) {
-                val bgSimples = if (tab == 0) BrandOrangeLight else Color.Transparent
-                val fgSimples = if (tab == 0) BrandOrange else TextSecondary
+                val bgSimples = if (tab == 0) BrandPrimaryLight else Color.Transparent
+                val fgSimples = if (tab == 0) BrandPrimary else TextSecondary
 
                 Box(
                     modifier = Modifier
@@ -137,8 +137,8 @@ fun FiltroScreen(
 
                 Spacer(Modifier.width(8.dp))
 
-                val bgAvancado = if (tab == 1) BrandOrangeLight else Color.Transparent
-                val fgAvancado = if (tab == 1) BrandOrange else TextSecondary
+                val bgAvancado = if (tab == 1) BrandPrimaryLight else Color.Transparent
+                val fgAvancado = if (tab == 1) BrandPrimary else TextSecondary
 
                 Box(
                     modifier = Modifier
@@ -314,7 +314,7 @@ fun FiltroScreen(
                         .weight(1f)
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
                 ) {
                     Text("Filtrar", fontWeight = FontWeight.SemiBold)
                 }
@@ -353,10 +353,10 @@ fun DropdownSelector(
                     .clip(RoundedCornerShape(14.dp))
                     .border(
                         1.dp,
-                        if (selecionado != null) BrandOrange else BorderDefault,
+                        if (selecionado != null) BrandPrimary else BorderDefault,
                         RoundedCornerShape(14.dp)
                     )
-                    .background(if (selecionado != null) BrandOrangeBackground else SurfaceWhite)
+                    .background(if (selecionado != null) BrandPrimaryBackground else SurfaceWhite)
                     .clickable(enabled = isEnabled && itens.isNotEmpty()) { expandido = true }
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -422,7 +422,7 @@ fun DropdownSelector(
                                     text = item.nome,
                                     fontSize = 15.sp,
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                    color = if (isSelected) BrandOrange else TextPrimary
+                                    color = if (isSelected) BrandPrimary else TextPrimary
                                 )
                             },
                             onClick = {
@@ -430,7 +430,7 @@ fun DropdownSelector(
                                 expandido = false
                             },
                             modifier = Modifier.background(
-                                if (isSelected) BrandOrangeBackground else Color.Transparent
+                                if (isSelected) BrandPrimaryBackground else Color.Transparent
                             )
                         )
                     }
@@ -488,9 +488,9 @@ fun ChipAno(texto: String, selecionado: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun ChipOpcao(texto: String, selecionado: Boolean, onClick: () -> Unit) {
-    val bg = if (selecionado) BrandOrangeLight else SurfaceChip
-    val border = if (selecionado) BrandOrange else BorderDefault
-    val textColor = if (selecionado) BrandOrange else TextSecondary
+    val bg = if (selecionado) BrandPrimaryLight else SurfaceChip
+    val border = if (selecionado) BrandPrimary else BorderDefault
+    val textColor = if (selecionado) BrandPrimary else TextSecondary
 
     Box(
         modifier = Modifier

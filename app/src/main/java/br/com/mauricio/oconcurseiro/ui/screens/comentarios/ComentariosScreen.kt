@@ -74,7 +74,7 @@ fun ComentariosScreen(
             when {
                 viewModel.isLoading && viewModel.comentarios.isEmpty() -> {
                     CircularProgressIndicator(
-                        color = BrandOrange,
+                        color = BrandPrimary,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -96,7 +96,7 @@ fun ComentariosScreen(
                         Button(
                             onClick = { viewModel.carregarComentarios(questaoId) },
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
                         ) {
                             Text("Tentar novamente", color = TextOnBrand)
                         }
@@ -158,14 +158,14 @@ fun ComentariosScreen(
                                 ) {
                                     if (viewModel.isLoading) {
                                         CircularProgressIndicator(
-                                            color = BrandOrange,
+                                            color = BrandPrimary,
                                             modifier = Modifier.size(24.dp)
                                         )
                                     } else {
                                         TextButton(onClick = { viewModel.carregarMais() }) {
                                             Text(
                                                 "Carregar mais",
-                                                color = BrandOrange,
+                                                color = BrandPrimary,
                                                 fontWeight = FontWeight.SemiBold
                                             )
                                         }
@@ -217,7 +217,7 @@ fun ComentariosScreen(
                         .heightIn(min = 48.dp, max = 120.dp),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = BrandOrange,
+                        focusedBorderColor = BrandPrimary,
                         unfocusedBorderColor = BorderDefault,
                         focusedContainerColor = SurfaceWhite,
                         unfocusedContainerColor = SurfaceCard
@@ -234,9 +234,9 @@ fun ComentariosScreen(
                         .clip(CircleShape)
                         .background(
                             if (textoComentario.isNotBlank() && !viewModel.isEnviando)
-                                BrandOrange
+                                BrandPrimary
                             else
-                                BrandOrangeDisabled
+                                BrandPrimaryDisabled
                         )
                         .clickable(enabled = textoComentario.isNotBlank() && !viewModel.isEnviando) {
                             viewModel.enviarComentario(
@@ -278,7 +278,7 @@ fun TabOrdenacao(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
             .background(
-                if (selecionada) BrandOrangeLight else SurfaceCard
+                if (selecionada) BrandPrimaryLight else SurfaceCard
             )
             .clickable { onClick() }
             .padding(vertical = 10.dp),
@@ -286,7 +286,7 @@ fun TabOrdenacao(
     ) {
         Text(
             text = texto,
-            color = if (selecionada) BrandOrange else TextSecondary,
+            color = if (selecionada) BrandPrimary else TextSecondary,
             fontWeight = if (selecionada) FontWeight.SemiBold else FontWeight.Medium,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -311,12 +311,12 @@ fun ComentarioItem(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(BrandOrangeLight),
+                    .background(BrandPrimaryLight),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = comentario.autor.firstOrNull()?.uppercase() ?: "?",
-                    color = BrandOrange,
+                    color = BrandPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -402,13 +402,13 @@ fun ComentarioItem(
                     imageVector = if (jaCurtiu) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
                     contentDescription = "Curtir",
                     modifier = Modifier.size(16.dp),
-                    tint = if (jaCurtiu) BrandOrange else TextSecondary
+                    tint = if (jaCurtiu) BrandPrimary else TextSecondary
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = "${comentario.curtidas}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (jaCurtiu) BrandOrange else TextSecondary,
+                    color = if (jaCurtiu) BrandPrimary else TextSecondary,
                     fontWeight = FontWeight.Medium
                 )
             }
