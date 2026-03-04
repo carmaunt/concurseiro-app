@@ -10,5 +10,7 @@
         <item name="windowSplashScreenBackground">@color/brand_primary</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
         <item name="postSplashScreenTheme">@style/Theme.OConcurseiro</item>
+        <item name="android:statusBarColor">@color/brand_primary</item>
+        <item name="android:navigationBarColor">@color/brand_primary</item>
     </style>
 </resources>
