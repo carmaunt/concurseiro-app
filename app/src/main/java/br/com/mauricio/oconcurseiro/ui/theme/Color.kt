@@ -14,7 +14,7 @@ private val isDark: Boolean get() = _isDark.value
 val HeaderBackground = Color(0xFF2D3E50)
 
 val BrandPrimary: Color get() = if (isDark) Color(0xFF78B4E0) else Color(0xFF2D3E50)
-val BrandPrimaryLight: Color get() = if (isDark) Color(0xFF2A3540) else Color(0xFFDFE5EB)
+val BrandPrimaryLight: Color get() = if (isDark) Color(0xFF2A3540) else Color(0xFFB8CDE0)
 val BrandPrimaryDisabled: Color get() = if (isDark) Color(0xFF5A7A90) else Color(0xFF8BA0B5)
 val BrandPrimaryBackground: Color get() = if (isDark) Color(0xFF1E2428) else Color(0xFFF0F3F7)
 
