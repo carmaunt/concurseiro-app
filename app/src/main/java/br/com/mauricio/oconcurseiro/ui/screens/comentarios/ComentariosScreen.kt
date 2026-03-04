@@ -106,6 +106,7 @@ fun ComentariosScreen(
                 viewModel.comentarios.isEmpty() && !viewModel.isLoading -> {
                     Column(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .align(Alignment.Center)
                             .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -118,13 +119,15 @@ fun ComentariosScreen(
                         Text(
                             text = "Nenhum comentário ainda",
                             style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary
+                            color = TextPrimary,
+                            textAlign = TextAlign.Center
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
                             text = "Seja o primeiro a comentar!",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
+                            color = TextSecondary,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
