@@ -14,7 +14,7 @@ import androidx.core.view.WindowCompat
 
 @Composable
 fun OConcurseiroTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     setDarkMode(darkTheme)
