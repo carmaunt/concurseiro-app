@@ -117,7 +117,7 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
                     filtro = filtro
                 )
 
-                totalQuestoes = resp.resolvedTotalElements.toInt()
+                val resolvedTotal = resp.resolvedTotalElements.toInt()
 
                 val dto = resp.content.firstOrNull()
                 val q = dto?.let { QuestaoMapper.fromDto(it) }
@@ -127,6 +127,7 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
                     isEmpty = true
                     totalQuestoes = 0
                 } else {
+                    totalQuestoes = if (resolvedTotal > 0) resolvedTotal else maxOf(paginaAtual + 1, 1)
                     numeroAtual = paginaAtual + 1
                     verificarRespostaAnterior(q.id)
                 }
