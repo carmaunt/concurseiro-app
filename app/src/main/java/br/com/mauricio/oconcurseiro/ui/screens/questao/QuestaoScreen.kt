@@ -43,7 +43,7 @@ fun QuestaoScreen(
     val erro = viewModel.erro
     val isEmpty = viewModel.isEmpty
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(SurfaceWhite)) {
 
         AppHeader(
             title = questao?.let { "Questão ${it.id}" } ?: "Carregando...",
