@@ -226,51 +226,18 @@ fun TopoResumoQuestao(
 
         Spacer(Modifier.weight(1f))
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(SurfaceCard)
+                .clickable { onAbrirComentarios() },
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(SurfaceCard)
-                    .clickable { },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "🎓",
-                    fontSize = 18.sp
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(SurfaceCard)
-                    .clickable { onAbrirComentarios() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "💬",
-                    fontSize = 18.sp
-                )
-            }
-
-            OutlinedButton(
-                onClick = { },
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.height(36.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp)
-            ) {
-                Text(
-                    text = "+ Recursos",
-                    color = BrandOrange,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 13.sp
-                )
-            }
+            Text(
+                text = "💬",
+                fontSize = 18.sp
+            )
         }
     }
 }
