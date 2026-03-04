@@ -22,6 +22,13 @@ data class PageResponse<T>(
 
     val resolvedTotalPages: Int
         get() = page?.totalPages ?: totalPages
+
+    val resolvedLast: Boolean
+        get() = if (page != null) {
+            (page.number + 1) >= page.totalPages
+        } else {
+            last
+        }
 }
 
 data class PageInfo(

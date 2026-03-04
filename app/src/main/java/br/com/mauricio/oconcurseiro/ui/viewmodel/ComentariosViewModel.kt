@@ -75,7 +75,7 @@ class ComentariosViewModel : ViewModel() {
                     )
                 }
                 comentarios = if (resetar) novos else comentarios + novos
-                temMaisPaginas = !resp.last
+                temMaisPaginas = !resp.resolvedLast
             } catch (e: Exception) {
                 erro = mapErrorMessage(e)
             } finally {
