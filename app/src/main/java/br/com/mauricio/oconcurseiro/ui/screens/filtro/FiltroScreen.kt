@@ -88,7 +88,7 @@ fun FiltroScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(SurfaceWhite)) {
 
         AppHeader(
             title = "Novo filtro",
