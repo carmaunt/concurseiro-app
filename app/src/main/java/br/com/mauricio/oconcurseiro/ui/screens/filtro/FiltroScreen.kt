@@ -357,7 +357,7 @@ fun DropdownSelector(
                         RoundedCornerShape(14.dp)
                     )
                     .background(if (selecionado != null) BrandPrimaryBackground else SurfaceWhite)
-                    .clickable(enabled = isEnabled && itens.isNotEmpty()) { expandido = true }
+                    .clickable(enabled = enabled) { expandido = true }
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

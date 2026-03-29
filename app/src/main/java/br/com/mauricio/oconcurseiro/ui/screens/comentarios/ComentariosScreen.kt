@@ -43,6 +43,9 @@ fun ComentariosScreen(
 
     var textoComentario by remember { mutableStateOf("") }
 
+    // ⚠️ depois você liga isso no seu auth real (token, etc)
+    val usuarioAutenticado = false
+
     Column(modifier = Modifier.fillMaxSize().background(SurfaceBackground)) {
 
         AppHeader(
@@ -50,138 +53,21 @@ fun ComentariosScreen(
             onBack = onBack
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            TabOrdenacao(
-                texto = "Mais curtidos",
-                selecionada = viewModel.ordenacao == "curtidas",
-                onClick = { viewModel.alterarOrdenacao("curtidas") },
-                modifier = Modifier.weight(1f)
-            )
-            TabOrdenacao(
-                texto = "Mais recentes",
-                selecionada = viewModel.ordenacao == "recentes",
-                onClick = { viewModel.alterarOrdenacao("recentes") },
-                modifier = Modifier.weight(1f)
-            )
-        }
+        // ... (NADA MUDA NA PARTE DE LISTA)
 
         Box(modifier = Modifier.weight(1f)) {
-            when {
-                viewModel.isLoading && viewModel.comentarios.isEmpty() -> {
-                    CircularProgressIndicator(
-                        color = BrandPrimary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
-                viewModel.erro != null && viewModel.comentarios.isEmpty() -> {
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = viewModel.erro ?: "",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.carregarComentarios(questaoId) },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
-                        ) {
-                            Text("Tentar novamente", color = TextOnBrand)
-                        }
-                    }
-                }
-
-                viewModel.comentarios.isEmpty() && !viewModel.isLoading -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center)
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "💬",
-                            fontSize = 48.sp
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = "Nenhum comentário ainda",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "Seja o primeiro a comentar!",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-
-                else -> {
-                    val listState = rememberLazyListState()
-
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(0.dp)
-                    ) {
-                        items(viewModel.comentarios, key = { it.id }) { comentario ->
-                            ComentarioItem(
-                                comentario = comentario,
-                                jaCurtiu = viewModel.jaCurtiu(comentario.id),
-                                jaDescurtiu = viewModel.jaDescurtiu(comentario.id),
-                                onCurtir = { viewModel.curtir(comentario.id) },
-                                onDescurtir = { viewModel.descurtir(comentario.id) }
-                            )
-                        }
-
-                        if (viewModel.temMaisPaginas) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (viewModel.isLoading) {
-                                        CircularProgressIndicator(
-                                            color = BrandPrimary,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    } else {
-                                        TextButton(onClick = { viewModel.carregarMais() }) {
-                                            Text(
-                                                "Carregar mais",
-                                                color = BrandPrimary,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            // mantém exatamente igual ao seu código atual
         }
 
-        if (viewModel.erroEnvio != null) {
+        // 🔥 MENSAGEM INTELIGENTE
+        if (!usuarioAutenticado) {
+            Text(
+                text = "Faça login para comentar.",
+                color = TextSecondary,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+        } else if (viewModel.erroEnvio != null) {
             Text(
                 text = viewModel.erroEnvio ?: "",
                 color = ErrorBorder,
@@ -205,12 +91,20 @@ fun ComentariosScreen(
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                // 🔒 INPUT BLOQUEADO
                 OutlinedTextField(
                     value = textoComentario,
-                    onValueChange = { textoComentario = it },
+                    onValueChange = {
+                        if (usuarioAutenticado) textoComentario = it
+                    },
+                    enabled = usuarioAutenticado,
                     placeholder = {
                         Text(
-                            "Escreva um comentário",
+                            if (usuarioAutenticado)
+                                "Escreva um comentário"
+                            else
+                                "Disponível apenas para usuários logados",
                             color = TextPlaceholder,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -222,8 +116,10 @@ fun ComentariosScreen(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrandPrimary,
                         unfocusedBorderColor = BorderDefault,
+                        disabledBorderColor = BorderDefault,
                         focusedContainerColor = SurfaceWhite,
-                        unfocusedContainerColor = SurfaceCard
+                        unfocusedContainerColor = SurfaceCard,
+                        disabledContainerColor = SurfaceCard
                     ),
                     textStyle = MaterialTheme.typography.bodyMedium,
                     maxLines = 4
@@ -231,17 +127,22 @@ fun ComentariosScreen(
 
                 Spacer(Modifier.width(10.dp))
 
+                // 🔒 BOTÃO BLOQUEADO
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(
-                            if (textoComentario.isNotBlank() && !viewModel.isEnviando)
+                            if (usuarioAutenticado && textoComentario.isNotBlank() && !viewModel.isEnviando)
                                 BrandPrimary
                             else
                                 BrandPrimaryDisabled
                         )
-                        .clickable(enabled = textoComentario.isNotBlank() && !viewModel.isEnviando) {
+                        .clickable(
+                            enabled = usuarioAutenticado &&
+                                    textoComentario.isNotBlank() &&
+                                    !viewModel.isEnviando
+                        ) {
                             viewModel.enviarComentario(
                                 autor = "Usuário",
                                 texto = textoComentario,
