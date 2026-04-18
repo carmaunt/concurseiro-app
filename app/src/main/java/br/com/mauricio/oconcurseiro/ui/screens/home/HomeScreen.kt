@@ -1,5 +1,6 @@
 package br.com.mauricio.oconcurseiro.ui.screens.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +33,10 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
 fun HomeScreen(
     viewModel: HomeViewModel,
     onStartPractice: () -> Unit,
-    onOpenFilters: () -> Unit
+    onOpenFilters: () -> Unit,
+    onLogout: () -> Unit,
+    onLoginClick: () -> Unit,
+    usuarioAutenticado: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -43,7 +48,11 @@ fun HomeScreen(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            HomeHeader()
+            HomeHeader(
+                usuarioAutenticado = usuarioAutenticado,
+                onLoginClick = onLoginClick,
+                onLogout = onLogout
+            )
 
             if (viewModel.isLoading) {
                 Box(
@@ -70,29 +79,64 @@ fun HomeScreen(
             }
         }
 
-        BottomNavBar(onOpenFilters)
+        BottomNavBar(
+            onOpenFilters = onOpenFilters,
+            onLogout = onLogout,
+            usuarioAutenticado = usuarioAutenticado
+        )
     }
 }
 
 @Composable
-private fun HomeHeader() {
+private fun HomeHeader(
+    usuarioAutenticado: Boolean,
+    onLoginClick: () -> Unit,
+    onLogout: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(HeaderBackground, HeaderBackground.copy(alpha = 0.88f))
+                    colors = listOf(
+                        HeaderBackground,
+                        HeaderBackground.copy(alpha = 0.88f)
+                    )
                 )
             )
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
             .padding(horizontal = 20.dp)
             .padding(top = 18.dp, bottom = 22.dp)
     ) {
-        Text(
-            text = "Olá, Concurseiro!",
-            color = TextOnBrand,
-            style = MaterialTheme.typography.headlineLarge
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Olá, Concurseiro!",
+                color = TextOnBrand,
+                style = MaterialTheme.typography.headlineLarge
+            )
+
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, TextOnBrand.copy(alpha = 0.6f)),
+                color = Color.Transparent,
+                modifier = Modifier
+                    .clickable {
+                        if (usuarioAutenticado) onLogout() else onLoginClick()
+                    }
+            ) {
+                Text(
+                    text = if (usuarioAutenticado) "Sair" else "Entrar",
+                    color = TextOnBrand,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                )
+            }
+        }
     }
 }
 
@@ -268,7 +312,11 @@ private fun PercentageCircle(percentage: Int) {
 }
 
 @Composable
-private fun BottomNavBar(onOpenFilters: () -> Unit) {
+private fun BottomNavBar(
+    onOpenFilters: () -> Unit,
+    onLogout: () -> Unit,
+    usuarioAutenticado: Boolean
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = SurfaceWhite,
@@ -285,26 +333,32 @@ private fun BottomNavBar(onOpenFilters: () -> Unit) {
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             contentAlignment = Alignment.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { onOpenFilters() }
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Filled.FilterList,
-                    contentDescription = "Filtros",
-                    tint = BrandPrimary,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = "Filtros",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = BrandPrimary,
-                    fontSize = 11.sp
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onOpenFilters() }
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.FilterList,
+                        contentDescription = "Filtros",
+                        tint = BrandPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = "Filtros",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = BrandPrimary,
+                        fontSize = 11.sp
+                    )
+                }
             }
         }
     }

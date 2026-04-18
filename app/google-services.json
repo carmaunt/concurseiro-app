@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "389724825283",
+    "project_id": "concurseiro-ad048",
+    "storage_bucket": "concurseiro-ad048.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389724825283:android:b6c272af498546ba50e476",
+        "android_client_info": {
+          "package_name": "br.com.mauricio.oconcurseiro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "389724825283-b0lv7c2tlbg4n86runhrjssvj3d8p0a1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.mauricio.oconcurseiro",
+            "certificate_hash": "269211088aaf4eefd46dc68ea896a86c3069340a"
+          }
+        },
+        {
+          "client_id": "389724825283-44h5hhvdp7ion9ul7srmllej47p0llg8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDypto0069svskskt4Hp98UhV4OwJ5At94"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "389724825283-44h5hhvdp7ion9ul7srmllej47p0llg8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
