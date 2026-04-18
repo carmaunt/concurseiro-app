@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "respostas")
 data class RespostaEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val usuarioId: String,
     val questaoId: String,
     val disciplina: String,
     val acertou: Boolean,

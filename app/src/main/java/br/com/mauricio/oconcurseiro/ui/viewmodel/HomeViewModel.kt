@@ -13,8 +13,11 @@ import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val authRepository = AuthRepository()
 
     private val repository = QuestaoRepository()
     private val respostaDao = AppDatabase.getInstance(application).respostaDao()
@@ -132,12 +135,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun carregarDesempenho() {
         val seteDiasAtras = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
+        val usuarioId = authRepository.usuarioIdOuGuest()
 
-        resolvidas7dias = respostaDao.totalRespostasDesde(seteDiasAtras)
-        acertos7dias = respostaDao.totalAcertosDesde(seteDiasAtras)
-        erros7dias = respostaDao.totalErrosDesde(seteDiasAtras)
+        resolvidas7dias = respostaDao.totalRespostasDesde(usuarioId, seteDiasAtras)
+        acertos7dias = respostaDao.totalAcertosDesde(usuarioId, seteDiasAtras)
+        erros7dias = respostaDao.totalErrosDesde(usuarioId, seteDiasAtras)
 
-        totalResolvidas = respostaDao.totalRespostas()
-        totalAcertos = respostaDao.totalAcertos()
+        totalResolvidas = respostaDao.totalRespostas(usuarioId)
+        totalAcertos = respostaDao.totalAcertos(usuarioId)
     }
 }

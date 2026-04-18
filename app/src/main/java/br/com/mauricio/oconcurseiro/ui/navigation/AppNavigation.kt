@@ -36,7 +36,18 @@ fun AppNavigation() {
     val questaoViewModel: QuestaoViewModel = viewModel()
     val comentariosViewModel: ComentariosViewModel = viewModel()
 
+    val context = LocalContext.current
+    val guestManager = remember {
+        br.com.mauricio.oconcurseiro.data.local.GuestUsageManager(context)
+    }
+    var mostrarLimiteDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(authViewModel.usuarioAutenticado) {
+        homeViewModel.atualizarDesempenho()
+    }
+
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Splash) }
+
 
     when (val screen = currentScreen) {
         Screen.Splash -> {
@@ -75,11 +86,6 @@ fun AppNavigation() {
         }
 
         Screen.Home -> {
-            val context = LocalContext.current
-            val guestManager = remember {
-                br.com.mauricio.oconcurseiro.data.local.GuestUsageManager(context)
-            }
-            var mostrarLimiteDialog by remember { mutableStateOf(false) }
 
             if (mostrarLimiteDialog) {
                 br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog(
@@ -119,10 +125,6 @@ fun AppNavigation() {
                         questaoViewModel.carregarQuestao()
                     }
 
-                    if (!authViewModel.usuarioAutenticado) {
-                        guestManager.registrarResolucao()
-                    }
-
                     currentScreen = Screen.Questao
                 },
                 onOpenFilters = {
@@ -149,6 +151,19 @@ fun AppNavigation() {
                 },
                 onAbrirComentarios = { questaoId ->
                     currentScreen = Screen.Comentarios(questaoId)
+                },
+                onResolvidaComSucesso = { questaoId ->
+                    if (!authViewModel.usuarioAutenticado) {
+                        guestManager.registrarResolucao(questaoId)
+                        homeViewModel.atualizarDesempenho()
+                    }
+                },
+                onSolicitarProximaQuestao = {
+                    if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
+                        mostrarLimiteDialog = true
+                    } else {
+                        questaoViewModel.proxima()
+                    }
                 }
             )
         }
@@ -160,6 +175,11 @@ fun AppNavigation() {
                     currentScreen = if (questaoViewModel.jaCarregou) Screen.Questao else Screen.Home
                 },
                 onAplicarFiltro = { novoFiltro ->
+                    if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
+                        mostrarLimiteDialog = true
+                        return@FiltroScreen
+                    }
+
                     questaoViewModel.aplicarFiltro(novoFiltro)
                     currentScreen = Screen.Questao
                 }

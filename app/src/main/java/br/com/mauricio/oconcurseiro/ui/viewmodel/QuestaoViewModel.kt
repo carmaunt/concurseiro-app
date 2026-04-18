@@ -18,6 +18,7 @@ import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 
 data class RespostaAnterior(
     val acertou: Boolean,
@@ -84,6 +85,8 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
         carregarCatalogos()
     }
 
+    private val authRepository = AuthRepository()
+
     private fun mapErrorMessage(e: Exception): String {
         return when (e) {
             is UnknownHostException -> "Sem conexão com a internet"
@@ -147,7 +150,7 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
             return
         }
         try {
-            val resposta = respostaDao.ultimaRespostaPorQuestao(questaoId)
+            val resposta = respostaDao.ultimaRespostaPorQuestao(authRepository.usuarioIdOuGuest(), questaoId)
             respostaAnterior = resposta?.let {
                 RespostaAnterior(
                     acertou = it.acertou,
@@ -164,6 +167,7 @@ class QuestaoViewModel(application: Application) : AndroidViewModel(application)
             try {
                 respostaDao.inserir(
                     RespostaEntity(
+                        usuarioId = authRepository.usuarioIdOuGuest(),
                         questaoId = questaoId,
                         disciplina = disciplina,
                         acertou = acertou,

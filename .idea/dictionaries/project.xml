@@ -9,20 +9,24 @@
       <w>Acompanhe</w>
       <w>Administrativo</w>
       <w>Administração</w>
+      <w>Alterar</w>
       <w>Alternativa</w>
       <w>Anuladas</w>
       <w>Assuntos</w>
+      <w>Atras</w>
       <w>Atual</w>
       <w>Autenticado</w>
       <w>Avancado</w>
       <w>Avançado</w>
       <w>Cadastro</w>
+      <w>Carregadas</w>
       <w>Carregando</w>
       <w>Certas</w>
       <w>Clicada</w>
       <w>Comece</w>
       <w>Comentarios</w>
       <w>Concurseiro</w>
+      <w>Contabilizou</w>
       <w>Continuar</w>
       <w>Criar</w>
       <w>Desatualizadas</w>
@@ -37,6 +41,7 @@
       <w>Errei</w>
       <w>Escolher</w>
       <w>Espera</w>
+      <w>Estatisticas</w>
       <w>Excluir</w>
       <w>Falha</w>
       <w>Faça</w>
@@ -44,10 +49,13 @@
       <w>Inativa</w>
       <w>Independência</w>
       <w>Informação</w>
+      <w>Instituicoes</w>
       <w>Instituto</w>
       <w>Limite</w>
       <w>Limpar</w>
       <w>Nenhuma</w>
+      <w>Ocorreu</w>
+      <w>Ocultar</w>
       <w>Questao</w>
       <w>Recursos</w>
       <w>Resolucao</w>
@@ -63,15 +71,21 @@
       <w>Salva</w>
       <w>Seletiva</w>
       <w>Sigilo</w>
+      <w>Solicitar</w>
       <w>Sucesso</w>
       <w>Tentar</w>
+      <w>Tente</w>
       <w>Transparência</w>
       <w>Título</w>
+      <w>Visivel</w>
       <w>aceita</w>
       <w>acertos</w>
+      <w>acertou</w>
       <w>acompanhar</w>
+      <w>alterar</w>
       <w>alternativa</w>
       <w>alternativas</w>
+      <w>anteriormente</w>
       <w>apenas</w>
       <w>após</w>
       <w>aqui</w>
@@ -81,6 +95,7 @@
       <w>atingido</w>
       <w>ativa</w>
       <w>atual</w>
+      <w>atualizar</w>
       <w>buscar</w>
       <w>cadastrar</w>
       <w>cadastro</w>
@@ -93,21 +108,28 @@
       <w>comentar</w>
       <w>comentarios</w>
       <w>começa</w>
+      <w>concurseiro</w>
+      <w>conectar</w>
+      <w>conexão</w>
       <w>confirmar</w>
       <w>conta</w>
       <w>continuar</w>
       <w>correta</w>
       <w>criado</w>
+      <w>dados</w>
       <w>desde</w>
       <w>desempenho</w>
       <w>deve</w>
       <w>disciplina</w>
+      <w>disciplinas</w>
       <w>diário</w>
       <w>encontrada</w>
+      <w>encontrar</w>
       <w>enunciado</w>
       <w>errado</w>
       <w>erro</w>
       <w>erros</w>
+      <w>errou</w>
       <w>espaço</w>
       <w>estilo</w>
       <w>fazer</w>
@@ -119,12 +141,15 @@
       <w>gabarito</w>
       <w>googleusercontent</w>
       <w>hhvdp</w>
+      <w>historico</w>
       <w>hoje</w>
+      <w>icone</w>
       <w>imagem</w>
       <w>implementar</w>
       <w>informações</w>
       <w>inserir</w>
       <w>instituicao</w>
+      <w>instituicoes</w>
       <w>laranja</w>
       <w>letra</w>
       <w>limite</w>
@@ -149,6 +174,8 @@
       <w>passo</w>
       <w>pelo</w>
       <w>pode</w>
+      <w>porcentagem</w>
+      <w>possível</w>
       <w>principais</w>
       <w>progresso</w>
       <w>proxima</w>
@@ -163,7 +190,11 @@
       <w>resolveu</w>
       <w>resolvi</w>
       <w>resolvida</w>
+      <w>resolvidas</w>
+      <w>respondeu</w>
+      <w>respondida</w>
       <w>resposta</w>
+      <w>respostas</w>
       <w>restrito</w>
       <w>rodapé</w>
       <w>rolável</w>
@@ -172,7 +203,9 @@
       <w>selecionado</w>
       <w>senha</w>
       <w>senhas</w>
+      <w>servidor</w>
       <w>servidores</w>
+      <w>sete</w>
       <w>sincronizar</w>
       <w>srmllej</w>
       <w>texto</w>

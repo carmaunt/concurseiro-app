@@ -36,7 +36,9 @@ fun QuestaoScreen(
     viewModel: QuestaoViewModel,
     onOpenFiltro: () -> Unit,
     onBack: (() -> Unit)? = null,
-    onAbrirComentarios: ((questaoId: String) -> Unit)? = null
+    onAbrirComentarios: ((questaoId: String) -> Unit)? = null,
+    onResolvidaComSucesso: (questaoId: String) -> Unit = {},
+    onSolicitarProximaQuestao: () -> Unit = { viewModel.proxima() }
 ) {
     val questao = viewModel.questao
     val isLoading = viewModel.isLoading
@@ -172,6 +174,9 @@ fun QuestaoScreen(
                                 gabarito = questao.gabarito,
                                 acertou = acertou
                             )
+                        },
+                        onResolvidaComSucesso = {
+                            onResolvidaComSucesso(questao.id)
                         }
                     )
                 }
@@ -180,7 +185,7 @@ fun QuestaoScreen(
                     podeAnterior = viewModel.paginaAtual > 0,
                     podeProximo = viewModel.paginaAtual < ((viewModel.totalQuestoes - 1) / 1),
                     onAnterior = { viewModel.anterior() },
-                    onProximo = { viewModel.proxima() },
+                    onProximo = onSolicitarProximaQuestao,
                     onFiltro = onOpenFiltro
                 )
             }
@@ -246,7 +251,8 @@ fun TopoResumoQuestao(
 fun CorpoQuestao(
     questao: Questao,
     respostaAnterior: RespostaAnterior? = null,
-    onResolver: (respostaSelecionada: String, acertou: Boolean) -> Unit = { _, _ -> }
+    onResolver: (respostaSelecionada: String, acertou: Boolean) -> Unit = { _, _ -> },
+    onResolvidaComSucesso: () -> Unit = {}
 ) {
     var selecionada by remember(questao.id) { mutableIntStateOf(-1) }
     var resolvida by remember(questao.id) { mutableStateOf(false) }
@@ -351,11 +357,12 @@ fun CorpoQuestao(
 
         Button(
             onClick = {
-                resolvida = true
                 if (selecionada >= 0 && selecionada < questao.alternativas.size) {
+                    resolvida = true
                     val letraSelecionada = questao.alternativas[selecionada].letra
                     val acertou = letraSelecionada.equals(questao.gabarito, ignoreCase = true)
                     onResolver(letraSelecionada, acertou)
+                    onResolvidaComSucesso()
                 }
             },
             enabled = selecionada != -1 && !resolvida,

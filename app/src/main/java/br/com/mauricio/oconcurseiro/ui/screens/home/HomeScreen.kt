@@ -334,7 +334,7 @@ private fun BottomNavBar(
             contentAlignment = Alignment.Center
         ) {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {

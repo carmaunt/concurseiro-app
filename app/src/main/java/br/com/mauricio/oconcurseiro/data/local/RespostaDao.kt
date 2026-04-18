@@ -15,73 +15,74 @@ interface RespostaDao {
         SELECT COUNT(*) FROM (
             SELECT questaoId, MAX(respondidaEm) AS ultimaResposta
             FROM respostas
-            WHERE respondidaEm >= :desde
+            WHERE respondidaEm >= :desde AND usuarioId = :usuarioId
             GROUP BY questaoId
         )
     """)
-    suspend fun totalRespostasDesde(desde: Long): Int
+    suspend fun totalRespostasDesde(usuarioId: String, desde: Long): Int
 
     @Query("""
         SELECT COUNT(*) FROM respostas r
         INNER JOIN (
             SELECT questaoId, MAX(respondidaEm) AS ultimaResposta
             FROM respostas
-            WHERE respondidaEm >= :desde
+            WHERE respondidaEm >= :desde AND usuarioId = :usuarioId
             GROUP BY questaoId
         ) ult
         ON r.questaoId = ult.questaoId AND r.respondidaEm = ult.ultimaResposta
-        WHERE r.acertou = 1
+        WHERE r.acertou = 1 AND r.usuarioId = :usuarioId
     """)
-    suspend fun totalAcertosDesde(desde: Long): Int
+    suspend fun totalAcertosDesde(usuarioId: String, desde: Long): Int
 
     @Query("""
         SELECT COUNT(*) FROM respostas r
         INNER JOIN (
             SELECT questaoId, MAX(respondidaEm) AS ultimaResposta
             FROM respostas
+            WHERE usuarioId = :usuarioId
             GROUP BY questaoId
         ) ult
         ON r.questaoId = ult.questaoId AND r.respondidaEm = ult.ultimaResposta
-        WHERE r.acertou = 0 AND r.respondidaEm >= :desde
+        WHERE r.acertou = 0 AND r.respondidaEm >= :desde AND r.usuarioId = :usuarioId
     """)
-    suspend fun totalErrosDesde(desde: Long): Int
+    suspend fun totalErrosDesde(usuarioId: String, desde: Long): Int
 
     @Query("""
         SELECT COUNT(*) FROM (
             SELECT questaoId
             FROM respostas
+            WHERE usuarioId = :usuarioId
             GROUP BY questaoId
         )
     """)
-    suspend fun totalRespostas(): Int
+    suspend fun totalRespostas(usuarioId: String): Int
 
     @Query("""
         SELECT COUNT(*) FROM respostas r
         INNER JOIN (
             SELECT questaoId, MAX(respondidaEm) AS ultimaResposta
             FROM respostas
+            WHERE usuarioId = :usuarioId
             GROUP BY questaoId
         ) ult
         ON r.questaoId = ult.questaoId AND r.respondidaEm = ult.ultimaResposta
-        WHERE r.acertou = 1
+        WHERE r.acertou = 1 AND r.usuarioId = :usuarioId
     """)
-    suspend fun totalAcertos(): Int
+    suspend fun totalAcertos(usuarioId: String): Int
 
     @Query("""
         SELECT * FROM respostas
+        WHERE usuarioId = :usuarioId
         ORDER BY respondidaEm DESC
         LIMIT :limit
     """)
-    suspend fun ultimasRespostas(limit: Int = 20): List<RespostaEntity>
-
-    @Query("SELECT COUNT(*) FROM respostas WHERE questaoId = :questaoId")
-    suspend fun jaRespondeu(questaoId: String): Int
+    suspend fun ultimasRespostas(usuarioId: String, limit: Int = 20): List<RespostaEntity>
 
     @Query("""
         SELECT * FROM respostas
-        WHERE questaoId = :questaoId
+        WHERE questaoId = :questaoId AND usuarioId = :usuarioId
         ORDER BY respondidaEm DESC
         LIMIT 1
     """)
-    suspend fun ultimaRespostaPorQuestao(questaoId: String): RespostaEntity?
+    suspend fun ultimaRespostaPorQuestao(usuarioId: String, questaoId: String): RespostaEntity?
 }
