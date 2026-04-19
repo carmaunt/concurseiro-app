@@ -37,6 +37,7 @@ fun QuestaoScreen(
     onOpenFiltro: () -> Unit,
     onBack: (() -> Unit)? = null,
     onAbrirComentarios: ((questaoId: String) -> Unit)? = null,
+    onPodeResolverQuestao: (questaoId: String) -> Boolean = { true },
     onResolvidaComSucesso: (questaoId: String) -> Unit = {},
     onSolicitarProximaQuestao: () -> Unit = { viewModel.proxima() }
 ) {
@@ -166,6 +167,7 @@ fun QuestaoScreen(
                     CorpoQuestao(
                         questao = questao,
                         respostaAnterior = viewModel.respostaAnterior,
+                        onPodeResolverQuestao = onPodeResolverQuestao,
                         onResolver = { respostaSelecionada, acertou ->
                             viewModel.salvarResposta(
                                 questaoId = questao.id,
@@ -251,6 +253,7 @@ fun TopoResumoQuestao(
 fun CorpoQuestao(
     questao: Questao,
     respostaAnterior: RespostaAnterior? = null,
+    onPodeResolverQuestao: (questaoId: String) -> Boolean = { true },
     onResolver: (respostaSelecionada: String, acertou: Boolean) -> Unit = { _, _ -> },
     onResolvidaComSucesso: () -> Unit = {}
 ) {
@@ -358,6 +361,10 @@ fun CorpoQuestao(
         Button(
             onClick = {
                 if (selecionada >= 0 && selecionada < questao.alternativas.size) {
+                    if (!onPodeResolverQuestao(questao.id)) {
+                        return@Button
+                    }
+
                     resolvida = true
                     val letraSelecionada = questao.alternativas[selecionada].letra
                     val acertou = letraSelecionada.equals(questao.gabarito, ignoreCase = true)

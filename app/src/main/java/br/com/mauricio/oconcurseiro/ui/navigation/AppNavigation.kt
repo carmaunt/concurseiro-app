@@ -48,6 +48,32 @@ fun AppNavigation() {
 
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Splash) }
 
+    if (mostrarLimiteDialog) {
+        br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog(
+            viewModel = authViewModel,
+            onDismiss = { mostrarLimiteDialog = false },
+            onLoginSuccess = {
+                mostrarLimiteDialog = false
+                currentScreen = Screen.Home
+            },
+            onAbrirCadastro = {
+                mostrarLimiteDialog = false
+                currentScreen = Screen.Register
+            },
+            onLoginGoogleClick = {
+                CoroutineScope(Main).launch {
+                    val token: String? = obterIdTokenGoogle(context)
+                    if (token != null) {
+                        authViewModel.loginComGoogle(token) {
+                            mostrarLimiteDialog = false
+                            currentScreen = Screen.Home
+                        }
+                    }
+                }
+            }
+        )
+    }
+
 
     when (val screen = currentScreen) {
         Screen.Splash -> {
@@ -87,32 +113,6 @@ fun AppNavigation() {
 
         Screen.Home -> {
 
-            if (mostrarLimiteDialog) {
-                br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog(
-                    viewModel = authViewModel,
-                    onDismiss = { mostrarLimiteDialog = false },
-                    onLoginSuccess = {
-                        mostrarLimiteDialog = false
-                        currentScreen = Screen.Home
-                    },
-                    onAbrirCadastro = {
-                        mostrarLimiteDialog = false
-                        currentScreen = Screen.Register
-                    },
-                    onLoginGoogleClick = {
-                        CoroutineScope(Main).launch {
-                            val token: String? = obterIdTokenGoogle(context)
-                            if (token != null) {
-                                authViewModel.loginComGoogle(token) {
-                                    mostrarLimiteDialog = false
-                                    currentScreen = Screen.Home
-                                }
-                            }
-                        }
-                    }
-                )
-            }
-
             HomeScreen(
                 viewModel = homeViewModel,
                 onStartPractice = {
@@ -151,6 +151,17 @@ fun AppNavigation() {
                 },
                 onAbrirComentarios = { questaoId ->
                     currentScreen = Screen.Comentarios(questaoId)
+                },
+                onPodeResolverQuestao = { questaoId ->
+                    if (authViewModel.usuarioAutenticado) {
+                        true
+                    } else {
+                        val podeResolver = guestManager.podeResolverQuestao(questaoId)
+                        if (!podeResolver) {
+                            mostrarLimiteDialog = true
+                        }
+                        podeResolver
+                    }
                 },
                 onResolvidaComSucesso = { questaoId ->
                     if (!authViewModel.usuarioAutenticado) {

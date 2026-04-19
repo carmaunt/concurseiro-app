@@ -71,6 +71,11 @@ class GuestUsageManager(context: Context) {
         return questaoId in ids
     }
 
+    fun podeResolverQuestao(questaoId: String): Boolean {
+        val ids = obterQuestoesResolvidasHoje()
+        return questaoId in ids || ids.size < DAILY_LIMIT
+    }
+
     fun resolucoesRestantes(): Int {
         val ids = obterQuestoesResolvidasHoje()
         return (DAILY_LIMIT - ids.size).coerceAtLeast(0)
