@@ -18,6 +18,21 @@ object RetrofitClient {
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
+        .addInterceptor { chain ->
+            val request = chain.request()
+
+            val token = br.com.mauricio.oconcurseiro.data.auth.TokenManager.accessToken
+
+            val newRequest = if (!token.isNullOrBlank()) {
+                request.newBuilder()
+                    .addHeader("Authorization", "Bearer $token")
+                    .build()
+            } else {
+                request
+            }
+
+            chain.proceed(newRequest)
+        }
         .addInterceptor(logging)
         .build()
 

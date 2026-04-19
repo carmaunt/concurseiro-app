@@ -75,4 +75,9 @@ interface ConcurseiroApi {
     suspend fun descurtirComentario(
         @Path("id") id: Long
     ): ApiResponse<ComentarioResponseDto>
+
+    @POST("/api/v1/auth/google")
+    suspend fun loginComGoogle(
+        @Body request: GoogleLoginRequestDto
+    ): ApiResponse<AuthResponseDto>
 }

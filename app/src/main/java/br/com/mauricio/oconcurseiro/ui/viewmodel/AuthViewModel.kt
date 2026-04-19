@@ -62,6 +62,8 @@ class AuthViewModel(
         isLoading = true
         erro = null
 
+        android.util.Log.d("FIREBASE_TOKEN", idToken)
+
         viewModelScope.launch {
             try {
                 repository.loginComGoogle(idToken)

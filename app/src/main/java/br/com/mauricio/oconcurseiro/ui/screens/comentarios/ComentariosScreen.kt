@@ -30,6 +30,7 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.ComentariosViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+import br.com.mauricio.oconcurseiro.data.auth.TokenManager.accessToken
 
 @Composable
 fun ComentariosScreen(
@@ -44,7 +45,7 @@ fun ComentariosScreen(
     var textoComentario by remember { mutableStateOf("") }
 
     // ⚠️ depois você liga isso no seu auth real (token, etc)
-    val usuarioAutenticado = false
+    val usuarioAutenticado = accessToken != null
 
     Column(modifier = Modifier.fillMaxSize().background(SurfaceBackground)) {
 
@@ -53,10 +54,40 @@ fun ComentariosScreen(
             onBack = onBack
         )
 
-        // ... (NADA MUDA NA PARTE DE LISTA)
+        val comentarios = viewModel.comentarios
 
-        Box(modifier = Modifier.weight(1f)) {
-            // mantém exatamente igual ao seu código atual
+        if (comentarios.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Nenhum comentário ainda",
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            LazyColumn(
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                state = rememberLazyListState()
+            ) {
+                items(comentarios) { comentario ->
+                    ComentarioItem(
+                        comentario = comentario,
+                        jaCurtiu = viewModel.jaCurtiu(comentario.id),
+                        jaDescurtiu = viewModel.jaDescurtiu(comentario.id),
+                        onCurtir = { viewModel.curtir(comentario.id) },
+                        onDescurtir = { viewModel.descurtir(comentario.id) }
+                    )
+                }
+            }
         }
 
         // 🔥 MENSAGEM INTELIGENTE
