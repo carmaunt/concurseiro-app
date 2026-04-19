@@ -3,7 +3,10 @@ package br.com.mauricio.oconcurseiro.ui.screens.questao
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -315,7 +318,7 @@ fun CorpoQuestao(
         ) {
             Column {
                 Spacer(Modifier.height(12.dp))
-                Text(
+                MarkdownCompatText(
                     text = questao.enunciado,
                     style = MaterialTheme.typography.titleMedium,
                     color = TextPrimary
@@ -330,7 +333,7 @@ fun CorpoQuestao(
 
         if (questao.questao.isNotBlank()) {
             Spacer(Modifier.height(14.dp))
-            Text(
+            MarkdownCompatText(
                 text = questao.questao,
                 style = MaterialTheme.typography.bodyLarge,
                 color = TextPrimary
@@ -465,7 +468,7 @@ fun Alternativa(
 
         Spacer(Modifier.width(16.dp))
 
-        Text(
+        MarkdownCompatText(
             text = texto,
             style = MaterialTheme.typography.bodyMedium,
             color = TextPrimary
@@ -605,4 +608,56 @@ fun RespostaAnteriorBanner(
                 .padding(4.dp)
         )
     }
+}
+
+@Composable
+private fun MarkdownCompatText(
+    text: String,
+    style: androidx.compose.ui.text.TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = parseMarkdownCompat(text),
+        style = style,
+        color = color,
+        modifier = modifier
+    )
+}
+
+private fun parseMarkdownCompat(input: String): AnnotatedString {
+    val result = buildAnnotatedString {
+        var i = 0
+
+        while (i < input.length) {
+            // negrito: **texto**
+            if (i + 1 < input.length && input[i] == '*' && input[i + 1] == '*') {
+                val end = input.indexOf("**", startIndex = i + 2)
+                if (end != -1) {
+                    pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                    append(input.substring(i + 2, end))
+                    pop()
+                    i = end + 2
+                    continue
+                }
+            }
+
+            // itálico: *texto*
+            if (input[i] == '*') {
+                val end = input.indexOf('*', startIndex = i + 1)
+                if (end != -1) {
+                    pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                    append(input.substring(i + 1, end))
+                    pop()
+                    i = end + 1
+                    continue
+                }
+            }
+
+            append(input[i])
+            i++
+        }
+    }
+
+    return result
 }
