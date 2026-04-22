@@ -1,10 +1,9 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.local.AppDatabase
 import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
@@ -19,6 +18,9 @@ import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.local.RespostaDao
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 data class RespostaAnterior(
     val acertou: Boolean,
@@ -26,10 +28,12 @@ data class RespostaAnterior(
     val gabarito: String
 )
 
-class QuestaoViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = QuestaoRepository()
-    private val respostaDao = AppDatabase.getInstance(application).respostaDao()
+@HiltViewModel
+class QuestaoViewModel @Inject constructor(
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
+    private val repository: QuestaoRepository,
+    private val respostaDao: RespostaDao
+) : ViewModel() {
 
     var questao: Questao? by mutableStateOf(null)
         private set

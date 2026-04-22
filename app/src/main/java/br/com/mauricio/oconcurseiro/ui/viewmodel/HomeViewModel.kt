@@ -1,11 +1,10 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.local.AppDatabase
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
@@ -14,13 +13,18 @@ import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.local.RespostaDao
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
+    private val repository: QuestaoRepository,
+    private val authRepository: AuthRepository,
+    private val respostaDao: RespostaDao
+) : ViewModel() {
 
-    private val authRepository = AuthRepository()
-
-    private val repository = QuestaoRepository()
-    private val respostaDao = AppDatabase.getInstance(application).respostaDao()
 
     var totalQuestoes: Long by mutableStateOf(0L)
         private set

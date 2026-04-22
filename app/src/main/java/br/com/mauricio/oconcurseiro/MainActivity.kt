@@ -10,6 +10,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import br.com.mauricio.oconcurseiro.ui.navigation.AppNavigation
 import br.com.mauricio.oconcurseiro.ui.theme.OConcurseiroTheme
 
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()

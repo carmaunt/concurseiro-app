@@ -7,14 +7,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.model.Comentario
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import javax.inject.Inject
 
-class ComentariosViewModel : ViewModel() {
-
-    private val repository = QuestaoRepository()
+@HiltViewModel
+class ComentariosViewModel @Inject constructor(
+    private val repository: QuestaoRepository
+) : ViewModel() {
 
     var questaoId: String by mutableStateOf("")
         private set

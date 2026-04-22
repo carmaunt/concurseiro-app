@@ -18,6 +18,7 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import androidx.hilt.navigation.compose.hiltViewModel
 
 sealed class Screen {
     object Splash : Screen()
@@ -31,10 +32,10 @@ sealed class Screen {
 
 @Composable
 fun AppNavigation() {
-    val authViewModel: AuthViewModel = viewModel()
-    val homeViewModel: HomeViewModel = viewModel()
-    val questaoViewModel: QuestaoViewModel = viewModel()
-    val comentariosViewModel: ComentariosViewModel = viewModel()
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel()
+    val questaoViewModel: QuestaoViewModel = hiltViewModel()
+    val comentariosViewModel: ComentariosViewModel = hiltViewModel()
 
     val context = LocalContext.current
     val guestManager = remember {
