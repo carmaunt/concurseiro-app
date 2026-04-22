@@ -2,7 +2,6 @@ package br.com.mauricio.oconcurseiro.ui.navigation
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import br.com.mauricio.oconcurseiro.data.auth.obterIdTokenGoogle
 import br.com.mauricio.oconcurseiro.ui.screens.auth.LoginScreen
 import br.com.mauricio.oconcurseiro.ui.screens.auth.RegisterScreen
@@ -19,16 +18,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import androidx.hilt.navigation.compose.hiltViewModel
-
-sealed class Screen {
-    object Splash : Screen()
-    object Home : Screen()
-    object Questao : Screen()
-    object Filtro : Screen()
-    object Login : Screen()
-    object Register : Screen()
-    data class Comentarios(val questaoId: String) : Screen()
-}
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 @Composable
 fun AppNavigation() {
@@ -36,6 +30,7 @@ fun AppNavigation() {
     val homeViewModel: HomeViewModel = hiltViewModel()
     val questaoViewModel: QuestaoViewModel = hiltViewModel()
     val comentariosViewModel: ComentariosViewModel = hiltViewModel()
+    val navController = rememberNavController()
 
     val context = LocalContext.current
     val guestManager = remember {
@@ -47,19 +42,19 @@ fun AppNavigation() {
         homeViewModel.atualizarDesempenho()
     }
 
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.Splash) }
-
     if (mostrarLimiteDialog) {
         br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog(
             viewModel = authViewModel,
             onDismiss = { mostrarLimiteDialog = false },
             onLoginSuccess = {
                 mostrarLimiteDialog = false
-                currentScreen = Screen.Home
+                navController.navigate(NavRoutes.Home.route) {
+                    popUpTo(0)
+                }
             },
             onAbrirCadastro = {
                 mostrarLimiteDialog = false
-                currentScreen = Screen.Register
+                navController.navigate(NavRoutes.Register.route)
             },
             onLoginGoogleClick = {
                 CoroutineScope(Main).launch {
@@ -67,7 +62,9 @@ fun AppNavigation() {
                     if (token != null) {
                         authViewModel.loginComGoogle(token) {
                             mostrarLimiteDialog = false
-                            currentScreen = Screen.Home
+                            navController.navigate(NavRoutes.Home.route) {
+                                popUpTo(0)
+                            }
                         }
                     }
                 }
@@ -75,28 +72,37 @@ fun AppNavigation() {
         )
     }
 
-
-    when (val screen = currentScreen) {
-        Screen.Splash -> {
+    NavHost(
+        navController = navController,
+        startDestination = NavRoutes.Splash.route
+    ) {
+        composable(NavRoutes.Splash.route) {
             SplashScreen(
                 onFinished = {
-                    currentScreen = Screen.Home
+                    navController.navigate(NavRoutes.Home.route) {
+                        popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                    }
                 }
             )
         }
 
-        Screen.Login -> {
-            val context = LocalContext.current
+        composable(NavRoutes.Login.route) {
             LoginScreen(
                 viewModel = authViewModel,
-                onLoginSuccess = { currentScreen = Screen.Home },
-                onAbrirCadastro = { currentScreen = Screen.Register },
+                onLoginSuccess = {
+                    navController.navigate(NavRoutes.Home.route) {
+                        popUpTo(NavRoutes.Login.route) { inclusive = true }
+                    }
+                },
+                onAbrirCadastro = { navController.navigate(NavRoutes.Register.route) },
                 onLoginGoogleClick = {
                     CoroutineScope(Main).launch {
                         val token: String? = obterIdTokenGoogle(context)
                         if (token != null) {
                             authViewModel.loginComGoogle(token) {
-                                currentScreen = Screen.Home
+                                navController.navigate(NavRoutes.Home.route) {
+                                    popUpTo(NavRoutes.Login.route) { inclusive = true }
+                                }
                             }
                         }
                     }
@@ -104,54 +110,51 @@ fun AppNavigation() {
             )
         }
 
-        Screen.Register -> {
+        composable(NavRoutes.Register.route) {
             RegisterScreen(
                 viewModel = authViewModel,
-                onCadastroSuccess = { currentScreen = Screen.Login },
-                onVoltarLogin = { currentScreen = Screen.Login }
+                onCadastroSuccess = { navController.popBackStack() },
+                onVoltarLogin = { navController.popBackStack() }
             )
         }
 
-        Screen.Home -> {
-
+        composable(NavRoutes.Home.route) {
             HomeScreen(
                 viewModel = homeViewModel,
                 onStartPractice = {
                     if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
                         mostrarLimiteDialog = true
-                        return@HomeScreen
+                    } else {
+                        if (!questaoViewModel.jaCarregou) {
+                            questaoViewModel.carregarQuestao()
+                        }
+                        navController.navigate(NavRoutes.Questao.route)
                     }
-
-                    if (!questaoViewModel.jaCarregou) {
-                        questaoViewModel.carregarQuestao()
-                    }
-
-                    currentScreen = Screen.Questao
                 },
                 onOpenFilters = {
-                    currentScreen = Screen.Filtro
+                    navController.navigate(NavRoutes.Filtro.route)
                 },
                 onLogout = {
                     authViewModel.logout()
-                    currentScreen = Screen.Home
+                    homeViewModel.atualizarDesempenho()
                 },
                 onLoginClick = {
-                    currentScreen = Screen.Login
+                    navController.navigate(NavRoutes.Login.route)
                 },
                 usuarioAutenticado = authViewModel.usuarioAutenticado
             )
         }
 
-        Screen.Questao -> {
+        composable(NavRoutes.Questao.route) {
             QuestaoScreen(
                 viewModel = questaoViewModel,
-                onOpenFiltro = { currentScreen = Screen.Filtro },
+                onOpenFiltro = { navController.navigate(NavRoutes.Filtro.route) },
                 onBack = {
                     homeViewModel.atualizarDesempenho()
-                    currentScreen = Screen.Home
+                    navController.popBackStack()
                 },
                 onAbrirComentarios = { questaoId ->
-                    currentScreen = Screen.Comentarios(questaoId)
+                    navController.navigate(NavRoutes.Comentarios.createRoute(questaoId))
                 },
                 onPodeResolverQuestao = { questaoId ->
                     if (authViewModel.usuarioAutenticado) {
@@ -180,29 +183,32 @@ fun AppNavigation() {
             )
         }
 
-        Screen.Filtro -> {
+        composable(NavRoutes.Filtro.route) {
             FiltroScreen(
                 viewModel = questaoViewModel,
-                onBack = {
-                    currentScreen = if (questaoViewModel.jaCarregou) Screen.Questao else Screen.Home
-                },
+                onBack = { navController.popBackStack() },
                 onAplicarFiltro = { novoFiltro ->
                     if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
                         mostrarLimiteDialog = true
-                        return@FiltroScreen
+                    } else {
+                        questaoViewModel.aplicarFiltro(novoFiltro)
+                        navController.navigate(NavRoutes.Questao.route) {
+                            popUpTo(NavRoutes.Filtro.route) { inclusive = true }
+                        }
                     }
-
-                    questaoViewModel.aplicarFiltro(novoFiltro)
-                    currentScreen = Screen.Questao
                 }
             )
         }
 
-        is Screen.Comentarios -> {
+        composable(
+            route = NavRoutes.Comentarios.route,
+            arguments = listOf(navArgument("questaoId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val questaoId = backStackEntry.arguments?.getString("questaoId") ?: ""
             ComentariosScreen(
                 viewModel = comentariosViewModel,
-                questaoId = screen.questaoId,
-                onBack = { currentScreen = Screen.Questao }
+                questaoId = questaoId,
+                onBack = { navController.popBackStack() }
             )
         }
     }

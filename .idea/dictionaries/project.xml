@@ -21,6 +21,7 @@
       <w>Cadastro</w>
       <w>Carregadas</w>
       <w>Carregando</w>
+      <w>Carregou</w>
       <w>Certas</w>
       <w>Clicada</w>
       <w>Comece</w>
@@ -30,17 +31,22 @@
       <w>Contabilizou</w>
       <w>Continuar</w>
       <w>Criar</w>
+      <w>Curtiu</w>
       <w>Desatualizadas</w>
+      <w>Descurtiu</w>
       <w>Desde</w>
       <w>Desempenho</w>
       <w>Digite</w>
       <w>Direito</w>
       <w>Disciplinas</w>
+      <w>Disponível</w>
       <w>Divulgação</w>
       <w>Entrar</w>
+      <w>Enviar</w>
       <w>Erradas</w>
       <w>Errei</w>
       <w>Escolher</w>
+      <w>Escreva</w>
       <w>Espera</w>
       <w>Estatisticas</w>
       <w>Excluir</w>
@@ -54,11 +60,15 @@
       <w>Instituto</w>
       <w>Limite</w>
       <w>Limpar</w>
+      <w>Nenhum</w>
       <w>Nenhuma</w>
       <w>Ocorreu</w>
       <w>Ocultar</w>
+      <w>Ordenacao</w>
       <w>Questao</w>
+      <w>Recurso</w>
       <w>Recursos</w>
+      <w>Requisição</w>
       <w>Resolucao</w>
       <w>Resolvi</w>
       <w>Resolvidas</w>
@@ -71,6 +81,7 @@
       <w>Sair</w>
       <w>Salva</w>
       <w>Seletiva</w>
+      <w>Sessao</w>
       <w>Sigilo</w>
       <w>Solicitar</w>
       <w>Sucesso</w>
@@ -83,11 +94,13 @@
       <w>acertos</w>
       <w>acertou</w>
       <w>acompanhar</w>
+      <w>ainda</w>
       <w>alterar</w>
       <w>alternativa</w>
       <w>alternativas</w>
       <w>anteriormente</w>
       <w>apenas</w>
+      <w>aplicar</w>
       <w>após</w>
       <w>aqui</w>
       <w>assegurar</w>
@@ -98,6 +111,8 @@
       <w>ativa</w>
       <w>atual</w>
       <w>atualizar</w>
+      <w>bloqueado</w>
+      <w>botão</w>
       <w>buscar</w>
       <w>cadastrar</w>
       <w>cadastro</w>
@@ -105,11 +120,14 @@
       <w>caracteres</w>
       <w>carregar</w>
       <w>catalogo</w>
+      <w>catalogos</w>
       <w>certo</w>
       <w>chave</w>
       <w>coincidem</w>
       <w>comentar</w>
+      <w>comentario</w>
       <w>comentarios</w>
+      <w>comentário</w>
       <w>começa</w>
       <w>concurseiro</w>
       <w>conectar</w>
@@ -124,6 +142,8 @@
       <w>curtidas</w>
       <w>curtir</w>
       <w>dados</w>
+      <w>dd't</w>
+      <w>depois</w>
       <w>descurtir</w>
       <w>desde</w>
       <w>desempenho</w>
@@ -132,6 +152,7 @@
       <w>disciplinas</w>
       <w>diário</w>
       <w>encontrada</w>
+      <w>encontrado</w>
       <w>encontrar</w>
       <w>enunciado</w>
       <w>errado</w>
@@ -145,6 +166,7 @@
       <w>filtro</w>
       <w>filtros</w>
       <w>fixo</w>
+      <w>formatar</w>
       <w>formato</w>
       <w>gabarito</w>
       <w>googleusercontent</w>
@@ -154,10 +176,15 @@
       <w>icone</w>
       <w>imagem</w>
       <w>implementar</w>
+      <w>indisponível</w>
       <w>informações</w>
       <w>inserir</w>
       <w>instituicao</w>
       <w>instituicoes</w>
+      <w>inteligente</w>
+      <w>interno</w>
+      <w>inválida</w>
+      <w>isso</w>
       <w>itálico</w>
       <w>laranja</w>
       <w>letra</w>
@@ -165,12 +192,14 @@
       <w>limpar</w>
       <w>lista</w>
       <w>listar</w>
+      <w>logados</w>
       <w>mediante</w>
       <w>menos</w>
       <w>mensagem</w>
       <w>mesma</w>
       <w>meus</w>
       <w>modalidade</w>
+      <w>momento</w>
       <w>montar</w>
       <w>mostrar</w>
       <w>nivel</w>
@@ -184,6 +213,7 @@
       <w>passiva</w>
       <w>passo</w>
       <w>pelo</w>
+      <w>pendentes</w>
       <w>pode</w>
       <w>porcentagem</w>
       <w>possível</w>
@@ -195,6 +225,7 @@
       <w>questoes</w>
       <w>questão</w>
       <w>questões</w>
+      <w>recarregar</w>
       <w>regra</w>
       <w>resolucoes</w>
       <w>resolvendo</w>
@@ -204,6 +235,7 @@
       <w>resolvidas</w>
       <w>respondeu</w>
       <w>respondida</w>
+      <w>respondidas</w>
       <w>resposta</w>
       <w>respostas</w>
       <w>restrito</w>
@@ -224,7 +256,9 @@
       <w>ultimas</w>
       <w>usadas</w>
       <w>usuario</w>
+      <w>usuários</w>
       <w>vamos</w>
+      <w>verificar</w>
       <w>vermelho</w>
       <w>voltar</w>
       <w>Ícone</w>

@@ -54,7 +54,7 @@ fun HomeScreen(
                 onLogout = onLogout
             )
 
-            if (viewModel.isLoading) {
+            if (viewModel.uiState.isLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -63,9 +63,9 @@ fun HomeScreen(
                 ) {
                     CircularProgressIndicator(color = BrandPrimary)
                 }
-            } else if (viewModel.erro != null && !viewModel.statsCarregadas) {
+            } else if (viewModel.uiState.erro != null && !viewModel.uiState.statsCarregadas) {
                 ErrorCard(
-                    message = viewModel.erro!!,
+                    message = viewModel.uiState.erro!!,
                     onRetry = { viewModel.carregarEstatisticas() }
                 )
             } else {
@@ -217,7 +217,13 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PercentageCircle(percentage = viewModel.porcentagem7dias)
+                    PercentageCircle(
+                        percentage = if (viewModel.uiState.resolvidas7dias > 0) {
+                            (viewModel.uiState.acertos7dias * 100 / viewModel.uiState.resolvidas7dias)
+                        } else {
+                            0
+                        }
+                    )
 
                     Spacer(Modifier.width(16.dp))
 
@@ -231,7 +237,7 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                         Spacer(Modifier.height(4.dp))
                         Row {
                             Text(
-                                text = "Resolvidas: ${viewModel.resolvidas7dias}",
+                                text = "Resolvidas: ${viewModel.uiState.resolvidas7dias}",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
@@ -241,7 +247,7 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                                 color = TextPlaceholder
                             )
                             Text(
-                                text = "Certas: ${viewModel.acertos7dias}",
+                                text = "Certas: ${viewModel.uiState.acertos7dias}",
                                 fontSize = 12.sp,
                                 color = SuccessBorder
                             )
@@ -251,7 +257,7 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                                 color = TextPlaceholder
                             )
                             Text(
-                                text = "Erradas: ${viewModel.erros7dias}",
+                                text = "Erradas: ${viewModel.uiState.erros7dias}",
                                 fontSize = 12.sp,
                                 color = ErrorBorder
                             )

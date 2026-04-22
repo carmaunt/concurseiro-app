@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.mauricio.oconcurseiro.data.local.AppDatabase
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import kotlinx.coroutines.launch
@@ -16,6 +15,7 @@ import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -38,15 +38,6 @@ class HomeViewModel @Inject constructor(
     var totalInstituicoes: Int by mutableStateOf(0)
         private set
 
-    var isLoading: Boolean by mutableStateOf(true)
-        private set
-
-    var erro: String? by mutableStateOf(null)
-        private set
-
-    var statsCarregadas: Boolean by mutableStateOf(false)
-        private set
-
     var resolvidas7dias: Int by mutableIntStateOf(0)
         private set
 
@@ -62,41 +53,41 @@ class HomeViewModel @Inject constructor(
     var totalAcertos: Int by mutableIntStateOf(0)
         private set
 
-    val porcentagem7dias: Int
-        get() = if (resolvidas7dias > 0) (acertos7dias * 100) / resolvidas7dias else 0
+    var uiState by mutableStateOf(HomeUiState())
+        private set
 
     init {
         carregarEstatisticas()
     }
 
     fun carregarEstatisticas() {
-        isLoading = true
-        erro = null
+        uiState = uiState.copy(isLoading = true)
+        uiState = uiState.copy(erro = null)
 
         viewModelScope.launch {
             try {
                 val questoesJob = launch {
                     try {
                         val resp = repository.buscarPagina(page = 0, size = 1, filtro = FiltroParams())
-                        totalQuestoes = resp.resolvedTotalElements
+                        uiState = uiState.copy(totalQuestoes = resp.resolvedTotalElements)
                     } catch (_: Exception) { }
                 }
 
                 val disciplinasJob = launch {
                     try {
-                        totalDisciplinas = repository.listarDisciplinas().size
+                        uiState = uiState.copy(totalDisciplinas = repository.listarDisciplinas().size)
                     } catch (_: Exception) { }
                 }
 
                 val bancasJob = launch {
                     try {
-                        totalBancas = repository.listarBancas().size
+                        uiState = uiState.copy(totalBancas = repository.listarBancas().size)
                     } catch (_: Exception) { }
                 }
 
                 val instituicoesJob = launch {
                     try {
-                        totalInstituicoes = repository.listarInstituicoes().size
+                        uiState = uiState.copy(totalInstituicoes = repository.listarInstituicoes().size)
                     } catch (_: Exception) { }
                 }
 
@@ -112,19 +103,26 @@ class HomeViewModel @Inject constructor(
                 instituicoesJob.join()
                 historicoJob.join()
 
-                statsCarregadas = totalQuestoes > 0 || totalDisciplinas > 0 || totalBancas > 0 || totalInstituicoes > 0
+                uiState = uiState.copy(
+                    statsCarregadas = uiState.totalQuestoes > 0 ||
+                            uiState.totalDisciplinas > 0 ||
+                            uiState.totalBancas > 0 ||
+                            uiState.totalInstituicoes > 0
+                )
 
-                if (!statsCarregadas) {
-                    erro = "Não foi possível conectar ao servidor"
+                if (!uiState.statsCarregadas) {
+                    uiState = uiState.copy(erro = "Não foi possível conectar ao servidor")
                 }
             } catch (e: Exception) {
-                erro = when (e) {
-                    is UnknownHostException -> "Sem conexão com a internet"
-                    is SocketTimeoutException -> "Servidor não respondeu"
-                    else -> "Falha ao carregar dados"
-                }
+                uiState = uiState.copy(
+                    erro = when (e) {
+                        is UnknownHostException -> "Sem conexão com a internet"
+                        is SocketTimeoutException -> "Servidor não respondeu"
+                        else -> "Falha ao carregar dados"
+                    }
+                )
             } finally {
-                isLoading = false
+                uiState = uiState.copy(isLoading = false)
             }
         }
     }
@@ -141,11 +139,12 @@ class HomeViewModel @Inject constructor(
         val seteDiasAtras = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
         val usuarioId = authRepository.usuarioIdOuGuest()
 
-        resolvidas7dias = respostaDao.totalRespostasDesde(usuarioId, seteDiasAtras)
-        acertos7dias = respostaDao.totalAcertosDesde(usuarioId, seteDiasAtras)
-        erros7dias = respostaDao.totalErrosDesde(usuarioId, seteDiasAtras)
-
-        totalResolvidas = respostaDao.totalRespostas(usuarioId)
-        totalAcertos = respostaDao.totalAcertos(usuarioId)
+        uiState = uiState.copy(resolvidas7dias = respostaDao.totalRespostasDesde(usuarioId, seteDiasAtras))
+        uiState = uiState.copy(acertos7dias = respostaDao.totalAcertosDesde(usuarioId, seteDiasAtras))
+        uiState = uiState.copy(erros7dias = respostaDao.totalErrosDesde(usuarioId, seteDiasAtras))
+        uiState = uiState.copy(
+            totalResolvidas = respostaDao.totalRespostas(usuarioId),
+            totalAcertos = respostaDao.totalAcertos(usuarioId)
+        )
     }
 }
