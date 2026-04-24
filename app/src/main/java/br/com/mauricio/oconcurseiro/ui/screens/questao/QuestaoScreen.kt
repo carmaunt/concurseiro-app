@@ -44,10 +44,13 @@ fun QuestaoScreen(
     onResolvidaComSucesso: (questaoId: String) -> Unit = {},
     onSolicitarProximaQuestao: () -> Unit = { viewModel.proxima() }
 ) {
-    val questao = viewModel.questao
-    val isLoading = viewModel.isLoading
-    val erro = viewModel.erro
-    val isEmpty = viewModel.isEmpty
+
+    val uiState = viewModel.uiState
+
+    val questao = uiState.questao
+    val isLoading = uiState.isLoading
+    val erro = uiState.erro
+    val isEmpty = uiState.isEmpty
 
     Column(modifier = Modifier.fillMaxSize().background(SurfaceWhite)) {
 
@@ -156,42 +159,29 @@ fun QuestaoScreen(
             }
 
             questao != null -> {
-                TopoResumoQuestao(
-                    questaoNumero = viewModel.numeroAtual,
-                    questoesTotal = viewModel.totalQuestoes,
-                    onAbrirComentarios = { questao?.id?.let { id -> onAbrirComentarios?.invoke(id) } }
-                )
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-                    CorpoQuestao(
-                        questao = questao,
-                        respostaAnterior = viewModel.respostaAnterior,
-                        onPodeResolverQuestao = onPodeResolverQuestao,
-                        onResolver = { respostaSelecionada, acertou ->
-                            viewModel.salvarResposta(
-                                questaoId = questao.id,
-                                disciplina = questao.disciplina,
-                                respostaSelecionada = respostaSelecionada,
-                                gabarito = questao.gabarito,
-                                acertou = acertou
-                            )
-                        },
-                        onResolvidaComSucesso = {
-                            onResolvidaComSucesso(questao.id)
-                        }
-                    )
-                }
-
-                RodapeQuestao(
-                    podeAnterior = viewModel.paginaAtual > 0,
-                    podeProximo = viewModel.paginaAtual < ((viewModel.totalQuestoes - 1) / 1),
+                QuestaoContent(
+                    questao = questao,
+                    respostaAnterior = uiState.respostaAnterior,
+                    numeroAtual = uiState.numeroAtual,
+                    totalQuestoes = uiState.totalQuestoes,
+                    paginaAtual = uiState.paginaAtual,
+                    onAbrirComentarios = { id -> onAbrirComentarios?.invoke(id) },
+                    onResponder = { respostaSelecionada, acertou ->
+                        viewModel.salvarResposta(
+                            questaoId = questao.id,
+                            disciplina = questao.disciplina,
+                            respostaSelecionada = respostaSelecionada,
+                            gabarito = questao.gabarito,
+                            acertou = acertou
+                        )
+                    },
+                    onResolvidaComSucesso = {
+                        onResolvidaComSucesso(questao.id)
+                    },
                     onAnterior = { viewModel.anterior() },
                     onProximo = onSolicitarProximaQuestao,
-                    onFiltro = onOpenFiltro
+                    onFiltro = onOpenFiltro,
+                    onPodeResolverQuestao = onPodeResolverQuestao
                 )
             }
         }
@@ -278,67 +268,7 @@ fun CorpoQuestao(
             Spacer(Modifier.height(14.dp))
         }
 
-        Text(
-            text = "Ano: ${questao.ano}  Banca: ${questao.banca}\nÓrgão: ${questao.orgao}  Cargo: ${questao.cargo}",
-            style = MaterialTheme.typography.bodySmall,
-            color = TextSecondary
-        )
-
-        Spacer(Modifier.height(20.dp))
-
-        var enunciadoAberto by remember { mutableStateOf(false) }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(SurfaceCard)
-                .clickable { enunciadoAberto = !enunciadoAberto }
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Texto associado",
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = if (enunciadoAberto) "−" else "+",
-                fontSize = 28.sp,
-                color = TextSecondary
-            )
-        }
-
-        AnimatedVisibility(
-            visible = enunciadoAberto,
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
-            Column {
-                Spacer(Modifier.height(12.dp))
-                MarkdownCompatText(
-                    text = questao.enunciado,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
-                )
-                Spacer(Modifier.height(18.dp))
-            }
-        }
-
-        if (!enunciadoAberto) {
-            Spacer(Modifier.height(10.dp))
-        }
-
-        if (questao.questao.isNotBlank()) {
-            Spacer(Modifier.height(14.dp))
-            MarkdownCompatText(
-                text = questao.questao,
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextPrimary
-            )
-        }
+        QuestaoEnunciado(questao)
 
         Spacer(Modifier.height(20.dp))
 
@@ -611,7 +541,7 @@ fun RespostaAnteriorBanner(
 }
 
 @Composable
-private fun MarkdownCompatText(
+fun MarkdownCompatText(
     text: String,
     style: androidx.compose.ui.text.TextStyle,
     color: Color,

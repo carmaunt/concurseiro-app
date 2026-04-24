@@ -125,7 +125,7 @@ fun AppNavigation() {
                     if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
                         mostrarLimiteDialog = true
                     } else {
-                        if (!questaoViewModel.jaCarregou) {
+                        if (!questaoViewModel.uiState.jaCarregou) {
                             questaoViewModel.carregarQuestao()
                         }
                         navController.navigate(NavRoutes.Questao.route)

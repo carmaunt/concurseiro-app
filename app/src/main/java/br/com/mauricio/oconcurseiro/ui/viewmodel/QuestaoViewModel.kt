@@ -5,11 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.mauricio.oconcurseiro.data.local.AppDatabase
 import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
 import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
-import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,6 +15,7 @@ import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,25 +34,7 @@ class QuestaoViewModel @Inject constructor(
     private val respostaDao: RespostaDao
 ) : ViewModel() {
 
-    var questao: Questao? by mutableStateOf(null)
-        private set
-
-    var isLoading: Boolean by mutableStateOf(false)
-        private set
-
-    var erro: String? by mutableStateOf(null)
-        private set
-
-    var isEmpty: Boolean by mutableStateOf(false)
-        private set
-
-    var numeroAtual: Int by mutableStateOf(1)
-        private set
-
-    var totalQuestoes: Int by mutableStateOf(0)
-        private set
-
-    var paginaAtual: Int by mutableStateOf(0)
+    var uiState by mutableStateOf(QuestaoUiState())
         private set
 
     var filtroAtual: FiltroParams by mutableStateOf(FiltroParams())
@@ -77,19 +58,12 @@ class QuestaoViewModel @Inject constructor(
     var catalogosCarregando: Boolean by mutableStateOf(true)
         private set
 
-    var jaCarregou: Boolean by mutableStateOf(false)
-        private set
-
-    var respostaAnterior: RespostaAnterior? by mutableStateOf(null)
-        private set
-
     private val respondidasNaSessao = mutableSetOf<String>()
+    private val authRepository = AuthRepository()
 
     init {
         carregarCatalogos()
     }
-
-    private val authRepository = AuthRepository()
 
     private fun mapErrorMessage(e: Exception): String {
         return when (e) {
@@ -110,14 +84,18 @@ class QuestaoViewModel @Inject constructor(
 
     fun carregarQuestao(filtro: FiltroParams = filtroAtual) {
         filtroAtual = filtro
-        isLoading = true
-        erro = null
-        isEmpty = false
-        jaCarregou = true
-        respostaAnterior = null
+
+        uiState = uiState.copy(
+            isLoading = true,
+            erro = null,
+            jaCarregou = true,
+            respostaAnterior = null
+        )
 
         viewModelScope.launch {
             try {
+                val paginaAtual = uiState.paginaAtual
+
                 val resp = repository.buscarPagina(
                     page = paginaAtual,
                     size = 1,
@@ -125,48 +103,65 @@ class QuestaoViewModel @Inject constructor(
                 )
 
                 val resolvedTotal = resp.resolvedTotalElements.toInt()
-
                 val dto = resp.content.firstOrNull()
                 val q = dto?.let { QuestaoMapper.fromDto(it) }
-                questao = q
 
-                if (q == null) {
-                    isEmpty = true
-                    totalQuestoes = 0
-                } else {
-                    totalQuestoes = if (resolvedTotal > 0) resolvedTotal else maxOf(paginaAtual + 1, 1)
-                    numeroAtual = paginaAtual + 1
+                uiState = uiState.copy(
+                    questao = q,
+                    isEmpty = q == null,
+                    totalQuestoes = if (q == null) 0 else if (resolvedTotal > 0) resolvedTotal else maxOf(paginaAtual + 1, 1),
+                    numeroAtual = paginaAtual + 1,
+                    paginaAtual = paginaAtual
+                )
+
+                if (q != null) {
                     verificarRespostaAnterior(q.id)
                 }
 
             } catch (e: Exception) {
-                questao = null
-                erro = mapErrorMessage(e)
+                uiState = uiState.copy(
+                    erro = mapErrorMessage(e),
+                    questao = null
+                )
             } finally {
-                isLoading = false
+                uiState = uiState.copy(isLoading = false)
             }
         }
     }
 
     private suspend fun verificarRespostaAnterior(questaoId: String) {
         if (questaoId in respondidasNaSessao) {
-            respostaAnterior = null
+            uiState = uiState.copy(respostaAnterior = null)
             return
         }
         try {
-            val resposta = respostaDao.ultimaRespostaPorQuestao(authRepository.usuarioIdOuGuest(), questaoId)
-            respostaAnterior = resposta?.let {
+            val resposta = respostaDao.ultimaRespostaPorQuestao(
+                authRepository.usuarioIdOuGuest(),
+                questaoId
+            )
+
+            val resp = resposta?.let {
                 RespostaAnterior(
                     acertou = it.acertou,
                     respostaSelecionada = it.respostaSelecionada,
                     gabarito = it.gabarito
                 )
             }
+
+            uiState = uiState.copy(respostaAnterior = resp)
+
         } catch (_: Exception) { }
     }
 
-    fun salvarResposta(questaoId: String, disciplina: String, respostaSelecionada: String, gabarito: String, acertou: Boolean) {
+    fun salvarResposta(
+        questaoId: String,
+        disciplina: String,
+        respostaSelecionada: String,
+        gabarito: String,
+        acertou: Boolean
+    ) {
         respondidasNaSessao.add(questaoId)
+
         viewModelScope.launch {
             try {
                 respostaDao.inserir(
@@ -188,21 +183,27 @@ class QuestaoViewModel @Inject constructor(
     }
 
     fun aplicarFiltro(filtro: FiltroParams) {
-        paginaAtual = 0
+        uiState = uiState.copy(paginaAtual = 0)
         carregarQuestao(filtro)
     }
 
     fun proxima(filtro: FiltroParams = filtroAtual) {
-        val ultimaPagina = if (totalQuestoes == 0) 0 else (totalQuestoes - 1) / 1
+        val paginaAtual = uiState.paginaAtual
+        val total = uiState.totalQuestoes
+
+        val ultimaPagina = if (total == 0) 0 else (total - 1)
+
         if (paginaAtual < ultimaPagina) {
-            paginaAtual++
+            uiState = uiState.copy(paginaAtual = paginaAtual + 1)
             carregarQuestao(filtro)
         }
     }
 
     fun anterior(filtro: FiltroParams = filtroAtual) {
+        val paginaAtual = uiState.paginaAtual
+
         if (paginaAtual > 0) {
-            paginaAtual--
+            uiState = uiState.copy(paginaAtual = paginaAtual - 1)
             carregarQuestao(filtro)
         }
     }
@@ -227,6 +228,7 @@ class QuestaoViewModel @Inject constructor(
             }
             verificarCompleto()
         }
+
         viewModelScope.launch {
             try {
                 bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
@@ -238,6 +240,7 @@ class QuestaoViewModel @Inject constructor(
             }
             verificarCompleto()
         }
+
         viewModelScope.launch {
             try {
                 instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
