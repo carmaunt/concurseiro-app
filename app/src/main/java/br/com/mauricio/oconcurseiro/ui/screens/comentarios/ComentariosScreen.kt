@@ -30,12 +30,13 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.ComentariosViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
-import br.com.mauricio.oconcurseiro.data.auth.TokenManager.accessToken
 
 @Composable
 fun ComentariosScreen(
     viewModel: ComentariosViewModel,
     questaoId: String,
+    usuarioAutenticado: Boolean,
+    onLoginRequired: () -> Unit,
     onBack: () -> Unit
 ) {
     LaunchedEffect(questaoId) {
@@ -43,9 +44,6 @@ fun ComentariosScreen(
     }
 
     var textoComentario by remember { mutableStateOf("") }
-
-    // ⚠️ depois você liga isso no seu auth real (token, etc)
-    val usuarioAutenticado = accessToken != null
 
     Column(modifier = Modifier.fillMaxSize().background(SurfaceBackground)) {
 
@@ -83,22 +81,27 @@ fun ComentariosScreen(
                         comentario = comentario,
                         jaCurtiu = viewModel.jaCurtiu(comentario.id),
                         jaDescurtiu = viewModel.jaDescurtiu(comentario.id),
-                        onCurtir = { viewModel.curtir(comentario.id) },
-                        onDescurtir = { viewModel.descurtir(comentario.id) }
+                        onCurtir = {
+                            if (usuarioAutenticado) {
+                                viewModel.curtir(comentario.id)
+                            } else {
+                                onLoginRequired()
+                            }
+                        },
+                        onDescurtir = {
+                            if (usuarioAutenticado) {
+                                viewModel.descurtir(comentario.id)
+                            } else {
+                                onLoginRequired()
+                            }
+                        }
                     )
                 }
             }
         }
 
         // 🔥 MENSAGEM INTELIGENTE
-        if (!usuarioAutenticado) {
-            Text(
-                text = "Faça login para comentar.",
-                color = TextSecondary,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-            )
-        } else if (viewModel.erroEnvio != null) {
+        if (viewModel.erroEnvio != null) {
             Text(
                 text = viewModel.erroEnvio ?: "",
                 color = ErrorBorder,
@@ -127,15 +130,16 @@ fun ComentariosScreen(
                 OutlinedTextField(
                     value = textoComentario,
                     onValueChange = {
-                        if (usuarioAutenticado) textoComentario = it
+                        if (usuarioAutenticado) {
+                            textoComentario = it
+                        } else {
+                            onLoginRequired()
+                        }
                     },
-                    enabled = usuarioAutenticado,
+                    enabled = true,
                     placeholder = {
                         Text(
-                            if (usuarioAutenticado)
-                                "Escreva um comentário"
-                            else
-                                "Disponível apenas para usuários logados",
+                            text = "Escreva um comentário",
                             color = TextPlaceholder,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -170,10 +174,17 @@ fun ComentariosScreen(
                                 BrandPrimaryDisabled
                         )
                         .clickable(
-                            enabled = usuarioAutenticado &&
-                                    textoComentario.isNotBlank() &&
-                                    !viewModel.isEnviando
+                            enabled = !viewModel.isEnviando
                         ) {
+                            if (!usuarioAutenticado) {
+                                onLoginRequired()
+                                return@clickable
+                            }
+
+                            if (textoComentario.isBlank()) {
+                                return@clickable
+                            }
+
                             viewModel.enviarComentario(
                                 autor = "Usuário",
                                 texto = textoComentario,

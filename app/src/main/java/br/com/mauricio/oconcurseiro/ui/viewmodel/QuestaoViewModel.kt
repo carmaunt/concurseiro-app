@@ -5,20 +5,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
+import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
 import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
-import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
-import br.com.mauricio.oconcurseiro.data.local.RespostaDao
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 data class RespostaAnterior(
@@ -29,9 +29,9 @@ data class RespostaAnterior(
 
 @HiltViewModel
 class QuestaoViewModel @Inject constructor(
-    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
     private val repository: QuestaoRepository,
-    private val respostaDao: RespostaDao
+    private val respostaDao: RespostaDao,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(QuestaoUiState())
@@ -59,7 +59,6 @@ class QuestaoViewModel @Inject constructor(
         private set
 
     private val respondidasNaSessao = mutableSetOf<String>()
-    private val authRepository = AuthRepository()
 
     init {
         carregarCatalogos()
@@ -134,6 +133,7 @@ class QuestaoViewModel @Inject constructor(
             uiState = uiState.copy(respostaAnterior = null)
             return
         }
+
         try {
             val resposta = respostaDao.ultimaRespostaPorQuestao(
                 authRepository.usuarioIdOuGuest(),
@@ -150,7 +150,8 @@ class QuestaoViewModel @Inject constructor(
 
             uiState = uiState.copy(respostaAnterior = resp)
 
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+        }
     }
 
     fun salvarResposta(
@@ -174,7 +175,8 @@ class QuestaoViewModel @Inject constructor(
                         gabarito = gabarito
                     )
                 )
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -224,7 +226,8 @@ class QuestaoViewModel @Inject constructor(
                 delay(2000)
                 try {
                     disciplinas = repository.listarDisciplinas().map { QuestaoMapper.catalogoFromDto(it) }
-                } catch (_: Exception) { }
+                } catch (_: Exception) {
+                }
             }
             verificarCompleto()
         }
@@ -236,7 +239,8 @@ class QuestaoViewModel @Inject constructor(
                 delay(2000)
                 try {
                     bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
-                } catch (_: Exception) { }
+                } catch (_: Exception) {
+                }
             }
             verificarCompleto()
         }
@@ -248,7 +252,8 @@ class QuestaoViewModel @Inject constructor(
                 delay(2000)
                 try {
                     instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
-                } catch (_: Exception) { }
+                } catch (_: Exception) {
+                }
             }
             verificarCompleto()
         }

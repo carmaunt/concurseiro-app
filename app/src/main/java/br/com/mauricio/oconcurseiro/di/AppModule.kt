@@ -23,9 +23,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAuthRepository(
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         firebaseAuth: FirebaseAuth
     ): AuthRepository {
-        return AuthRepository(firebaseAuth)
+        return AuthRepository(
+            context = context,
+            auth = firebaseAuth
+        )
     }
 
     @Provides

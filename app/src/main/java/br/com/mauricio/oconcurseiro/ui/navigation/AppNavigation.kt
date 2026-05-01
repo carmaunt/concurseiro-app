@@ -37,6 +37,7 @@ fun AppNavigation() {
         br.com.mauricio.oconcurseiro.data.local.GuestUsageManager(context)
     }
     var mostrarLimiteDialog by remember { mutableStateOf(false) }
+    var loginDialogOrigemComentarios by remember { mutableStateOf(false) }
 
     LaunchedEffect(authViewModel.usuarioAutenticado) {
         homeViewModel.atualizarDesempenho()
@@ -44,16 +45,35 @@ fun AppNavigation() {
 
     if (mostrarLimiteDialog) {
         br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog(
+            titulo = if (loginDialogOrigemComentarios) {
+                "Entre para participar"
+            } else {
+                "Limite diário atingido"
+            },
+            mensagem = if (loginDialogOrigemComentarios) {
+                "Faça login para comentar, curtir ou interagir com outros estudantes."
+            } else {
+                "Você já resolveu 5 questões hoje. Faça login para continuar resolvendo sem limite."
+            },
             viewModel = authViewModel,
-            onDismiss = { mostrarLimiteDialog = false },
+            onDismiss = {
+                mostrarLimiteDialog = false
+                loginDialogOrigemComentarios = false
+            },
             onLoginSuccess = {
                 mostrarLimiteDialog = false
-                navController.navigate(NavRoutes.Home.route) {
-                    popUpTo(0)
+
+                if (loginDialogOrigemComentarios) {
+                    loginDialogOrigemComentarios = false
+                } else {
+                    navController.navigate(NavRoutes.Home.route) {
+                        popUpTo(0)
+                    }
                 }
             },
             onAbrirCadastro = {
                 mostrarLimiteDialog = false
+                loginDialogOrigemComentarios = false
                 navController.navigate(NavRoutes.Register.route)
             },
             onLoginGoogleClick = {
@@ -62,8 +82,13 @@ fun AppNavigation() {
                     if (token != null) {
                         authViewModel.loginComGoogle(token) {
                             mostrarLimiteDialog = false
-                            navController.navigate(NavRoutes.Home.route) {
-                                popUpTo(0)
+
+                            if (loginDialogOrigemComentarios) {
+                                loginDialogOrigemComentarios = false
+                            } else {
+                                navController.navigate(NavRoutes.Home.route) {
+                                    popUpTo(0)
+                                }
                             }
                         }
                     }
@@ -208,6 +233,11 @@ fun AppNavigation() {
             ComentariosScreen(
                 viewModel = comentariosViewModel,
                 questaoId = questaoId,
+                usuarioAutenticado = authViewModel.usuarioAutenticado,
+                onLoginRequired = {
+                    loginDialogOrigemComentarios = true
+                    mostrarLimiteDialog = true
+                },
                 onBack = { navController.popBackStack() }
             )
         }

@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        br.com.mauricio.oconcurseiro.data.auth.TokenManager.carregarTokens(this)
 
         enableEdgeToEdge()
 

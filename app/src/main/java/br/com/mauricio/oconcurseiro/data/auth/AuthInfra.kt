@@ -9,6 +9,10 @@ object ConcurseiroApiProvider {
 }
 
 object TokenManager {
+    private const val PREFS_NAME = "auth_tokens"
+    private const val KEY_ACCESS_TOKEN = "access_token"
+    private const val KEY_REFRESH_TOKEN = "refresh_token"
+
     @Volatile
     var accessToken: String? = null
         private set
@@ -17,13 +21,35 @@ object TokenManager {
     var refreshToken: String? = null
         private set
 
-    fun salvarTokens(accessToken: String, refreshToken: String) {
-        this.accessToken = accessToken
-        this.refreshToken = refreshToken
+    fun carregarTokens(context: android.content.Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+
+        accessToken = prefs.getString(KEY_ACCESS_TOKEN, null)
+        refreshToken = prefs.getString(KEY_REFRESH_TOKEN, null)
     }
 
-    fun limpar() {
+    fun salvarTokens(
+        context: android.content.Context,
+        accessToken: String,
+        refreshToken: String
+    ) {
+        this.accessToken = accessToken
+        this.refreshToken = refreshToken
+
+        context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_ACCESS_TOKEN, accessToken)
+            .putString(KEY_REFRESH_TOKEN, refreshToken)
+            .apply()
+    }
+
+    fun limpar(context: android.content.Context) {
         accessToken = null
         refreshToken = null
+
+        context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
     }
 }

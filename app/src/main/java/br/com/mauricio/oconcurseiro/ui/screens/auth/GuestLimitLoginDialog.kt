@@ -49,6 +49,8 @@ import androidx.compose.animation.fadeOut
 
 @Composable
 fun GuestLimitLoginDialog(
+    titulo: String = "Limite diário atingido",
+    mensagem: String = "Você já resolveu 5 questões hoje. Faça login para continuar resolvendo sem limite.",
     viewModel: br.com.mauricio.oconcurseiro.ui.viewmodel.AuthViewModel,
     onDismiss: () -> Unit,
     onLoginSuccess: () -> Unit,
@@ -70,7 +72,7 @@ fun GuestLimitLoginDialog(
             text = {
                 Column {
                     Text(
-                        text = "Limite diário atingido",
+                        text = titulo,
                         style = MaterialTheme.typography.titleLarge,
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold
@@ -79,7 +81,7 @@ fun GuestLimitLoginDialog(
                     Spacer(Modifier.height(8.dp))
 
                     Text(
-                        text = "Você já resolveu 5 questões hoje. Faça login para continuar resolvendo sem limite.",
+                        text = mensagem,
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextSecondary
                     )

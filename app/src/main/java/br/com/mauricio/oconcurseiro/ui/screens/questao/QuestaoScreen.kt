@@ -250,8 +250,6 @@ fun CorpoQuestao(
     onResolver: (respostaSelecionada: String, acertou: Boolean) -> Unit = { _, _ -> },
     onResolvidaComSucesso: () -> Unit = {}
 ) {
-    var selecionada by remember(questao.id) { mutableIntStateOf(-1) }
-    var resolvida by remember(questao.id) { mutableStateOf(false) }
     var bannerVisivel by remember(questao.id) { mutableStateOf(true) }
 
     Column(
@@ -270,58 +268,14 @@ fun CorpoQuestao(
 
         QuestaoEnunciado(questao)
 
-        Spacer(Modifier.height(20.dp))
-
-        questao.alternativas.forEachIndexed { index, alternativa ->
-            val correta = alternativa.letra.equals(questao.gabarito, ignoreCase = true)
-            val foiClicada = selecionada == index
-
-            Alternativa(
-                letra = alternativa.letra,
-                texto = alternativa.texto,
-                selecionada = foiClicada,
-                resolvida = resolvida,
-                correta = correta
-            ) {
-                if (!resolvida) selecionada = index
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
         Spacer(Modifier.height(12.dp))
 
-        Button(
-            onClick = {
-                if (selecionada >= 0 && selecionada < questao.alternativas.size) {
-                    if (!onPodeResolverQuestao(questao.id)) {
-                        return@Button
-                    }
-
-                    resolvida = true
-                    val letraSelecionada = questao.alternativas[selecionada].letra
-                    val acertou = letraSelecionada.equals(questao.gabarito, ignoreCase = true)
-                    onResolver(letraSelecionada, acertou)
-                    onResolvidaComSucesso()
-                }
-            },
-            enabled = selecionada != -1 && !resolvida,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (selecionada != -1 && !resolvida) BrandPrimary else BrandPrimaryDisabled,
-                disabledContainerColor = BrandPrimaryDisabled
-            )
-        ) {
-            Text(
-                text = if (!resolvida) "Resolver" else "Resolvida",
-                color = TextOnBrand.copy(alpha = if (!resolvida) 1f else 0.6f),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+        QuestaoAlternativas(
+            questao = questao,
+            podeResponder = onPodeResolverQuestao(questao.id),
+            onResponder = onResolver,
+            onResolvida = onResolvidaComSucesso
+        )
 
         Spacer(Modifier.height(12.dp))
     }
