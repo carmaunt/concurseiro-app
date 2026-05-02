@@ -272,7 +272,7 @@ fun CorpoQuestao(
 
         QuestaoAlternativas(
             questao = questao,
-            podeResponder = onPodeResolverQuestao(questao.id),
+            onPodeResponder = { onPodeResolverQuestao(questao.id) },
             onResponder = onResolver,
             onResolvida = onResolvidaComSucesso
         )

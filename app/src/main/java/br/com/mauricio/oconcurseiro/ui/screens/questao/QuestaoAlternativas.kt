@@ -13,7 +13,7 @@ fun QuestaoAlternativas(
     questao: Questao,
     onResponder: (respostaSelecionada: String, acertou: Boolean) -> Unit,
     onResolvida: () -> Unit,
-    podeResponder: Boolean
+    onPodeResponder: () -> Boolean
 ) {
     var selecionada by remember(questao.id) { mutableIntStateOf(-1) }
     var resolvida by remember(questao.id) { mutableStateOf(false) }
@@ -43,7 +43,7 @@ fun QuestaoAlternativas(
             selecionada = selecionada,
             resolvida = resolvida,
             questao = questao,
-            podeResponder = podeResponder,
+            onPodeResponder = onPodeResponder,
             onResolver = {
                 val letraSelecionada = questao.alternativas[selecionada].letra
                 val acertou = letraSelecionada.equals(questao.gabarito, ignoreCase = true)
@@ -61,14 +61,20 @@ fun QuestaoBotaoResolver(
     selecionada: Int,
     resolvida: Boolean,
     questao: Questao,
-    podeResponder: Boolean,
+    onPodeResponder: () -> Boolean,
     onResolver: () -> Unit
 ) {
     Button(
         onClick = {
-            if (selecionada >= 0 && !resolvida && podeResponder) {
-                onResolver()
+            if (selecionada < 0 || resolvida) {
+                return@Button
             }
+
+            if (!onPodeResponder()) {
+                return@Button
+            }
+
+            onResolver()
         },
         enabled = selecionada != -1 && !resolvida,
         modifier = Modifier
