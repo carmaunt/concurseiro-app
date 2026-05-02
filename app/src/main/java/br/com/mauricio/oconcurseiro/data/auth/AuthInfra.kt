@@ -2,6 +2,9 @@ package br.com.mauricio.oconcurseiro.data.auth
 
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.data.remote.RetrofitClient
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import androidx.core.content.edit
 
 object ConcurseiroApiProvider {
     val api: ConcurseiroApi
@@ -21,8 +24,22 @@ object TokenManager {
     var refreshToken: String? = null
         private set
 
+    private fun encryptedPrefs(context: android.content.Context): android.content.SharedPreferences {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        return EncryptedSharedPreferences.create(
+            context,
+            PREFS_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
     fun carregarTokens(context: android.content.Context) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        val prefs = encryptedPrefs(context)
 
         accessToken = prefs.getString(KEY_ACCESS_TOKEN, null)
         refreshToken = prefs.getString(KEY_REFRESH_TOKEN, null)
@@ -36,20 +53,20 @@ object TokenManager {
         this.accessToken = accessToken
         this.refreshToken = refreshToken
 
-        context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_ACCESS_TOKEN, accessToken)
-            .putString(KEY_REFRESH_TOKEN, refreshToken)
-            .apply()
+        encryptedPrefs(context)
+            .edit {
+                putString(KEY_ACCESS_TOKEN, accessToken)
+                    .putString(KEY_REFRESH_TOKEN, refreshToken)
+            }
     }
 
     fun limpar(context: android.content.Context) {
         accessToken = null
         refreshToken = null
 
-        context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-            .edit()
-            .clear()
-            .apply()
+        encryptedPrefs(context)
+            .edit {
+                clear()
+            }
     }
 }
