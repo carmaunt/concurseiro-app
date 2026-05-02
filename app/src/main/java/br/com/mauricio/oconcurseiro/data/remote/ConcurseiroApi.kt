@@ -76,8 +76,8 @@ interface ConcurseiroApi {
         @Path("id") id: Long
     ): ApiResponse<ComentarioResponseDto>
 
-    @POST("/api/v1/auth/google")
-    suspend fun loginComGoogle(
+    @POST("/api/v1/auth/firebase")
+    suspend fun loginComFirebase(
         @Body request: GoogleLoginRequestDto
     ): ApiResponse<AuthResponseDto>
 }

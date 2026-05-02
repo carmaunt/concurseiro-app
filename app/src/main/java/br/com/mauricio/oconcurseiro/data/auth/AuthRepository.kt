@@ -31,7 +31,7 @@ class AuthRepository(
             ?.token
             ?: throw Exception("Erro ao obter token do Firebase")
 
-        val response = ConcurseiroApiProvider.api.loginComGoogle(
+        val response = ConcurseiroApiProvider.api.loginComFirebase(
             GoogleLoginRequestDto(firebaseToken)
         )
 
@@ -54,7 +54,7 @@ class AuthRepository(
             ?.token
             ?: throw Exception("Erro ao obter token do Firebase")
 
-        val response = ConcurseiroApiProvider.api.loginComGoogle(
+        val response = ConcurseiroApiProvider.api.loginComFirebase(
             GoogleLoginRequestDto(firebaseToken)
         )
 
