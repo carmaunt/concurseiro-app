@@ -80,4 +80,9 @@ interface ConcurseiroApi {
     suspend fun loginComFirebase(
         @Body request: GoogleLoginRequestDto
     ): ApiResponse<AuthResponseDto>
+
+    @POST("/api/v1/auth/refresh")
+    suspend fun refreshToken(
+        @Body request: RefreshTokenRequestDto
+    ): RefreshTokenResponseDto
 }

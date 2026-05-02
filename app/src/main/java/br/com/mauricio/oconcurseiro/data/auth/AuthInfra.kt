@@ -17,6 +17,9 @@ object TokenManager {
     private const val KEY_REFRESH_TOKEN = "refresh_token"
 
     @Volatile
+    private var appContext: android.content.Context? = null
+
+    @Volatile
     var accessToken: String? = null
         private set
 
@@ -40,7 +43,7 @@ object TokenManager {
 
     fun carregarTokens(context: android.content.Context) {
         val prefs = encryptedPrefs(context)
-
+        appContext = context.applicationContext
         accessToken = prefs.getString(KEY_ACCESS_TOKEN, null)
         refreshToken = prefs.getString(KEY_REFRESH_TOKEN, null)
     }
@@ -58,6 +61,25 @@ object TokenManager {
                 putString(KEY_ACCESS_TOKEN, accessToken)
                     .putString(KEY_REFRESH_TOKEN, refreshToken)
             }
+    }
+
+    fun salvarTokensSemContexto(
+        accessToken: String,
+        refreshToken: String
+    ): Boolean {
+        val context = appContext ?: return false
+
+        salvarTokens(
+            context = context,
+            accessToken = accessToken,
+            refreshToken = refreshToken
+        )
+
+        return true
+    }
+
+    fun refreshTokenAtual(): String? {
+        return refreshToken
     }
 
     fun limpar(context: android.content.Context) {
