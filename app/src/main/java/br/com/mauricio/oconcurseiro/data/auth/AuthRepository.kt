@@ -4,7 +4,6 @@ import br.com.mauricio.oconcurseiro.data.remote.GoogleLoginRequestDto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
-import br.com.mauricio.oconcurseiro.data.remote.LoginEmailRequestDto
 
 class AuthRepository(
     private val context: android.content.Context,

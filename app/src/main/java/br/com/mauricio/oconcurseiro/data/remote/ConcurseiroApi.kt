@@ -76,16 +76,6 @@ interface ConcurseiroApi {
         @Path("id") id: Long
     ): ApiResponse<ComentarioResponseDto>
 
-    @POST("/api/v1/auth/register/final")
-    suspend fun cadastrarUsuarioFinal(
-        @Body request: LoginEmailRequestDto
-    ): ApiResponse<Unit>
-
-    @POST("/api/v1/auth/login")
-    suspend fun loginComEmail(
-        @Body request: LoginEmailRequestDto
-    ): ApiResponse<AuthResponseDto>
-
     @POST("/api/v1/auth/google")
     suspend fun loginComGoogle(
         @Body request: GoogleLoginRequestDto
