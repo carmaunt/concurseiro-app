@@ -1,6 +1,6 @@
 package br.com.mauricio.oconcurseiro.data.repository
 
-import br.com.mauricio.oconcurseiro.data.model.FiltroParams
+import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioRequestDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioResponseDto
