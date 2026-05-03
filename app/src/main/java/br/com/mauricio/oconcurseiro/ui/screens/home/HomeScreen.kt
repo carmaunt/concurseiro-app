@@ -14,7 +14,13 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -38,44 +45,61 @@ fun HomeScreen(
     onLoginClick: () -> Unit,
     usuarioAutenticado: Boolean
 ) {
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewModel.uiState.isLoading) {
+        if (!viewModel.uiState.isLoading) {
+            isRefreshing = false
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(SurfaceBackground)
     ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                viewModel.atualizarDesempenho()
+            },
+            modifier = Modifier.weight(1f)
         ) {
-            HomeHeader(
-                usuarioAutenticado = usuarioAutenticado,
-                onLoginClick = onLoginClick,
-                onLogout = onLogout
-            )
-
-            if (viewModel.uiState.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 48.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = BrandPrimary)
-                }
-            } else if (viewModel.uiState.erro != null && !viewModel.uiState.statsCarregadas) {
-                ErrorCard(
-                    message = viewModel.uiState.erro!!,
-                    onRetry = { viewModel.carregarEstatisticas() }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                HomeHeader(
+                    usuarioAutenticado = usuarioAutenticado,
+                    onLoginClick = onLoginClick,
+                    onLogout = onLogout
                 )
-            } else {
-                ResolverQuestoesCard(onStartPractice)
 
-                Spacer(Modifier.height(12.dp))
+                if (viewModel.uiState.isLoading && !isRefreshing) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = BrandPrimary)
+                    }
+                } else if (viewModel.uiState.erro != null && !viewModel.uiState.statsCarregadas) {
+                    ErrorCard(
+                        message = viewModel.uiState.erro!!,
+                        onRetry = { viewModel.carregarEstatisticas() }
+                    )
+                } else {
+                    ResolverQuestoesCard(onStartPractice)
 
-                DesempenhoSection(viewModel)
+                    Spacer(Modifier.height(12.dp))
 
-                Spacer(Modifier.height(24.dp))
+                    DesempenhoSection(viewModel)
+
+                    Spacer(Modifier.height(24.dp))
+                }
             }
         }
 
