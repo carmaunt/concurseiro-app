@@ -12,7 +12,6 @@ import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.captureNullable
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -88,26 +87,21 @@ class QuestaoRepositoryTest {
 
     @Test
     fun `buscarPagina com filtro por disciplinaId nao passa nome de disciplina`() = runTest {
-        val disciplinaSlot = slot<String?>()
-        val disciplinaIdSlot = slot<Long?>()
+        var capturedDisciplina: String? = "SENTINEL"
+        var capturedDisciplinaId: Long? = null
 
         coEvery {
-            api.listarQuestoes(
-                page = any(), size = any(), sort = any(),
-                texto = any(),
-                disciplina = captureNullable(disciplinaSlot),
-                disciplinaId = captureNullable(disciplinaIdSlot),
-                assunto = any(), assuntoId = any(), banca = any(), bancaId = any(),
-                instituicao = any(), instituicaoId = any(), ano = any(),
-                cargo = any(), nivel = any(), modalidade = any()
-            )
-        } returns ApiResponse(success = true, data = PageResponse(content = emptyList()))
+            api.listarQuestoes(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } answers {
+            capturedDisciplina = arg(4)
+            capturedDisciplinaId = arg(5)
+            ApiResponse(success = true, data = PageResponse(content = emptyList()))
+        }
 
-        val filtro = FiltroParams(disciplinaId = 42L, disciplina = "Direito")
-        repository.buscarPagina(filtro = filtro)
+        repository.buscarPagina(filtro = FiltroParams(disciplinaId = 42L, disciplina = "Direito"))
 
-        assertEquals(null, disciplinaSlot.captured)
-        assertEquals(42L, disciplinaIdSlot.captured)
+        assertEquals(null, capturedDisciplina)
+        assertEquals(42L, capturedDisciplinaId)
     }
 
     @Test
