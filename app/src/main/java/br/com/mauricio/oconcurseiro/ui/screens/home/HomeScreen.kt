@@ -78,14 +78,10 @@ fun HomeScreen(
                 )
 
                 if (viewModel.uiState.isLoading && !isRefreshing) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = BrandPrimary)
-                    }
+                    ResolverQuestoesCardSkeleton()
+                    Spacer(Modifier.height(12.dp))
+                    DesempenhoSectionSkeleton()
+                    Spacer(Modifier.height(24.dp))
                 } else if (viewModel.uiState.erro != null && !viewModel.uiState.statsCarregadas) {
                     ErrorCard(
                         message = viewModel.uiState.erro!!,
