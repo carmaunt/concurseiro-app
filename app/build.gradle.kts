@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(project(":domain"))
     implementation(project(":core"))
+    implementation(project(":data"))
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
