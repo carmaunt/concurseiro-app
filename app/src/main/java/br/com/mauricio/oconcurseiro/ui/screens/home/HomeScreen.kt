@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.data.local.DesempenhoPorDisciplina
+import br.com.mauricio.oconcurseiro.ui.components.designsystem.ErrorState
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
 
@@ -89,7 +90,7 @@ fun HomeScreen(
                     RadarDisciplinasSkeleton()
                     Spacer(Modifier.height(24.dp))
                 } else if (viewModel.uiState.erro != null && !viewModel.uiState.statsCarregadas) {
-                    ErrorCard(
+                    ErrorState(
                         message = viewModel.uiState.erro!!,
                         onRetry = { viewModel.carregarEstatisticas() }
                     )
@@ -395,43 +396,6 @@ private fun BottomNavBar(
                         fontSize = 11.sp
                     )
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ErrorCard(
-    message: String,
-    onRetry: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = ErrorBg
-    ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = ErrorBorder
-            )
-            Spacer(Modifier.height(16.dp))
-            Button(
-                onClick = onRetry,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
-            ) {
-                Text(
-                    text = "Tentar novamente",
-                    color = TextOnBrand,
-                    fontWeight = FontWeight.SemiBold
-                )
             }
         }
     }
