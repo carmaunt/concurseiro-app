@@ -12,6 +12,7 @@ import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.captureNullable
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -94,8 +95,8 @@ class QuestaoRepositoryTest {
             api.listarQuestoes(
                 page = any(), size = any(), sort = any(),
                 texto = any(),
-                disciplina = capture(disciplinaSlot),
-                disciplinaId = capture(disciplinaIdSlot),
+                disciplina = captureNullable(disciplinaSlot),
+                disciplinaId = captureNullable(disciplinaIdSlot),
                 assunto = any(), assuntoId = any(), banca = any(), bancaId = any(),
                 instituicao = any(), instituicaoId = any(), ano = any(),
                 cargo = any(), nivel = any(), modalidade = any()
