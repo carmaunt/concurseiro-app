@@ -3,9 +3,8 @@
     <!-- Inclui o banco local de respostas do usuário (histórico de estudos) -->
     <include domain="database" path="concurseiro_db" />
 
-    <!-- Exclui SharedPreferences sensíveis e temporários -->
-    <exclude domain="sharedpref" path="guest_usage.xml" />
-    <exclude domain="sharedpref" path="androidx.security.crypto.EncryptedSharedPreferences" />
+    <!-- Exclui todos os SharedPreferences (contêm tokens e dados sensíveis) -->
+    <exclude domain="sharedpref" path="." />
 
     <!-- Exclui cache e arquivos temporários -->
     <exclude domain="cache" path="." />
