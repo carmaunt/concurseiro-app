@@ -2,7 +2,7 @@ package br.com.mauricio.oconcurseiro.ui.navigation
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import br.com.mauricio.oconcurseiro.data.auth.obterIdTokenGoogle
+import br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog
 import br.com.mauricio.oconcurseiro.ui.screens.auth.LoginScreen
 import br.com.mauricio.oconcurseiro.ui.screens.auth.RegisterScreen
 import br.com.mauricio.oconcurseiro.ui.screens.comentarios.ComentariosScreen
@@ -14,9 +14,6 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.AuthViewModel
 import br.com.mauricio.oconcurseiro.ui.viewmodel.ComentariosViewModel
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,66 +28,41 @@ fun AppNavigation() {
     val questaoViewModel: QuestaoViewModel = hiltViewModel()
     val comentariosViewModel: ComentariosViewModel = hiltViewModel()
     val navController = rememberNavController()
-
     val context = LocalContext.current
-    val guestManager = remember {
-        br.com.mauricio.oconcurseiro.data.local.GuestUsageManager(context)
-    }
-    var mostrarLimiteDialog by remember { mutableStateOf(false) }
-    var loginDialogOrigemComentarios by remember { mutableStateOf(false) }
 
     LaunchedEffect(authViewModel.usuarioAutenticado) {
         homeViewModel.atualizarDesempenho()
     }
 
-    if (mostrarLimiteDialog) {
-        br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog(
-            titulo = if (loginDialogOrigemComentarios) {
+    if (authViewModel.mostrarLimiteDialog) {
+        GuestLimitLoginDialog(
+            titulo = if (authViewModel.loginDialogOrigemComentarios) {
                 "Entre para participar"
             } else {
                 "Limite diário atingido"
             },
-            mensagem = if (loginDialogOrigemComentarios) {
+            mensagem = if (authViewModel.loginDialogOrigemComentarios) {
                 "Faça login para comentar, curtir ou interagir com outros estudantes."
             } else {
                 "Você já resolveu 5 questões hoje. Faça login para continuar resolvendo sem limite."
             },
             viewModel = authViewModel,
-            onDismiss = {
-                mostrarLimiteDialog = false
-                loginDialogOrigemComentarios = false
-            },
+            onDismiss = { authViewModel.fecharDialog() },
             onLoginSuccess = {
-                mostrarLimiteDialog = false
-
-                if (loginDialogOrigemComentarios) {
-                    loginDialogOrigemComentarios = false
-                } else {
-                    navController.navigate(NavRoutes.Home.route) {
-                        popUpTo(0)
-                    }
+                authViewModel.fecharDialog()
+                if (!authViewModel.loginDialogOrigemComentarios) {
+                    navController.navigate(NavRoutes.Home.route) { popUpTo(0) }
                 }
             },
             onAbrirCadastro = {
-                mostrarLimiteDialog = false
-                loginDialogOrigemComentarios = false
+                authViewModel.fecharDialog()
                 navController.navigate(NavRoutes.Register.route)
             },
             onLoginGoogleClick = {
-                CoroutineScope(Main).launch {
-                    val token: String? = obterIdTokenGoogle(context)
-                    if (token != null) {
-                        authViewModel.loginComGoogle(token) {
-                            mostrarLimiteDialog = false
-
-                            if (loginDialogOrigemComentarios) {
-                                loginDialogOrigemComentarios = false
-                            } else {
-                                navController.navigate(NavRoutes.Home.route) {
-                                    popUpTo(0)
-                                }
-                            }
-                        }
+                authViewModel.loginComGoogleComContexto(context) {
+                    authViewModel.fecharDialog()
+                    if (!authViewModel.loginDialogOrigemComentarios) {
+                        navController.navigate(NavRoutes.Home.route) { popUpTo(0) }
                     }
                 }
             }
@@ -121,14 +93,9 @@ fun AppNavigation() {
                 },
                 onAbrirCadastro = { navController.navigate(NavRoutes.Register.route) },
                 onLoginGoogleClick = {
-                    CoroutineScope(Main).launch {
-                        val token: String? = obterIdTokenGoogle(context)
-                        if (token != null) {
-                            authViewModel.loginComGoogle(token) {
-                                navController.navigate(NavRoutes.Home.route) {
-                                    popUpTo(NavRoutes.Login.route) { inclusive = true }
-                                }
-                            }
+                    authViewModel.loginComGoogleComContexto(context) {
+                        navController.navigate(NavRoutes.Home.route) {
+                            popUpTo(NavRoutes.Login.route) { inclusive = true }
                         }
                     }
                 }
@@ -147,8 +114,8 @@ fun AppNavigation() {
             HomeScreen(
                 viewModel = homeViewModel,
                 onStartPractice = {
-                    if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
-                        mostrarLimiteDialog = true
+                    if (!authViewModel.usuarioAutenticado && !authViewModel.podeResolverSemLogin()) {
+                        authViewModel.abrirDialogLimite()
                     } else {
                         if (!questaoViewModel.uiState.jaCarregou) {
                             questaoViewModel.carregarQuestao()
@@ -156,16 +123,12 @@ fun AppNavigation() {
                         navController.navigate(NavRoutes.Questao.route)
                     }
                 },
-                onOpenFilters = {
-                    navController.navigate(NavRoutes.Filtro.route)
-                },
+                onOpenFilters = { navController.navigate(NavRoutes.Filtro.route) },
                 onLogout = {
                     authViewModel.logout()
                     homeViewModel.atualizarDesempenho()
                 },
-                onLoginClick = {
-                    navController.navigate(NavRoutes.Login.route)
-                },
+                onLoginClick = { navController.navigate(NavRoutes.Login.route) },
                 usuarioAutenticado = authViewModel.usuarioAutenticado
             )
         }
@@ -182,25 +145,17 @@ fun AppNavigation() {
                     navController.navigate(NavRoutes.Comentarios.createRoute(questaoId))
                 },
                 onPodeResolverQuestao = { questaoId ->
-                    if (authViewModel.usuarioAutenticado) {
-                        true
-                    } else {
-                        val podeResolver = guestManager.podeResolverQuestao(questaoId)
-                        if (!podeResolver) {
-                            mostrarLimiteDialog = true
-                        }
-                        podeResolver
-                    }
+                    authViewModel.usuarioAutenticado || authViewModel.podeResolverQuestao(questaoId)
                 },
                 onResolvidaComSucesso = { questaoId ->
                     if (!authViewModel.usuarioAutenticado) {
-                        guestManager.registrarResolucao(questaoId)
+                        authViewModel.registrarResolucao(questaoId)
                         homeViewModel.atualizarDesempenho()
                     }
                 },
                 onSolicitarProximaQuestao = {
-                    if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
-                        mostrarLimiteDialog = true
+                    if (!authViewModel.usuarioAutenticado && !authViewModel.podeResolverSemLogin()) {
+                        authViewModel.abrirDialogLimite()
                     } else {
                         questaoViewModel.proxima()
                     }
@@ -213,8 +168,8 @@ fun AppNavigation() {
                 viewModel = questaoViewModel,
                 onBack = { navController.popBackStack() },
                 onAplicarFiltro = { novoFiltro ->
-                    if (!authViewModel.usuarioAutenticado && !guestManager.podeResolverSemLogin()) {
-                        mostrarLimiteDialog = true
+                    if (!authViewModel.usuarioAutenticado && !authViewModel.podeResolverSemLogin()) {
+                        authViewModel.abrirDialogLimite()
                     } else {
                         questaoViewModel.aplicarFiltro(novoFiltro)
                         navController.navigate(NavRoutes.Questao.route) {
@@ -235,10 +190,7 @@ fun AppNavigation() {
                 questaoId = questaoId,
                 usuarioAutenticado = authViewModel.usuarioAutenticado,
                 nomeUsuario = authViewModel.nomeUsuario,
-                onLoginRequired = {
-                    loginDialogOrigemComentarios = true
-                    mostrarLimiteDialog = true
-                },
+                onLoginRequired = { authViewModel.abrirDialogLimite(origemComentarios = true) },
                 onBack = { navController.popBackStack() }
             )
         }
