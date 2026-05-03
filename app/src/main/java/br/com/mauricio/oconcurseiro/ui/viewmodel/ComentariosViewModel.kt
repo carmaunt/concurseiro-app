@@ -7,11 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.model.Comentario
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -169,19 +167,4 @@ class ComentariosViewModel @Inject constructor(
     fun jaCurtiu(comentarioId: Long): Boolean = comentarioId in curtidasLocais
     fun jaDescurtiu(comentarioId: Long): Boolean = comentarioId in descurtidasLocais
 
-    private fun mapErrorMessage(e: Exception): String {
-        return when (e) {
-            is UnknownHostException -> "Sem conexão com a internet"
-            is SocketTimeoutException -> "Servidor não respondeu. Tente novamente."
-            is HttpException -> {
-                when (e.code()) {
-                    400 -> "Requisição inválida"
-                    404 -> "Recurso não encontrado"
-                    500 -> "Erro interno do servidor"
-                    else -> "Erro do servidor (${e.code()})"
-                }
-            }
-            else -> e.message ?: "Erro ao carregar comentários"
-        }
-    }
 }

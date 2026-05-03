@@ -13,12 +13,10 @@ import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
+import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 data class RespostaAnterior(
@@ -62,23 +60,6 @@ class QuestaoViewModel @Inject constructor(
 
     init {
         carregarCatalogos()
-    }
-
-    private fun mapErrorMessage(e: Exception): String {
-        return when (e) {
-            is UnknownHostException -> "Sem conexão com a internet"
-            is SocketTimeoutException -> "Servidor não respondeu. Tente novamente."
-            is HttpException -> {
-                when (e.code()) {
-                    400 -> "Requisição inválida"
-                    404 -> "Recurso não encontrado"
-                    500 -> "Erro interno do servidor"
-                    503 -> "Servidor indisponível no momento"
-                    else -> "Erro do servidor (${e.code()})"
-                }
-            }
-            else -> e.message ?: "Falha ao carregar questão."
-        }
     }
 
     fun carregarQuestao(filtro: FiltroParams = filtroAtual) {
