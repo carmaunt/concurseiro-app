@@ -10,13 +10,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 import br.com.mauricio.oconcurseiro.ui.theme.HeaderBackground
 import br.com.mauricio.oconcurseiro.ui.theme.TextOnBrand
@@ -35,17 +38,19 @@ fun AppHeader(
             .height(130.dp)
             .background(HeaderBackground)
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 4.dp, vertical = 12.dp)
     ) {
         if (onBack != null) {
-            Text(
-                text = "‹",
-                color = TextOnBrand,
-                fontSize = 28.sp,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .clickable { onBack() }
-            )
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.align(Alignment.TopStart)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Voltar",
+                    tint = TextOnBrand
+                )
+            }
         }
 
         if (actionText != null && onAction != null) {
@@ -55,6 +60,7 @@ fun AppHeader(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .padding(horizontal = 12.dp)
                     .clickable { onAction() }
             )
         }
