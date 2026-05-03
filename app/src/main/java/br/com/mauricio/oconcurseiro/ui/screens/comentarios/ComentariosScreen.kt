@@ -37,6 +37,7 @@ fun ComentariosScreen(
     viewModel: ComentariosViewModel,
     questaoId: String,
     usuarioAutenticado: Boolean,
+    nomeUsuario: String = "Usuário",
     onLoginRequired: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -220,7 +221,7 @@ fun ComentariosScreen(
                             }
 
                             viewModel.enviarComentario(
-                                autor = "Usuário",
+                                autor = nomeUsuario,
                                 texto = textoComentario,
                                 onSucesso = { textoComentario = "" }
                             )

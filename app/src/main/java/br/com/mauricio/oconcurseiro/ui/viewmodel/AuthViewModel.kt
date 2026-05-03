@@ -24,6 +24,14 @@ class AuthViewModel @Inject constructor(
     var usuarioAutenticado by mutableStateOf(repository.estaAutenticado())
         private set
 
+    val nomeUsuario: String
+        get() {
+            val user = repository.usuarioAtual()
+            return user?.displayName?.takeIf { it.isNotBlank() }
+                ?: user?.email?.substringBefore("@")?.takeIf { it.isNotBlank() }
+                ?: "Usuário"
+        }
+
     fun estaAutenticado(): Boolean = usuarioAutenticado
 
     fun loginEmail(email: String, senha: String, onSucesso: () -> Unit) {

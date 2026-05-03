@@ -234,6 +234,7 @@ fun AppNavigation() {
                 viewModel = comentariosViewModel,
                 questaoId = questaoId,
                 usuarioAutenticado = authViewModel.usuarioAutenticado,
+                nomeUsuario = authViewModel.nomeUsuario,
                 onLoginRequired = {
                     loginDialogOrigemComentarios = true
                     mostrarLimiteDialog = true
