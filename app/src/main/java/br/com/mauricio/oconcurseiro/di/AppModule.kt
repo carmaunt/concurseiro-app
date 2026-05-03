@@ -2,6 +2,7 @@ package br.com.mauricio.oconcurseiro.di
 
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.AppDatabase
+import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
@@ -49,5 +50,13 @@ object AppModule {
     @Provides
     fun provideRespostaDao(database: AppDatabase): RespostaDao {
         return database.respostaDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGuestUsageManager(
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+    ): GuestUsageManager {
+        return GuestUsageManager(context)
     }
 }
