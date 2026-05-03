@@ -12,17 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import br.com.mauricio.oconcurseiro.ui.components.designsystem.OConcurseiroButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -136,7 +133,8 @@ fun LoginScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        Button(
+        OConcurseiroButton(
+            text = "Entrar com e-mail",
             onClick = {
                 viewModel.loginEmail(
                     email = email.trim(),
@@ -144,28 +142,9 @@ fun LoginScreen(
                     onSucesso = onLoginSuccess
                 )
             },
-            enabled = email.isNotBlank() && senha.length >= 6 && !viewModel.isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (viewModel.isLoading) BrandPrimary.copy(alpha = 0.6f) else BrandPrimary
-            )
-        ) {
-            if (viewModel.isLoading) {
-                CircularProgressIndicator(
-                    color = TextOnBrand,
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text(
-                    text = "Entrar com e-mail",
-                    color = TextOnBrand,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
+            enabled = email.isNotBlank() && senha.length >= 6,
+            isLoading = viewModel.isLoading
+        )
 
         Spacer(Modifier.height(12.dp))
 
