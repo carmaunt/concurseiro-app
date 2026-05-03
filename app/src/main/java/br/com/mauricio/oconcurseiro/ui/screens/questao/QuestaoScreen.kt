@@ -15,9 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
@@ -30,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
+import br.com.mauricio.oconcurseiro.ui.components.designsystem.EmptyState
+import br.com.mauricio.oconcurseiro.ui.components.designsystem.ErrorState
+import br.com.mauricio.oconcurseiro.ui.components.designsystem.LoadingState
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
 import br.com.mauricio.oconcurseiro.ui.viewmodel.RespostaAnterior
@@ -66,7 +66,7 @@ fun QuestaoScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = BrandPrimary)
+                    LoadingState(message = "Carregando questão...")
                 }
             }
 
@@ -75,42 +75,12 @@ fun QuestaoScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Search,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = TextPlaceholder
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "Nenhuma questão encontrada",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "Tente alterar os filtros para encontrar questões",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
-                        )
-                        Spacer(Modifier.height(24.dp))
-                        Button(
-                            onClick = onOpenFiltro,
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
-                        ) {
-                            Text(
-                                text = "Alterar filtros",
-                                color = TextOnBrand,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
+                    EmptyState(
+                        title = "Nenhuma questão encontrada",
+                        message = "Tente alterar os filtros para encontrar questões",
+                        actionLabel = "Alterar filtros",
+                        onAction = onOpenFiltro
+                    )
                 }
             }
 
@@ -119,42 +89,11 @@ fun QuestaoScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Warning,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = ErrorBorder
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "Ocorreu um erro",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = erro,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
-                        )
-                        Spacer(Modifier.height(24.dp))
-                        Button(
-                            onClick = { viewModel.carregarQuestao() },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
-                        ) {
-                            Text(
-                                text = "Tentar novamente",
-                                color = TextOnBrand,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
+                    ErrorState(
+                        title = "Ocorreu um erro",
+                        message = erro,
+                        onRetry = { viewModel.carregarQuestao() }
+                    )
                 }
             }
 
@@ -281,84 +220,6 @@ fun CorpoQuestao(
     }
 }
 
-@Composable
-fun Alternativa(
-    letra: String,
-    texto: String,
-    selecionada: Boolean,
-    resolvida: Boolean,
-    correta: Boolean,
-    onClick: () -> Unit
-) {
-    val neutralBg = SurfaceCard
-    val neutralBorder = Color.Transparent
-
-    val okBg = SuccessBg
-    val okBorder = SuccessBorder
-
-    val errBg = ErrorBg
-    val errBorder = ErrorBorder
-
-    val selectedBg = BrandPrimaryLight
-
-    val (bg, border, icon) = when {
-        !resolvida && selecionada -> Triple(selectedBg, neutralBorder, null)
-        !resolvida -> Triple(neutralBg, neutralBorder, null)
-        correta -> Triple(okBg, okBorder, "✓")
-        selecionada && !correta -> Triple(errBg, errBorder, "✕")
-        else -> Triple(neutralBg, neutralBorder, null)
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(bg, shape = RoundedCornerShape(16.dp))
-            .then(
-                if (border != Color.Transparent) Modifier.border(2.dp, border, RoundedCornerShape(16.dp))
-                else Modifier
-            )
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        if (icon != null) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .background(border.copy(alpha = 0.15f), shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = icon,
-                    fontWeight = FontWeight.Bold,
-                    color = border
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .background(BorderCircle, shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = letra,
-                    fontWeight = FontWeight.Bold,
-                    color = TextSecondary
-                )
-            }
-        }
-
-        Spacer(Modifier.width(16.dp))
-
-        MarkdownCompatText(
-            text = texto,
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextPrimary
-        )
-    }
-}
 
 @Composable
 fun RodapeQuestao(
