@@ -1,19 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
--->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Regras para Android 12+ (API 31+) -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- Inclui o banco local de respostas do usuário (histórico de estudos) -->
+        <include domain="database" path="concurseiro_db" />
+
+        <!-- Exclui SharedPreferences sensíveis e temporários -->
+        <exclude domain="sharedpref" path="guest_usage.xml" />
+        <exclude domain="sharedpref" path="androidx.security.crypto.EncryptedSharedPreferences" />
+
+        <!-- Exclui cache -->
+        <exclude domain="cache" path="." />
+        <exclude domain="external-cache" path="." />
     </cloud-backup>
-    <!--
+
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <!-- Transferência entre dispositivos: inclui histórico de estudos -->
+        <include domain="database" path="concurseiro_db" />
+
+        <!-- Exclui dados temporários e credenciais -->
+        <exclude domain="sharedpref" path="guest_usage.xml" />
+        <exclude domain="sharedpref" path="androidx.security.crypto.EncryptedSharedPreferences" />
+        <exclude domain="cache" path="." />
     </device-transfer>
-    -->
 </data-extraction-rules>
