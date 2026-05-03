@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -53,8 +54,24 @@ fun ComentariosScreen(
         )
 
         val comentarios = viewModel.comentarios
+        val listState = rememberLazyListState()
 
-        if (comentarios.isEmpty()) {
+        val proximoDoFim by remember {
+            derivedStateOf {
+                val layoutInfo = listState.layoutInfo
+                val totalItens = layoutInfo.totalItemsCount
+                val ultimoVisivel = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                totalItens > 0 && ultimoVisivel >= totalItens - 3
+            }
+        }
+
+        LaunchedEffect(proximoDoFim) {
+            if (proximoDoFim && viewModel.temMaisPaginas && !viewModel.isLoading) {
+                viewModel.carregarMais()
+            }
+        }
+
+        if (comentarios.isEmpty() && !viewModel.isLoading) {
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -74,7 +91,7 @@ fun ComentariosScreen(
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                state = rememberLazyListState()
+                state = listState
             ) {
                 items(comentarios) { comentario ->
                     ComentarioItem(
@@ -96,6 +113,23 @@ fun ComentariosScreen(
                             }
                         }
                     )
+                }
+
+                if (viewModel.isLoading && viewModel.paginaAtual > 0) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp,
+                                color = BrandPrimary
+                            )
+                        }
+                    }
                 }
             }
         }
