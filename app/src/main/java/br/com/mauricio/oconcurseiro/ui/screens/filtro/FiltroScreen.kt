@@ -15,11 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
 import java.util.Calendar
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
@@ -393,7 +391,7 @@ fun DropdownSelector(
                 } else {
                     Text(
                         text = "▾",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = TextSecondary.copy(alpha = alpha)
                     )
                 }
@@ -424,8 +422,7 @@ fun DropdownSelector(
                             text = {
                                 Text(
                                     text = item.nome,
-                                    fontSize = 15.sp,
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                    style = if (isSelected) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall,
                                     color = if (isSelected) BrandPrimary else TextPrimary
                                 )
                             },
@@ -472,7 +469,7 @@ fun CampoTexto(
                 value = valor,
                 onValueChange = onValueChange,
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 16.sp, color = TextPrimary),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary),
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (valor.isBlank()) {
