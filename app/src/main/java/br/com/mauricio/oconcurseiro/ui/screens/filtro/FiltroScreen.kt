@@ -131,7 +131,7 @@ fun FiltroScreen(
                         .clickable { tab = 0 },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Simples", color = fgSimples, fontWeight = FontWeight.SemiBold)
+                    Text("Simples", color = fgSimples, style = MaterialTheme.typography.labelLarge)
                 }
 
                 Spacer(Modifier.width(8.dp))
@@ -148,7 +148,7 @@ fun FiltroScreen(
                         .clickable { tab = 1 },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Avançado", color = fgAvancado, fontWeight = FontWeight.SemiBold)
+                    Text("Avançado", color = fgAvancado, style = MaterialTheme.typography.labelLarge)
                 }
             }
 
@@ -289,7 +289,7 @@ fun FiltroScreen(
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, BorderDefault)
                 ) {
-                    Text("Limpar filtros", color = TextSecondary, fontWeight = FontWeight.SemiBold)
+                    Text("Limpar filtros", color = TextSecondary, style = MaterialTheme.typography.labelLarge)
                 }
 
                 Button(
@@ -318,7 +318,7 @@ fun FiltroScreen(
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
                 ) {
-                    Text("Filtrar", fontWeight = FontWeight.SemiBold)
+                    Text("Filtrar", style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
