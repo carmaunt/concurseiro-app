@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.data.model.CatalogoItem
+import java.util.Calendar
 import br.com.mauricio.oconcurseiro.data.model.FiltroParams
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
 import br.com.mauricio.oconcurseiro.ui.theme.*
@@ -201,17 +202,20 @@ fun FiltroScreen(
                 Text("Anos", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
                 Spacer(Modifier.height(12.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ChipAno("2026", selecionado = anoSelecionado == 2026) { anoSelecionado = if (anoSelecionado == 2026) null else 2026 }
-                    ChipAno("2025", selecionado = anoSelecionado == 2025) { anoSelecionado = if (anoSelecionado == 2025) null else 2025 }
-                    ChipAno("2024", selecionado = anoSelecionado == 2024) { anoSelecionado = if (anoSelecionado == 2024) null else 2024 }
-                    ChipAno("2023", selecionado = anoSelecionado == 2023) { anoSelecionado = if (anoSelecionado == 2023) null else 2023 }
-                }
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ChipAno("2022", selecionado = anoSelecionado == 2022) { anoSelecionado = if (anoSelecionado == 2022) null else 2022 }
-                    ChipAno("2021", selecionado = anoSelecionado == 2021) { anoSelecionado = if (anoSelecionado == 2021) null else 2021 }
-                    ChipAno("2020", selecionado = anoSelecionado == 2020) { anoSelecionado = if (anoSelecionado == 2020) null else 2020 }
+                val anoAtual = remember { Calendar.getInstance().get(Calendar.YEAR) }
+                val anos = remember { (anoAtual downTo 2018).toList() }
+                anos.chunked(4).forEach { linha ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        linha.forEach { ano ->
+                            ChipAno(
+                                texto = ano.toString(),
+                                selecionado = anoSelecionado == ano
+                            ) {
+                                anoSelecionado = if (anoSelecionado == ano) null else ano
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
                 }
             }
 
