@@ -13,3 +13,19 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# IDE and editor config
+.idea/
+
+# Replit-specific files (not part of the Android project)
+.replit
+replit.md
+.cache/
+.local/
+.agents/
+
+# Temporary assets attached during development sessions
+attached_assets/
+
+# Backend code lives in its own repository
+backend-changes/
