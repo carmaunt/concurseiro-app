@@ -13,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Quiz
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -30,8 +32,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.mauricio.oconcurseiro.data.local.DesempenhoPorDisciplina
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
 
@@ -81,6 +85,8 @@ fun HomeScreen(
                     ResolverQuestoesCardSkeleton()
                     Spacer(Modifier.height(12.dp))
                     DesempenhoSectionSkeleton()
+                    Spacer(Modifier.height(20.dp))
+                    RadarDisciplinasSkeleton()
                     Spacer(Modifier.height(24.dp))
                 } else if (viewModel.uiState.erro != null && !viewModel.uiState.statsCarregadas) {
                     ErrorCard(
@@ -93,6 +99,10 @@ fun HomeScreen(
                     Spacer(Modifier.height(12.dp))
 
                     DesempenhoSection(viewModel)
+
+                    Spacer(Modifier.height(20.dp))
+
+                    RadarDisciplinasSection(viewModel)
 
                     Spacer(Modifier.height(24.dp))
                 }
@@ -421,6 +431,136 @@ private fun ErrorCard(
                     text = "Tentar novamente",
                     color = TextOnBrand,
                     fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RadarDisciplinasSection(viewModel: HomeViewModel) {
+    val disciplinas = viewModel.uiState.desempenhoPorDisciplina
+    if (disciplinas.isEmpty()) return
+
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Text(
+            text = "Radar de disciplinas",
+            style = MaterialTheme.typography.titleSmall,
+            color = TextPrimary
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = SurfaceWhite,
+            shadowElevation = 1.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp)
+            ) {
+                disciplinas.forEachIndexed { index, item ->
+                    DisciplinaProgressRow(item)
+                    if (index < disciplinas.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            color = BorderDefault,
+                            thickness = 0.5.dp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DisciplinaProgressRow(item: DesempenhoPorDisciplina) {
+    val barColor = when {
+        item.aproveitamento >= 70 -> SuccessBorder
+        item.aproveitamento >= 40 -> Color(0xFFF59E0B)
+        else -> ErrorBorder
+    }
+
+    val bgColor = when {
+        item.aproveitamento >= 70 -> SuccessBg
+        item.aproveitamento >= 40 -> Color(0xFFFEF3C7)
+        else -> ErrorBg
+    }
+
+    var animationStarted by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { animationStarted = true }
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = if (animationStarted) item.aproveitamento / 100f else 0f,
+        animationSpec = tween(durationMillis = 800),
+        label = "progress_${item.disciplina}"
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(bgColor),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "${item.aproveitamento}%",
+                style = MaterialTheme.typography.labelMedium,
+                color = barColor,
+                fontWeight = FontWeight.Bold,
+                fontSize = 10.sp
+            )
+        }
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.disciplina,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "${item.total} questão${if (item.total != 1) "ões" else ""}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TextSecondary,
+                    fontSize = 11.sp
+                )
+            }
+
+            Spacer(Modifier.height(6.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(7.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(BorderDefault)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(animatedProgress)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(50))
+                        .background(barColor)
                 )
             }
         }

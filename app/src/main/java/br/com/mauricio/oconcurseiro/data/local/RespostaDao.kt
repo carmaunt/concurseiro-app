@@ -85,4 +85,22 @@ interface RespostaDao {
         LIMIT 1
     """)
     suspend fun ultimaRespostaPorQuestao(usuarioId: String, questaoId: String): RespostaEntity?
+
+    @Query("""
+        SELECT r.disciplina,
+               COUNT(*) AS total,
+               SUM(CASE WHEN r.acertou = 1 THEN 1 ELSE 0 END) AS acertos
+        FROM respostas r
+        INNER JOIN (
+            SELECT questaoId, MAX(respondidaEm) AS ultimaResposta
+            FROM respostas
+            WHERE usuarioId = :usuarioId
+            GROUP BY questaoId
+        ) ult ON r.questaoId = ult.questaoId AND r.respondidaEm = ult.ultimaResposta
+        WHERE r.usuarioId = :usuarioId
+        GROUP BY r.disciplina
+        ORDER BY total DESC
+        LIMIT 5
+    """)
+    suspend fun desempenhoPorDisciplina(usuarioId: String): List<DesempenhoPorDisciplina>
 }

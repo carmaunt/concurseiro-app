@@ -144,7 +144,8 @@ class HomeViewModel @Inject constructor(
         uiState = uiState.copy(erros7dias = respostaDao.totalErrosDesde(usuarioId, seteDiasAtras))
         uiState = uiState.copy(
             totalResolvidas = respostaDao.totalRespostas(usuarioId),
-            totalAcertos = respostaDao.totalAcertos(usuarioId)
+            totalAcertos = respostaDao.totalAcertos(usuarioId),
+            desempenhoPorDisciplina = respostaDao.desempenhoPorDisciplina(usuarioId)
         )
     }
 }

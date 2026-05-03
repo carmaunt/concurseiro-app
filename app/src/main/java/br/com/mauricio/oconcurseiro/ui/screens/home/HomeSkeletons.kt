@@ -160,3 +160,67 @@ fun DesempenhoSectionSkeleton() {
         }
     }
 }
+
+@Composable
+fun RadarDisciplinasSkeleton() {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        ShimmerBox(
+            modifier = Modifier
+                .width(180.dp)
+                .height(18.dp)
+                .clip(RoundedCornerShape(4.dp))
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = SurfaceWhite,
+            shadowElevation = 1.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp)
+            ) {
+                repeat(3) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ShimmerBox(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            ShimmerBox(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.5f)
+                                    .height(13.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            ShimmerBox(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                            )
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        ShimmerBox(
+                            modifier = Modifier
+                                .width(36.dp)
+                                .height(13.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                        )
+                    }
+                    if (it < 2) Spacer(Modifier.height(16.dp))
+                }
+            }
+        }
+    }
+}
