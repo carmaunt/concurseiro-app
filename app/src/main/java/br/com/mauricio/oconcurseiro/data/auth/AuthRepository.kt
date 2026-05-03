@@ -9,12 +9,15 @@ class AuthRepository(
     private val context: android.content.Context,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 ) {
+    init {
+        TokenManager.carregarTokens(context)
+    }
+
     fun usuarioIdOuGuest(): String = auth.currentUser?.uid ?: "guest"
 
     fun usuarioAtual() = auth.currentUser
 
     fun estaAutenticado(): Boolean {
-        TokenManager.carregarTokens(context)
         return auth.currentUser != null && !TokenManager.accessToken.isNullOrBlank()
     }
 
