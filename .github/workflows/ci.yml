@@ -46,7 +46,18 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew test --no-daemon --stacktrace
+        run: ./gradlew test --no-daemon --stacktrace --continue
+
+      - name: Print test failure reports
+        if: failure()
+        run: |
+          echo "=== FAILED TEST REPORTS ==="
+          find app/build/reports/tests -name "*.xml" 2>/dev/null | while read f; do
+            echo "--- $f ---"
+            cat "$f"
+          done || echo "No XML test reports found — likely a compilation error."
+          echo "=== BUILD OUTPUT ==="
+          find . -name "*.log" -path "*/build/*" 2>/dev/null | head -5 | xargs cat 2>/dev/null || true
 
       - name: Upload test results
         if: always()
