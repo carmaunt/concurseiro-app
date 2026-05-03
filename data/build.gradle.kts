@@ -8,9 +8,20 @@ android {
     namespace = "br.com.mauricio.oconcurseiro.data"
     compileSdk = 36
     defaultConfig { minSdk = 24 }
+    buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"https://concurseiro-api-lnae.onrender.com/\"")
+        }
+        release {
+            buildConfigField("String", "BASE_URL", "\"https://concurseiro-api-lnae.onrender.com/\"")
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
