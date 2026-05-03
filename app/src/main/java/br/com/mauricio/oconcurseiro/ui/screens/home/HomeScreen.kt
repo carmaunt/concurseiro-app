@@ -445,13 +445,13 @@ private fun RadarDisciplinasSection(viewModel: HomeViewModel) {
 private fun DisciplinaProgressRow(item: DesempenhoPorDisciplina) {
     val barColor = when {
         item.aproveitamento >= 70 -> SuccessBorder
-        item.aproveitamento >= 40 -> Color(0xFFF59E0B)
+        item.aproveitamento >= 40 -> WarningBar
         else -> ErrorBorder
     }
 
     val bgColor = when {
         item.aproveitamento >= 70 -> SuccessBg
-        item.aproveitamento >= 40 -> Color(0xFFFEF3C7)
+        item.aproveitamento >= 40 -> WarningBg
         else -> ErrorBg
     }
 
