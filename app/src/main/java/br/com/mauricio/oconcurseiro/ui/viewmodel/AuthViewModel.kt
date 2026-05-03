@@ -1,18 +1,22 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.auth.obterIdTokenGoogle
+import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
+    private val guestManager: GuestUsageManager
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
@@ -24,6 +28,12 @@ class AuthViewModel @Inject constructor(
     var usuarioAutenticado by mutableStateOf(repository.estaAutenticado())
         private set
 
+    var mostrarLimiteDialog by mutableStateOf(false)
+        private set
+
+    var loginDialogOrigemComentarios by mutableStateOf(false)
+        private set
+
     val nomeUsuario: String
         get() {
             val user = repository.usuarioAtual()
@@ -33,6 +43,28 @@ class AuthViewModel @Inject constructor(
         }
 
     fun estaAutenticado(): Boolean = usuarioAutenticado
+
+    fun abrirDialogLimite(origemComentarios: Boolean = false) {
+        loginDialogOrigemComentarios = origemComentarios
+        mostrarLimiteDialog = true
+    }
+
+    fun fecharDialog() {
+        mostrarLimiteDialog = false
+        loginDialogOrigemComentarios = false
+    }
+
+    fun podeResolverSemLogin(): Boolean = guestManager.podeResolverSemLogin()
+
+    fun podeResolverQuestao(questaoId: String): Boolean {
+        val pode = guestManager.podeResolverQuestao(questaoId)
+        if (!pode) abrirDialogLimite()
+        return pode
+    }
+
+    fun registrarResolucao(questaoId: String) {
+        guestManager.registrarResolucao(questaoId)
+    }
 
     fun loginEmail(email: String, senha: String, onSucesso: () -> Unit) {
         isLoading = true
@@ -73,8 +105,6 @@ class AuthViewModel @Inject constructor(
         isLoading = true
         erro = null
 
-        android.util.Log.d("FIREBASE_TOKEN", idToken)
-
         viewModelScope.launch {
             try {
                 repository.loginComGoogle(idToken)
@@ -84,6 +114,15 @@ class AuthViewModel @Inject constructor(
                 erro = "Erro ao login com Google"
             } finally {
                 isLoading = false
+            }
+        }
+    }
+
+    fun loginComGoogleComContexto(context: Context, onSucesso: () -> Unit) {
+        viewModelScope.launch {
+            val token = obterIdTokenGoogle(context)
+            if (token != null) {
+                loginComGoogle(token, onSucesso)
             }
         }
     }
