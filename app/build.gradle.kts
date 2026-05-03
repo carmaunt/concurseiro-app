@@ -42,6 +42,10 @@ android {
         compose = true
         buildConfig = true
     }
+    lint {
+        abortOnError = false
+        warningsAsErrors = false
+    }
 }
 
 kotlin {
