@@ -38,3 +38,6 @@ val SuccessBorder: Color get() = if (isDark) Color(0xFF4ADE80) else Color(0xFF16
 
 val ErrorBg: Color get() = if (isDark) Color(0xFF2E1A1A) else Color(0xFFFEE2E2)
 val ErrorBorder: Color get() = if (isDark) Color(0xFFFF6B6B) else Color(0xFFEF4444)
+
+val WarningBg: Color get() = if (isDark) Color(0xFF2D1F00) else Color(0xFFFEF3C7)
+val WarningBar: Color get() = if (isDark) Color(0xFFFBBF24) else Color(0xFFF59E0B)
