@@ -93,6 +93,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":data"))
     implementation(project(":feature-auth"))
+    implementation(project(":feature-questoes"))
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
