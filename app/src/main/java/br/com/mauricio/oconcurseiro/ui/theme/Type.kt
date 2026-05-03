@@ -4,96 +4,78 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
-import br.com.mauricio.oconcurseiro.R
-
-private val provider = GoogleFont.Provider(
-    providerAuthority = "com.google.android.gms.fonts",
-    providerPackage = "com.google.android.gms",
-    certificates = R.array.com_google_android_gms_fonts_certs
-)
-
-private val InterFont = GoogleFont("Inter")
-
-val InterFontFamily = FontFamily(
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Normal),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Medium),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.SemiBold),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Bold),
-)
 
 val Typography = Typography(
     displayLarge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
         fontSize = 42.sp,
         lineHeight = 48.sp
     ),
     headlineLarge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
         fontSize = 26.sp,
         lineHeight = 32.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
         lineHeight = 30.sp
     ),
     titleLarge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 22.sp,
         lineHeight = 28.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 20.sp,
         lineHeight = 26.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
         lineHeight = 24.sp
     ),
     bodyLarge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,
         lineHeight = 26.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
         lineHeight = 22.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 18.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 22.sp
