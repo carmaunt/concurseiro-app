@@ -24,3 +24,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "OConcurseiro"
 include(":app")
+include(":core")
+include(":data")
+include(":domain")
+include(":feature-auth")
+include(":feature-questoes")
+include(":feature-comentarios")
