@@ -1,17 +1,19 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
-import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.domain.model.Alternativa
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.CatalogosQuestoes
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.model.PaginaResultado
 import br.com.mauricio.oconcurseiro.domain.model.Questao
+import br.com.mauricio.oconcurseiro.domain.model.RespostaAnteriorQuestao
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -42,7 +44,8 @@ class QuestaoViewModelTest {
     private lateinit var carregarCatalogosQuestoesUseCase: CarregarCatalogosQuestoesUseCase
     private lateinit var listarAssuntosPorDisciplinaUseCase: ListarAssuntosPorDisciplinaUseCase
     private lateinit var listarSubAssuntosUseCase: ListarSubAssuntosUseCase
-    private lateinit var respostaDao: RespostaDao
+    private lateinit var salvarRespostaQuestaoUseCase: SalvarRespostaQuestaoUseCase
+    private lateinit var buscarRespostaAnteriorUseCase: BuscarRespostaAnteriorUseCase
     private lateinit var authRepository: AuthRepository
     private lateinit var viewModel: QuestaoViewModel
 
@@ -106,7 +109,8 @@ class QuestaoViewModelTest {
         carregarCatalogosQuestoesUseCase = mockk()
         listarAssuntosPorDisciplinaUseCase = mockk()
         listarSubAssuntosUseCase = mockk()
-        respostaDao = mockk(relaxed = true)
+        salvarRespostaQuestaoUseCase = mockk()
+        buscarRespostaAnteriorUseCase = mockk()
         authRepository = mockk()
 
         every { authRepository.estaAutenticado() } returns false
@@ -115,14 +119,16 @@ class QuestaoViewModelTest {
         coEvery { carregarCatalogosQuestoesUseCase() } returns catalogosVazios
         coEvery { listarAssuntosPorDisciplinaUseCase(any()) } returns emptyList()
         coEvery { listarSubAssuntosUseCase(any()) } returns emptyList()
-        coEvery { respostaDao.ultimaRespostaPorQuestao(any(), any()) } returns null
+        coEvery { salvarRespostaQuestaoUseCase(any()) } returns Unit
+        coEvery { buscarRespostaAnteriorUseCase(any(), any()) } returns null
 
         viewModel = QuestaoViewModel(
             buscarPaginaQuestoesUseCase = buscarPaginaQuestoesUseCase,
             carregarCatalogosQuestoesUseCase = carregarCatalogosQuestoesUseCase,
             listarAssuntosPorDisciplinaUseCase = listarAssuntosPorDisciplinaUseCase,
             listarSubAssuntosUseCase = listarSubAssuntosUseCase,
-            respostaDao = respostaDao,
+            salvarRespostaQuestaoUseCase = salvarRespostaQuestaoUseCase,
+            buscarRespostaAnteriorUseCase = buscarRespostaAnteriorUseCase,
             authRepository = authRepository
         )
     }
@@ -191,6 +197,26 @@ class QuestaoViewModelTest {
         advanceUntilIdle()
 
         assertEquals(10, viewModel.uiState.totalQuestoes)
+    }
+
+    @Test
+    fun `carregarQuestao exibe resposta anterior quando existir`() = runTest {
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery {
+            buscarRespostaAnteriorUseCase("guest-id", "q-test-1")
+        } returns RespostaAnteriorQuestao(
+            acertou = true,
+            respostaSelecionada = "B",
+            gabarito = "B"
+        )
+
+        viewModel.carregarQuestao()
+        advanceUntilIdle()
+
+        assertNotNull(viewModel.uiState.respostaAnterior)
+        assertEquals(true, viewModel.uiState.respostaAnterior?.acertou)
+        assertEquals("B", viewModel.uiState.respostaAnterior?.respostaSelecionada)
+        assertEquals("B", viewModel.uiState.respostaAnterior?.gabarito)
     }
 
     @Test
@@ -283,7 +309,7 @@ class QuestaoViewModelTest {
     }
 
     @Test
-    fun `salvarResposta chama respostaDao inserir`() = runTest {
+    fun `salvarResposta chama use case de salvar resposta`() = runTest {
         viewModel.salvarResposta(
             questaoId = "q-test-1",
             disciplina = "Raciocínio Lógico",
@@ -293,12 +319,30 @@ class QuestaoViewModelTest {
         )
         advanceUntilIdle()
 
-        coVerify { respostaDao.inserir(any()) }
+        coVerify {
+            salvarRespostaQuestaoUseCase(
+                match {
+                    it.usuarioId == "guest-id" &&
+                            it.questaoId == "q-test-1" &&
+                            it.disciplina == "Raciocínio Lógico" &&
+                            it.respostaSelecionada == "B" &&
+                            it.gabarito == "B" &&
+                            it.acertou
+                }
+            )
+        }
     }
 
     @Test
     fun `salvarResposta com questao ja respondida nao exibe banner na proxima visita`() = runTest {
         coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery {
+            buscarRespostaAnteriorUseCase("guest-id", "q-test-1")
+        } returns RespostaAnteriorQuestao(
+            acertou = true,
+            respostaSelecionada = "B",
+            gabarito = "B"
+        )
 
         viewModel.salvarResposta("q-test-1", "Lógica", "B", "B", true)
         viewModel.carregarQuestao()

@@ -6,14 +6,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
-import br.com.mauricio.oconcurseiro.data.local.RespostaDao
-import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
+import br.com.mauricio.oconcurseiro.domain.model.RespostaQuestao
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
 import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
 import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +33,8 @@ class QuestaoViewModel @Inject constructor(
     private val carregarCatalogosQuestoesUseCase: CarregarCatalogosQuestoesUseCase,
     private val listarAssuntosPorDisciplinaUseCase: ListarAssuntosPorDisciplinaUseCase,
     private val listarSubAssuntosUseCase: ListarSubAssuntosUseCase,
-    private val respostaDao: RespostaDao,
+    private val salvarRespostaQuestaoUseCase: SalvarRespostaQuestaoUseCase,
+    private val buscarRespostaAnteriorUseCase: BuscarRespostaAnteriorUseCase,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -125,12 +127,12 @@ class QuestaoViewModel @Inject constructor(
         }
 
         try {
-            val resposta = respostaDao.ultimaRespostaPorQuestao(
-                authRepository.usuarioIdOuGuest(),
-                questaoId
+            val resposta = buscarRespostaAnteriorUseCase(
+                usuarioId = authRepository.usuarioIdOuGuest(),
+                questaoId = questaoId
             )
 
-            val resp = resposta?.let {
+            val respostaAnterior = resposta?.let {
                 RespostaAnterior(
                     acertou = it.acertou,
                     respostaSelecionada = it.respostaSelecionada,
@@ -138,7 +140,7 @@ class QuestaoViewModel @Inject constructor(
                 )
             }
 
-            uiState = uiState.copy(respostaAnterior = resp)
+            uiState = uiState.copy(respostaAnterior = respostaAnterior)
 
         } catch (_: Exception) {
         }
@@ -155,8 +157,8 @@ class QuestaoViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                respostaDao.inserir(
-                    RespostaEntity(
+                salvarRespostaQuestaoUseCase(
+                    RespostaQuestao(
                         usuarioId = authRepository.usuarioIdOuGuest(),
                         questaoId = questaoId,
                         disciplina = disciplina,

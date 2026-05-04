@@ -7,10 +7,13 @@ import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.domain.repository.QuestaoRepositoryContract
+import br.com.mauricio.oconcurseiro.domain.repository.RespostaRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -74,6 +77,22 @@ object AppModule {
         repository: QuestaoRepositoryContract
     ): ListarSubAssuntosUseCase {
         return ListarSubAssuntosUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSalvarRespostaQuestaoUseCase(
+        repository: RespostaRepositoryContract
+    ): SalvarRespostaQuestaoUseCase {
+        return SalvarRespostaQuestaoUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBuscarRespostaAnteriorUseCase(
+        repository: RespostaRepositoryContract
+    ): BuscarRespostaAnteriorUseCase {
+        return BuscarRespostaAnteriorUseCase(repository)
     }
 
     @Provides
