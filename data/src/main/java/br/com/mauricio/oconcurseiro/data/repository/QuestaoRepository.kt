@@ -1,5 +1,6 @@
 package br.com.mauricio.oconcurseiro.data.repository
 
+import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
 import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioRequestDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioResponseDto
@@ -7,13 +8,38 @@ import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.data.remote.PageResponse
 import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
+import br.com.mauricio.oconcurseiro.domain.model.PaginaResultado
+import br.com.mauricio.oconcurseiro.domain.model.Questao
+import br.com.mauricio.oconcurseiro.domain.repository.QuestaoRepositoryContract
 import javax.inject.Inject
 
 class QuestaoRepository @Inject constructor(
     private val api: ConcurseiroApi
-) {
+) : QuestaoRepositoryContract {
 
-    suspend fun buscarPagina(
+    override suspend fun buscarPagina(
+        page: Int,
+        size: Int,
+        filtro: FiltroParams
+    ): PaginaResultado<Questao> {
+        val response = buscarPaginaDto(
+            page = page,
+            size = size,
+            filtro = filtro
+        )
+
+        return PaginaResultado(
+            content = response.content.map { QuestaoMapper.fromDto(it) },
+            number = response.number,
+            size = response.size,
+            totalElements = response.resolvedTotalElements,
+            totalPages = response.resolvedTotalPages,
+            first = response.first,
+            last = response.resolvedLast
+        )
+    }
+
+    suspend fun buscarPaginaDto(
         page: Int = 0,
         size: Int = 1,
         filtro: FiltroParams = FiltroParams()

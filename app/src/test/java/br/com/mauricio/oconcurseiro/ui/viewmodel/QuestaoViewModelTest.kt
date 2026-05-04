@@ -2,15 +2,13 @@ package br.com.mauricio.oconcurseiro.ui.viewmodel
 
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
-import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
-import br.com.mauricio.oconcurseiro.data.model.Alternativa
-import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
-import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
-import br.com.mauricio.oconcurseiro.data.remote.PageInfo
-import br.com.mauricio.oconcurseiro.data.remote.PageResponse
-import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import br.com.mauricio.oconcurseiro.domain.model.Alternativa
+import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
+import br.com.mauricio.oconcurseiro.domain.model.PaginaResultado
+import br.com.mauricio.oconcurseiro.domain.model.Questao
+import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -37,40 +35,56 @@ class QuestaoViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
+    private lateinit var buscarPaginaQuestoesUseCase: BuscarPaginaQuestoesUseCase
     private lateinit var repository: QuestaoRepository
     private lateinit var respostaDao: RespostaDao
     private lateinit var authRepository: AuthRepository
     private lateinit var viewModel: QuestaoViewModel
 
-    private val questaoDto = QuestaoDto(
-        idQuestion = "q-test-1",
-        enunciado = "Enunciado de teste",
-        questao = "Qual é a resposta correta?",
-        alternativas = "A) Alfa\nB) Beta\nC) Gama\nD) Delta\nE) Épsilon",
+    private val questao = Questao(
+        id = "q-test-1",
         disciplina = "Raciocínio Lógico",
         disciplinaId = 1L,
         assunto = "Lógica",
         assuntoId = 2L,
+        ano = 2024,
         banca = "CESPE",
         bancaId = 3L,
-        instituicao = "TCU",
-        instituicaoId = 4L,
-        ano = 2024,
+        orgao = "TCU",
+        orgaoId = 4L,
         cargo = "Auditor",
         nivel = "SUPERIOR",
         modalidade = "MULTIPLA_ESCOLHA",
+        enunciado = "Enunciado de teste",
+        questao = "Qual é a resposta correta?",
         gabarito = "B",
-        criadoEm = "2024-01-01T00:00:00"
+        alternativas = listOf(
+            Alternativa(letra = "A", texto = "Alfa"),
+            Alternativa(letra = "B", texto = "Beta"),
+            Alternativa(letra = "C", texto = "Gama"),
+            Alternativa(letra = "D", texto = "Delta"),
+            Alternativa(letra = "E", texto = "Épsilon")
+        )
     )
 
-    private val paginaComUmaQuestao = PageResponse(
-        content = listOf(questaoDto),
-        page = PageInfo(size = 1, number = 0, totalElements = 10L, totalPages = 10)
+    private val paginaComUmaQuestao = PaginaResultado(
+        content = listOf(questao),
+        number = 0,
+        size = 1,
+        totalElements = 10L,
+        totalPages = 10,
+        first = true,
+        last = false
     )
 
-    private val paginaVazia = PageResponse<QuestaoDto>(
+    private val paginaVazia = PaginaResultado<Questao>(
         content = emptyList(),
-        page = PageInfo(size = 1, number = 0, totalElements = 0L, totalPages = 0)
+        number = 0,
+        size = 1,
+        totalElements = 0L,
+        totalPages = 0,
+        first = true,
+        last = true
     )
 
     private val catalogoVazio = emptyList<CatalogoItemDto>()
@@ -79,19 +93,25 @@ class QuestaoViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
+        buscarPaginaQuestoesUseCase = mockk()
         repository = mockk()
         respostaDao = mockk(relaxed = true)
         authRepository = mockk()
 
         every { authRepository.estaAutenticado() } returns false
-        coEvery { authRepository.usuarioIdOuGuest() } returns "guest-id"
+        every { authRepository.usuarioIdOuGuest() } returns "guest-id"
 
         coEvery { repository.listarDisciplinas() } returns catalogoVazio
         coEvery { repository.listarBancas() } returns catalogoVazio
         coEvery { repository.listarInstituicoes() } returns catalogoVazio
         coEvery { respostaDao.ultimaRespostaPorQuestao(any(), any()) } returns null
 
-        viewModel = QuestaoViewModel(repository, respostaDao, authRepository)
+        viewModel = QuestaoViewModel(
+            buscarPaginaQuestoesUseCase = buscarPaginaQuestoesUseCase,
+            repository = repository,
+            respostaDao = respostaDao,
+            authRepository = authRepository
+        )
     }
 
     @After
@@ -99,11 +119,9 @@ class QuestaoViewModelTest {
         Dispatchers.resetMain()
     }
 
-    // ── carregarQuestao ──────────────────────────────────────────────────────
-
     @Test
     fun `carregarQuestao com sucesso popula uiState questao`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
@@ -117,7 +135,7 @@ class QuestaoViewModelTest {
 
     @Test
     fun `carregarQuestao com resultado vazio seta isEmpty`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaVazia
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaVazia
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
@@ -130,7 +148,7 @@ class QuestaoViewModelTest {
 
     @Test
     fun `carregarQuestao com excecao de rede seta mensagem de erro`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } throws UnknownHostException()
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } throws UnknownHostException()
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
@@ -143,7 +161,7 @@ class QuestaoViewModelTest {
     @Test
     fun `carregarQuestao persiste filtro aplicado`() = runTest {
         val filtro = FiltroParams(disciplina = "Direito", ano = 2022)
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaVazia
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaVazia
 
         viewModel.carregarQuestao(filtro)
         advanceUntilIdle()
@@ -154,7 +172,7 @@ class QuestaoViewModelTest {
 
     @Test
     fun `carregarQuestao seta totalQuestoes corretamente`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
@@ -162,11 +180,9 @@ class QuestaoViewModelTest {
         assertEquals(10, viewModel.uiState.totalQuestoes)
     }
 
-    // ── proxima / anterior ───────────────────────────────────────────────────
-
     @Test
     fun `proxima incrementa pagina e recarrega`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
@@ -179,16 +195,23 @@ class QuestaoViewModelTest {
 
     @Test
     fun `proxima nao avanca quando na ultima pagina`() = runTest {
-        val paginaFinal = PageResponse(
-            content = listOf(questaoDto),
-            page = PageInfo(size = 1, number = 0, totalElements = 1L, totalPages = 1)
+        val paginaFinal = PaginaResultado(
+            content = listOf(questao),
+            number = 0,
+            size = 1,
+            totalElements = 1L,
+            totalPages = 1,
+            first = true,
+            last = true
         )
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaFinal
+
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaFinal
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
 
         val paginaAntes = viewModel.uiState.paginaAtual
+
         viewModel.proxima()
         advanceUntilIdle()
 
@@ -197,10 +220,11 @@ class QuestaoViewModelTest {
 
     @Test
     fun `anterior decrementa pagina`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
+
         viewModel.proxima()
         advanceUntilIdle()
 
@@ -214,26 +238,26 @@ class QuestaoViewModelTest {
 
     @Test
     fun `anterior nao decrementa abaixo de zero`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
 
         assertEquals(0, viewModel.uiState.paginaAtual)
+
         viewModel.anterior()
         advanceUntilIdle()
 
         assertEquals(0, viewModel.uiState.paginaAtual)
     }
 
-    // ── aplicarFiltro ────────────────────────────────────────────────────────
-
     @Test
     fun `aplicarFiltro reseta pagina para zero`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
 
         viewModel.carregarQuestao()
         advanceUntilIdle()
+
         viewModel.proxima()
         advanceUntilIdle()
 
@@ -244,8 +268,6 @@ class QuestaoViewModelTest {
 
         assertEquals(0, viewModel.uiState.paginaAtual)
     }
-
-    // ── salvarResposta ───────────────────────────────────────────────────────
 
     @Test
     fun `salvarResposta chama respostaDao inserir`() = runTest {
@@ -263,7 +285,7 @@ class QuestaoViewModelTest {
 
     @Test
     fun `salvarResposta com questao ja respondida nao exibe banner na proxima visita`() = runTest {
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaComUmaQuestao
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaComUmaQuestao
 
         viewModel.salvarResposta("q-test-1", "Lógica", "B", "B", true)
         viewModel.carregarQuestao()
@@ -272,12 +294,10 @@ class QuestaoViewModelTest {
         assertNull(viewModel.uiState.respostaAnterior)
     }
 
-    // ── recarregar ───────────────────────────────────────────────────────────
-
     @Test
     fun `recarregar chama carregarQuestao com filtro atual`() = runTest {
         val filtro = FiltroParams(disciplina = "Português")
-        coEvery { repository.buscarPagina(any(), any(), any()) } returns paginaVazia
+        coEvery { buscarPaginaQuestoesUseCase(any(), any(), any()) } returns paginaVazia
 
         viewModel.carregarQuestao(filtro)
         advanceUntilIdle()

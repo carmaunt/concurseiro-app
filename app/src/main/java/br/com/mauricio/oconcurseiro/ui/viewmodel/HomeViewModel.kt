@@ -6,16 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
+import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
+import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
-import br.com.mauricio.oconcurseiro.data.local.RespostaDao
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -24,7 +24,6 @@ class HomeViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val respostaDao: RespostaDao
 ) : ViewModel() {
-
 
     var totalQuestoes: Long by mutableStateOf(0L)
         private set
@@ -68,33 +67,42 @@ class HomeViewModel @Inject constructor(
             try {
                 val questoesJob = launch {
                     try {
-                        val resp = repository.buscarPagina(page = 0, size = 1, filtro = FiltroParams())
-                        uiState = uiState.copy(totalQuestoes = resp.resolvedTotalElements)
-                    } catch (_: Exception) { }
+                        val resp = repository.buscarPagina(
+                            page = 0,
+                            size = 1,
+                            filtro = FiltroParams()
+                        )
+                        uiState = uiState.copy(totalQuestoes = resp.totalElements)
+                    } catch (_: Exception) {
+                    }
                 }
 
                 val disciplinasJob = launch {
                     try {
                         uiState = uiState.copy(totalDisciplinas = repository.listarDisciplinas().size)
-                    } catch (_: Exception) { }
+                    } catch (_: Exception) {
+                    }
                 }
 
                 val bancasJob = launch {
                     try {
                         uiState = uiState.copy(totalBancas = repository.listarBancas().size)
-                    } catch (_: Exception) { }
+                    } catch (_: Exception) {
+                    }
                 }
 
                 val instituicoesJob = launch {
                     try {
                         uiState = uiState.copy(totalInstituicoes = repository.listarInstituicoes().size)
-                    } catch (_: Exception) { }
+                    } catch (_: Exception) {
+                    }
                 }
 
                 val historicoJob = launch {
                     try {
                         carregarDesempenho()
-                    } catch (_: Exception) { }
+                    } catch (_: Exception) {
+                    }
                 }
 
                 questoesJob.join()
@@ -131,7 +139,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 carregarDesempenho()
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+            }
         }
     }
 

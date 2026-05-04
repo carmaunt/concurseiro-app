@@ -9,9 +9,10 @@ import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
 import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
+import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
-import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
 import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,7 @@ data class RespostaAnterior(
 
 @HiltViewModel
 class QuestaoViewModel @Inject constructor(
+    private val buscarPaginaQuestoesUseCase: BuscarPaginaQuestoesUseCase,
     private val repository: QuestaoRepository,
     private val respostaDao: RespostaDao,
     private val authRepository: AuthRepository
@@ -76,15 +78,14 @@ class QuestaoViewModel @Inject constructor(
             try {
                 val paginaAtual = uiState.paginaAtual
 
-                val resp = repository.buscarPagina(
+                val resp = buscarPaginaQuestoesUseCase(
                     page = paginaAtual,
                     size = 1,
                     filtro = filtro
                 )
 
-                val resolvedTotal = resp.resolvedTotalElements.toInt()
-                val dto = resp.content.firstOrNull()
-                val q = dto?.let { QuestaoMapper.fromDto(it) }
+                val resolvedTotal = resp.totalElements.toInt()
+                val q = resp.content.firstOrNull()
 
                 uiState = uiState.copy(
                     questao = q,

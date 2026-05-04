@@ -1,17 +1,19 @@
 package br.com.mauricio.oconcurseiro.di
 
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.auth.TokenStorage
 import br.com.mauricio.oconcurseiro.data.local.AppDatabase
 import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
+import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
+import br.com.mauricio.oconcurseiro.domain.repository.QuestaoRepositoryContract
+import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
-import br.com.mauricio.oconcurseiro.data.auth.TokenStorage
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -37,6 +39,14 @@ object AppModule {
             api = api,
             tokenStorage = tokenStorage
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideBuscarPaginaQuestoesUseCase(
+        repository: QuestaoRepositoryContract
+    ): BuscarPaginaQuestoesUseCase {
+        return BuscarPaginaQuestoesUseCase(repository)
     }
 
     @Provides
