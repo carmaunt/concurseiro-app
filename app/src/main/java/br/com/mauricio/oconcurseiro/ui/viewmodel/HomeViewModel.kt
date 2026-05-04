@@ -1,15 +1,14 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
-import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarDesempenhoHomeUseCase
 import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -22,35 +21,8 @@ class HomeViewModel @Inject constructor(
     @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
     private val repository: QuestaoRepository,
     private val authRepository: AuthRepository,
-    private val respostaDao: RespostaDao
+    private val carregarDesempenhoHomeUseCase: CarregarDesempenhoHomeUseCase
 ) : ViewModel() {
-
-    var totalQuestoes: Long by mutableStateOf(0L)
-        private set
-
-    var totalDisciplinas: Int by mutableStateOf(0)
-        private set
-
-    var totalBancas: Int by mutableStateOf(0)
-        private set
-
-    var totalInstituicoes: Int by mutableStateOf(0)
-        private set
-
-    var resolvidas7dias: Int by mutableIntStateOf(0)
-        private set
-
-    var acertos7dias: Int by mutableIntStateOf(0)
-        private set
-
-    var erros7dias: Int by mutableIntStateOf(0)
-        private set
-
-    var totalResolvidas: Int by mutableIntStateOf(0)
-        private set
-
-    var totalAcertos: Int by mutableIntStateOf(0)
-        private set
 
     var uiState by mutableStateOf(HomeUiState())
         private set
@@ -148,13 +120,18 @@ class HomeViewModel @Inject constructor(
         val seteDiasAtras = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
         val usuarioId = authRepository.usuarioIdOuGuest()
 
-        uiState = uiState.copy(resolvidas7dias = respostaDao.totalRespostasDesde(usuarioId, seteDiasAtras))
-        uiState = uiState.copy(acertos7dias = respostaDao.totalAcertosDesde(usuarioId, seteDiasAtras))
-        uiState = uiState.copy(erros7dias = respostaDao.totalErrosDesde(usuarioId, seteDiasAtras))
+        val desempenho = carregarDesempenhoHomeUseCase(
+            usuarioId = usuarioId,
+            desde = seteDiasAtras
+        )
+
         uiState = uiState.copy(
-            totalResolvidas = respostaDao.totalRespostas(usuarioId),
-            totalAcertos = respostaDao.totalAcertos(usuarioId),
-            desempenhoPorDisciplina = respostaDao.desempenhoPorDisciplina(usuarioId)
+            resolvidas7dias = desempenho.resolvidas7dias,
+            acertos7dias = desempenho.acertos7dias,
+            erros7dias = desempenho.erros7dias,
+            totalResolvidas = desempenho.totalResolvidas,
+            totalAcertos = desempenho.totalAcertos,
+            desempenhoPorDisciplina = desempenho.desempenhoPorDisciplina
         )
     }
 }

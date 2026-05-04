@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.mauricio.oconcurseiro.data.local.DesempenhoPorDisciplina
+import br.com.mauricio.oconcurseiro.domain.model.DesempenhoDisciplina
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.ErrorState
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
@@ -296,7 +296,7 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                     }
                 }
 
-                if (viewModel.resolvidas7dias == 0) {
+                if (viewModel.uiState.resolvidas7dias == 0) {
                     Spacer(Modifier.height(12.dp))
 
                     Text(
@@ -442,7 +442,7 @@ private fun RadarDisciplinasSection(viewModel: HomeViewModel) {
 }
 
 @Composable
-private fun DisciplinaProgressRow(item: DesempenhoPorDisciplina) {
+private fun DisciplinaProgressRow(item: DesempenhoDisciplina) {
     val barColor = when {
         item.aproveitamento >= 70 -> SuccessBorder
         item.aproveitamento >= 40 -> WarningBar
