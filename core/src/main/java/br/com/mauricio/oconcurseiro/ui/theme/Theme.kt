@@ -20,45 +20,45 @@ fun OConcurseiroTheme(
 
     val colorScheme = if (darkTheme) {
         darkColorScheme(
-            primary = Color(0xFFFFAB8A),
-            onPrimary = Color(0xFF3D1800),
-            primaryContainer = Color(0xFF3D2218),
-            onPrimaryContainer = Color(0xFFFFDBCF),
-            secondary = Color(0xFFB0B0B0),
-            onSecondary = Color(0xFF1A1A1A),
-            secondaryContainer = Color(0xFF2A2A2A),
-            onSecondaryContainer = Color(0xFFB0B0B0),
-            background = Color(0xFF121212),
-            onBackground = Color(0xFFE8E8E8),
-            surface = Color(0xFF1E1E1E),
-            onSurface = Color(0xFFE8E8E8),
-            surfaceVariant = Color(0xFF252525),
-            onSurfaceVariant = Color(0xFFB0B0B0),
-            outline = Color(0xFF3A3A3A),
-            error = Color(0xFFFF6B6B),
-            onError = Color.White,
-            errorContainer = Color(0xFF2E1A1A)
+            primary = LogoGreen,
+            onPrimary = LogoNavyDeep,
+            primaryContainer = LogoNavyDark,
+            onPrimaryContainer = Color(0xFFEAFBF0),
+            secondary = Color(0xFFC2CBD3),
+            onSecondary = LogoNavyDeep,
+            secondaryContainer = Color(0xFF1C344B),
+            onSecondaryContainer = Color(0xFFD7DEE5),
+            background = Color(0xFF0F1F30),
+            onBackground = Color(0xFFF4F7FA),
+            surface = Color(0xFF14283D),
+            onSurface = Color(0xFFF4F7FA),
+            surfaceVariant = LogoNavyDark,
+            onSurfaceVariant = Color(0xFFC2CBD3),
+            outline = Color(0xFF2F4A63),
+            error = Color(0xFFFF8A96),
+            onError = AppWhite,
+            errorContainer = Color(0xFF3A1F24)
         )
     } else {
         lightColorScheme(
-            primary = Color(0xFFFF6A2A),
-            onPrimary = Color.White,
-            primaryContainer = Color(0xFFFFE7DD),
-            onPrimaryContainer = Color(0xFF8B2500),
-            secondary = Color(0xFF6B7280),
-            onSecondary = Color.White,
-            secondaryContainer = Color(0xFFF3F4F6),
-            onSecondaryContainer = Color(0xFF374151),
-            background = Color(0xFFF6F7FB),
-            onBackground = Color(0xFF111827),
-            surface = Color.White,
-            onSurface = Color(0xFF111827),
-            surfaceVariant = Color(0xFFF3F4F6),
-            onSurfaceVariant = Color(0xFF6B7280),
-            outline = Color(0xFFE5E7EB),
-            error = Color(0xFFEF4444),
-            onError = Color.White,
-            errorContainer = Color(0xFFFEE2E2)
+            primary = LogoNavy,
+            onPrimary = AppWhite,
+            primaryContainer = Color(0xFFEAF1F7),
+            onPrimaryContainer = LogoNavyDeep,
+            secondary = LogoGreen,
+            onSecondary = AppWhite,
+            secondaryContainer = LogoGreenSoft,
+            onSecondaryContainer = LogoGreenDark,
+            background = AppBackground,
+            onBackground = Color(0xFF142334),
+            surface = AppWhite,
+            onSurface = Color(0xFF142334),
+            surfaceVariant = Color(0xFFF1F5F9),
+            onSurfaceVariant = Color(0xFF52677A),
+            outline = Color(0xFFE5EAF0),
+            error = Color(0xFFDC3545),
+            onError = AppWhite,
+            errorContainer = Color(0xFFFFE4E6)
         )
     }
 
@@ -66,9 +66,16 @@ fun OConcurseiroTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+
             window.statusBarColor = HeaderBackground.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-            val navBarColor = if (darkTheme) Color(0xFF121212).toArgb() else Color(0xFFF6F7FB).toArgb()
+
+            val navBarColor = if (darkTheme) {
+                Color(0xFF0F1F30).toArgb()
+            } else {
+                AppBackground.toArgb()
+            }
+
             window.navigationBarColor = navBarColor
             WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }

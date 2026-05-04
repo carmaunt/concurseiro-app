@@ -7,7 +7,8 @@ import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
     private val context: android.content.Context,
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val api: br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 ) {
     init {
         TokenManager.carregarTokens(context)
@@ -34,7 +35,7 @@ class AuthRepository(
             ?.token
             ?: throw Exception("Erro ao obter token do Firebase")
 
-        val response = ConcurseiroApiProvider.api.loginComFirebase(
+        val response = api.loginComFirebase(
             GoogleLoginRequestDto(firebaseToken)
         )
 
@@ -57,7 +58,7 @@ class AuthRepository(
             ?.token
             ?: throw Exception("Erro ao obter token do Firebase")
 
-        val response = ConcurseiroApiProvider.api.loginComFirebase(
+        val response = api.loginComFirebase(
             GoogleLoginRequestDto(firebaseToken)
         )
 

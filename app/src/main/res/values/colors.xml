@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand_primary">#FFFF6A2A</color>
-    <color name="brand_primary_light">#FFFFE7DD</color>
-    <color name="brand_primary_disabled">#FFFFC3A8</color>
-    <color name="brand_primary_background">#FFFFF7F3</color>
-    <color name="surface_background">#FFF6F7FB</color>
-    <color name="surface_card">#FFF3F4F6</color>
-    <color name="dark_surface">#FF121212</color>
-    <color name="text_primary">#FF111827</color>
-    <color name="text_secondary">#FF6B7280</color>
-    <color name="success_bg">#FFDCFCE7</color>
+    <color name="brand_primary">#FF20384F</color>
+    <color name="brand_primary_light">#FFEAF1F7</color>
+    <color name="brand_primary_disabled">#FF9AAABA</color>
+    <color name="brand_primary_background">#FFFFFFFF</color>
+
+    <color name="surface_background">#FFF7F9FC</color>
+    <color name="surface_card">#FFFFFFFF</color>
+    <color name="dark_surface">#FF0F1F30</color>
+
+    <color name="text_primary">#FF142334</color>
+    <color name="text_secondary">#FF52677A</color>
+
+    <color name="success_bg">#FFEAFBF0</color>
     <color name="success_border">#FF16A34A</color>
-    <color name="error_bg">#FFFEE2E2</color>
-    <color name="error_border">#FFEF4444</color>
+
+    <color name="error_bg">#FFFFE4E6</color>
+    <color name="error_border">#FFDC3545</color>
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

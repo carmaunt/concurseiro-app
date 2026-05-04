@@ -10,6 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -25,18 +26,14 @@ object AppModule {
     @Singleton
     fun provideAuthRepository(
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
-        firebaseAuth: FirebaseAuth
+        firebaseAuth: FirebaseAuth,
+        api: ConcurseiroApi
     ): AuthRepository {
         return AuthRepository(
             context = context,
-            auth = firebaseAuth
+            auth = firebaseAuth,
+            api = api
         )
-    }
-
-    @Provides
-    @Singleton
-    fun provideQuestaoRepository(): br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository {
-        return br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository()
     }
 
     @Provides

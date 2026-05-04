@@ -1,21 +1,24 @@
 package br.com.mauricio.oconcurseiro.data.repository
 
-import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioRequestDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioResponseDto
+import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.data.remote.PageResponse
 import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
-import br.com.mauricio.oconcurseiro.data.remote.RetrofitClient
+import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
+import javax.inject.Inject
 
-class QuestaoRepository {
+class QuestaoRepository @Inject constructor(
+    private val api: ConcurseiroApi
+) {
 
     suspend fun buscarPagina(
         page: Int = 0,
         size: Int = 1,
         filtro: FiltroParams = FiltroParams()
     ): PageResponse<QuestaoDto> {
-        return RetrofitClient.api.listarQuestoes(
+        return api.listarQuestoes(
             page = page,
             size = size,
             sort = "criadoEm,desc",
@@ -36,27 +39,27 @@ class QuestaoRepository {
     }
 
     suspend fun buscarQuestao(idQuestion: String): QuestaoDto {
-        return RetrofitClient.api.buscarQuestao(idQuestion).data
+        return api.buscarQuestao(idQuestion).data
     }
 
     suspend fun listarDisciplinas(): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarDisciplinas().data
+        return api.listarDisciplinas().data
     }
 
     suspend fun listarAssuntosPorDisciplina(disciplinaId: Long): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarAssuntosPorDisciplina(disciplinaId).data
+        return api.listarAssuntosPorDisciplina(disciplinaId).data
     }
 
     suspend fun listarBancas(): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarBancas().data
+        return api.listarBancas().data
     }
 
     suspend fun listarInstituicoes(): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarInstituicoes().data
+        return api.listarInstituicoes().data
     }
 
     suspend fun listarSubAssuntos(assuntoId: Long): List<CatalogoItemDto> {
-        return RetrofitClient.api.listarSubAssuntos(assuntoId).data
+        return api.listarSubAssuntos(assuntoId).data
     }
 
     suspend fun listarComentarios(
@@ -65,7 +68,7 @@ class QuestaoRepository {
         size: Int = 20,
         ordenar: String = "curtidas"
     ): PageResponse<ComentarioResponseDto> {
-        return RetrofitClient.api.listarComentarios(questaoId, page, size, ordenar).data
+        return api.listarComentarios(questaoId, page, size, ordenar).data
     }
 
     suspend fun criarComentario(
@@ -73,14 +76,17 @@ class QuestaoRepository {
         autor: String,
         texto: String
     ): ComentarioResponseDto {
-        return RetrofitClient.api.criarComentario(questaoId, ComentarioRequestDto(autor, texto)).data
+        return api.criarComentario(
+            questaoId = questaoId,
+            request = ComentarioRequestDto(autor, texto)
+        ).data
     }
 
     suspend fun curtirComentario(id: Long): ComentarioResponseDto {
-        return RetrofitClient.api.curtirComentario(id).data
+        return api.curtirComentario(id).data
     }
 
     suspend fun descurtirComentario(id: Long): ComentarioResponseDto {
-        return RetrofitClient.api.descurtirComentario(id).data
+        return api.descurtirComentario(id).data
     }
 }

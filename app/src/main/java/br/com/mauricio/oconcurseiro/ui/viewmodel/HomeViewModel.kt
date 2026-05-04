@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.mauricio.oconcurseiro.data.model.FiltroParams
+import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
