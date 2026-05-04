@@ -11,6 +11,7 @@ import br.com.mauricio.oconcurseiro.domain.repository.RespostaRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarDesempenhoHomeUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
@@ -85,6 +86,15 @@ object AppModule {
         repository: RespostaRepositoryContract
     ): SalvarRespostaQuestaoUseCase {
         return SalvarRespostaQuestaoUseCase(repository)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideCarregarDesempenhoHomeUseCase(
+        repository: RespostaRepositoryContract
+    ): CarregarDesempenhoHomeUseCase {
+        return CarregarDesempenhoHomeUseCase(repository)
     }
 
     @Provides
