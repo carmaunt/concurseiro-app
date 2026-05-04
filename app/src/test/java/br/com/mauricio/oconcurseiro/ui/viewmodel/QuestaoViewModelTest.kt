@@ -4,7 +4,7 @@ import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
 import br.com.mauricio.oconcurseiro.data.model.Alternativa
-import br.com.mauricio.oconcurseiro.data.model.FiltroParams
+import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.data.model.Questao
 import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
 import br.com.mauricio.oconcurseiro.data.remote.PageInfo
