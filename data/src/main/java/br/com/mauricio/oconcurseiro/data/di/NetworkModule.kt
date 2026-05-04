@@ -1,7 +1,7 @@
 package br.com.mauricio.oconcurseiro.data.di
 
 import br.com.mauricio.oconcurseiro.data.BuildConfig
-import br.com.mauricio.oconcurseiro.data.auth.TokenManager
+import br.com.mauricio.oconcurseiro.data.auth.TokenStorage
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.data.remote.RefreshTokenRequestDto
 import dagger.Module
@@ -38,15 +38,18 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideTokenRefreshAuthenticator(): Authenticator {
-        return TokenRefreshAuthenticator()
+    fun provideTokenRefreshAuthenticator(
+        tokenStorage: TokenStorage
+    ): Authenticator {
+        return TokenRefreshAuthenticator(tokenStorage)
     }
 
     @Provides
     @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
-        tokenRefreshAuthenticator: Authenticator
+        tokenRefreshAuthenticator: Authenticator,
+        tokenStorage: TokenStorage
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
@@ -54,7 +57,7 @@ object NetworkModule {
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor { chain ->
                 val request = chain.request()
-                val token = TokenManager.accessToken
+                val token = tokenStorage.accessToken
 
                 val newRequest = if (!token.isNullOrBlank()) {
                     request.newBuilder()
@@ -92,14 +95,16 @@ object NetworkModule {
     }
 }
 
-private class TokenRefreshAuthenticator : Authenticator {
+private class TokenRefreshAuthenticator(
+    private val tokenStorage: TokenStorage
+) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
         if (responseCount(response) >= 2) {
             return null
         }
 
-        val refreshToken = TokenManager.refreshTokenAtual()
+        val refreshToken = tokenStorage.refreshToken
             ?: return null
 
         val refreshResponse = runCatching {
@@ -113,14 +118,10 @@ private class TokenRefreshAuthenticator : Authenticator {
             }
         }.getOrNull() ?: return null
 
-        val salvou = TokenManager.salvarTokensSemContexto(
+        tokenStorage.salvarTokens(
             accessToken = refreshResponse.accessToken,
             refreshToken = refreshResponse.refreshToken
         )
-
-        if (!salvou) {
-            return null
-        }
 
         return response.request.newBuilder()
             .header("Authorization", "Bearer ${refreshResponse.accessToken}")

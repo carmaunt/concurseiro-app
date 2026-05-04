@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
+import br.com.mauricio.oconcurseiro.data.auth.TokenStorage
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -27,12 +28,14 @@ object AppModule {
     fun provideAuthRepository(
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         firebaseAuth: FirebaseAuth,
-        api: ConcurseiroApi
+        api: ConcurseiroApi,
+        tokenStorage: TokenStorage
     ): AuthRepository {
         return AuthRepository(
             context = context,
             auth = firebaseAuth,
-            api = api
+            api = api,
+            tokenStorage = tokenStorage
         )
     }
 
