@@ -8,6 +8,9 @@ import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.domain.repository.QuestaoRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -47,6 +50,30 @@ object AppModule {
         repository: QuestaoRepositoryContract
     ): BuscarPaginaQuestoesUseCase {
         return BuscarPaginaQuestoesUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCarregarCatalogosQuestoesUseCase(
+        repository: QuestaoRepositoryContract
+    ): CarregarCatalogosQuestoesUseCase {
+        return CarregarCatalogosQuestoesUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideListarAssuntosPorDisciplinaUseCase(
+        repository: QuestaoRepositoryContract
+    ): ListarAssuntosPorDisciplinaUseCase {
+        return ListarAssuntosPorDisciplinaUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideListarSubAssuntosUseCase(
+        repository: QuestaoRepositoryContract
+    ): ListarSubAssuntosUseCase {
+        return ListarSubAssuntosUseCase(repository)
     }
 
     @Provides

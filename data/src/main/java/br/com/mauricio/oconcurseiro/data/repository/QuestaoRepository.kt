@@ -7,6 +7,7 @@ import br.com.mauricio.oconcurseiro.data.remote.ComentarioResponseDto
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.data.remote.PageResponse
 import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
+import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.model.PaginaResultado
 import br.com.mauricio.oconcurseiro.domain.model.Questao
@@ -68,23 +69,47 @@ class QuestaoRepository @Inject constructor(
         return api.buscarQuestao(idQuestion).data
     }
 
-    suspend fun listarDisciplinas(): List<CatalogoItemDto> {
+    override suspend fun listarDisciplinas(): List<CatalogoItem> {
+        return listarDisciplinasDto().map { QuestaoMapper.catalogoFromDto(it) }
+    }
+
+    suspend fun listarDisciplinasDto(): List<CatalogoItemDto> {
         return api.listarDisciplinas().data
     }
 
-    suspend fun listarAssuntosPorDisciplina(disciplinaId: Long): List<CatalogoItemDto> {
+    override suspend fun listarAssuntosPorDisciplina(
+        disciplinaId: Long
+    ): List<CatalogoItem> {
+        return listarAssuntosPorDisciplinaDto(disciplinaId)
+            .map { QuestaoMapper.catalogoFromDto(it) }
+    }
+
+    suspend fun listarAssuntosPorDisciplinaDto(disciplinaId: Long): List<CatalogoItemDto> {
         return api.listarAssuntosPorDisciplina(disciplinaId).data
     }
 
-    suspend fun listarBancas(): List<CatalogoItemDto> {
+    override suspend fun listarBancas(): List<CatalogoItem> {
+        return listarBancasDto().map { QuestaoMapper.catalogoFromDto(it) }
+    }
+
+    suspend fun listarBancasDto(): List<CatalogoItemDto> {
         return api.listarBancas().data
     }
 
-    suspend fun listarInstituicoes(): List<CatalogoItemDto> {
+    override suspend fun listarInstituicoes(): List<CatalogoItem> {
+        return listarInstituicoesDto().map { QuestaoMapper.catalogoFromDto(it) }
+    }
+
+    suspend fun listarInstituicoesDto(): List<CatalogoItemDto> {
         return api.listarInstituicoes().data
     }
 
-    suspend fun listarSubAssuntos(assuntoId: Long): List<CatalogoItemDto> {
+    override suspend fun listarSubAssuntos(assuntoId: Long): List<CatalogoItem> {
+        return listarSubAssuntosDto(assuntoId)
+            .map { QuestaoMapper.catalogoFromDto(it) }
+    }
+
+    suspend fun listarSubAssuntosDto(assuntoId: Long): List<CatalogoItemDto> {
         return api.listarSubAssuntos(assuntoId).data
     }
 

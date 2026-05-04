@@ -8,15 +8,15 @@ import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.local.RespostaEntity
-import br.com.mauricio.oconcurseiro.data.mapper.QuestaoMapper
-import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
 import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
 import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +29,9 @@ data class RespostaAnterior(
 @HiltViewModel
 class QuestaoViewModel @Inject constructor(
     private val buscarPaginaQuestoesUseCase: BuscarPaginaQuestoesUseCase,
-    private val repository: QuestaoRepository,
+    private val carregarCatalogosQuestoesUseCase: CarregarCatalogosQuestoesUseCase,
+    private val listarAssuntosPorDisciplinaUseCase: ListarAssuntosPorDisciplinaUseCase,
+    private val listarSubAssuntosUseCase: ListarSubAssuntosUseCase,
     private val respostaDao: RespostaDao,
     private val authRepository: AuthRepository
 ) : ViewModel() {
@@ -90,7 +92,13 @@ class QuestaoViewModel @Inject constructor(
                 uiState = uiState.copy(
                     questao = q,
                     isEmpty = q == null,
-                    totalQuestoes = if (q == null) 0 else if (resolvedTotal > 0) resolvedTotal else maxOf(paginaAtual + 1, 1),
+                    totalQuestoes = if (q == null) {
+                        0
+                    } else if (resolvedTotal > 0) {
+                        resolvedTotal
+                    } else {
+                        maxOf(paginaAtual + 1, 1)
+                    },
                     numeroAtual = paginaAtual + 1,
                     paginaAtual = paginaAtual
                 )
@@ -194,58 +202,28 @@ class QuestaoViewModel @Inject constructor(
 
     private fun carregarCatalogos() {
         catalogosCarregando = true
-        var pendentes = 3
-
-        fun verificarCompleto() {
-            pendentes--
-            if (pendentes <= 0) catalogosCarregando = false
-        }
 
         viewModelScope.launch {
             try {
-                disciplinas = repository.listarDisciplinas().map { QuestaoMapper.catalogoFromDto(it) }
-            } catch (_: Exception) {
-                delay(2000)
-                try {
-                    disciplinas = repository.listarDisciplinas().map { QuestaoMapper.catalogoFromDto(it) }
-                } catch (_: Exception) {
-                }
-            }
-            verificarCompleto()
-        }
+                val catalogos = carregarCatalogosQuestoesUseCase()
 
-        viewModelScope.launch {
-            try {
-                bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
+                disciplinas = catalogos.disciplinas
+                bancas = catalogos.bancas
+                instituicoes = catalogos.instituicoes
             } catch (_: Exception) {
-                delay(2000)
-                try {
-                    bancas = repository.listarBancas().map { QuestaoMapper.catalogoFromDto(it) }
-                } catch (_: Exception) {
-                }
+                disciplinas = emptyList()
+                bancas = emptyList()
+                instituicoes = emptyList()
+            } finally {
+                catalogosCarregando = false
             }
-            verificarCompleto()
-        }
-
-        viewModelScope.launch {
-            try {
-                instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
-            } catch (_: Exception) {
-                delay(2000)
-                try {
-                    instituicoes = repository.listarInstituicoes().map { QuestaoMapper.catalogoFromDto(it) }
-                } catch (_: Exception) {
-                }
-            }
-            verificarCompleto()
         }
     }
 
     fun carregarAssuntosPorDisciplina(disciplinaId: Long) {
         viewModelScope.launch {
             try {
-                assuntos = repository.listarAssuntosPorDisciplina(disciplinaId)
-                    .map { QuestaoMapper.catalogoFromDto(it) }
+                assuntos = listarAssuntosPorDisciplinaUseCase(disciplinaId)
             } catch (_: Exception) {
                 assuntos = emptyList()
             }
@@ -260,8 +238,7 @@ class QuestaoViewModel @Inject constructor(
     fun carregarSubAssuntos(assuntoId: Long) {
         viewModelScope.launch {
             try {
-                subassuntos = repository.listarSubAssuntos(assuntoId)
-                    .map { QuestaoMapper.catalogoFromDto(it) }
+                subassuntos = listarSubAssuntosUseCase(assuntoId)
             } catch (_: Exception) {
                 subassuntos = emptyList()
             }

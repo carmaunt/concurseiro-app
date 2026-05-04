@@ -2,13 +2,16 @@ package br.com.mauricio.oconcurseiro.ui.viewmodel
 
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
-import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
-import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import br.com.mauricio.oconcurseiro.domain.model.Alternativa
+import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
+import br.com.mauricio.oconcurseiro.domain.model.CatalogosQuestoes
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.model.PaginaResultado
 import br.com.mauricio.oconcurseiro.domain.model.Questao
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -36,7 +39,9 @@ class QuestaoViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
 
     private lateinit var buscarPaginaQuestoesUseCase: BuscarPaginaQuestoesUseCase
-    private lateinit var repository: QuestaoRepository
+    private lateinit var carregarCatalogosQuestoesUseCase: CarregarCatalogosQuestoesUseCase
+    private lateinit var listarAssuntosPorDisciplinaUseCase: ListarAssuntosPorDisciplinaUseCase
+    private lateinit var listarSubAssuntosUseCase: ListarSubAssuntosUseCase
     private lateinit var respostaDao: RespostaDao
     private lateinit var authRepository: AuthRepository
     private lateinit var viewModel: QuestaoViewModel
@@ -87,28 +92,36 @@ class QuestaoViewModelTest {
         last = true
     )
 
-    private val catalogoVazio = emptyList<CatalogoItemDto>()
+    private val catalogosVazios = CatalogosQuestoes(
+        disciplinas = emptyList(),
+        bancas = emptyList(),
+        instituicoes = emptyList()
+    )
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
         buscarPaginaQuestoesUseCase = mockk()
-        repository = mockk()
+        carregarCatalogosQuestoesUseCase = mockk()
+        listarAssuntosPorDisciplinaUseCase = mockk()
+        listarSubAssuntosUseCase = mockk()
         respostaDao = mockk(relaxed = true)
         authRepository = mockk()
 
         every { authRepository.estaAutenticado() } returns false
         every { authRepository.usuarioIdOuGuest() } returns "guest-id"
 
-        coEvery { repository.listarDisciplinas() } returns catalogoVazio
-        coEvery { repository.listarBancas() } returns catalogoVazio
-        coEvery { repository.listarInstituicoes() } returns catalogoVazio
+        coEvery { carregarCatalogosQuestoesUseCase() } returns catalogosVazios
+        coEvery { listarAssuntosPorDisciplinaUseCase(any()) } returns emptyList()
+        coEvery { listarSubAssuntosUseCase(any()) } returns emptyList()
         coEvery { respostaDao.ultimaRespostaPorQuestao(any(), any()) } returns null
 
         viewModel = QuestaoViewModel(
             buscarPaginaQuestoesUseCase = buscarPaginaQuestoesUseCase,
-            repository = repository,
+            carregarCatalogosQuestoesUseCase = carregarCatalogosQuestoesUseCase,
+            listarAssuntosPorDisciplinaUseCase = listarAssuntosPorDisciplinaUseCase,
+            listarSubAssuntosUseCase = listarSubAssuntosUseCase,
             respostaDao = respostaDao,
             authRepository = authRepository
         )
@@ -306,5 +319,54 @@ class QuestaoViewModelTest {
         advanceUntilIdle()
 
         assertEquals("Português", viewModel.filtroAtual.disciplina)
+    }
+
+    @Test
+    fun `carregarAssuntosPorDisciplina atualiza lista de assuntos`() = runTest {
+        val assuntosEsperados = listOf(
+            CatalogoItem(id = 1L, nome = "Concordância"),
+            CatalogoItem(id = 2L, nome = "Regência")
+        )
+
+        coEvery { listarAssuntosPorDisciplinaUseCase(10L) } returns assuntosEsperados
+
+        viewModel.carregarAssuntosPorDisciplina(10L)
+        advanceUntilIdle()
+
+        assertEquals(assuntosEsperados, viewModel.assuntos)
+    }
+
+    @Test
+    fun `carregarSubAssuntos atualiza lista de subassuntos`() = runTest {
+        val subAssuntosEsperados = listOf(
+            CatalogoItem(id = 1L, nome = "Verbal"),
+            CatalogoItem(id = 2L, nome = "Nominal")
+        )
+
+        coEvery { listarSubAssuntosUseCase(20L) } returns subAssuntosEsperados
+
+        viewModel.carregarSubAssuntos(20L)
+        advanceUntilIdle()
+
+        assertEquals(subAssuntosEsperados, viewModel.subassuntos)
+    }
+
+    @Test
+    fun `limparAssuntos limpa assuntos e subassuntos`() = runTest {
+        coEvery { listarAssuntosPorDisciplinaUseCase(10L) } returns listOf(
+            CatalogoItem(id = 1L, nome = "Concordância")
+        )
+        coEvery { listarSubAssuntosUseCase(20L) } returns listOf(
+            CatalogoItem(id = 2L, nome = "Verbal")
+        )
+
+        viewModel.carregarAssuntosPorDisciplina(10L)
+        viewModel.carregarSubAssuntos(20L)
+        advanceUntilIdle()
+
+        viewModel.limparAssuntos()
+
+        assertTrue(viewModel.assuntos.isEmpty())
+        assertTrue(viewModel.subassuntos.isEmpty())
     }
 }
