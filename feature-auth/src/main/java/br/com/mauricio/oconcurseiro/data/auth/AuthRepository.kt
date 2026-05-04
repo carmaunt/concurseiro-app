@@ -8,10 +8,11 @@ import kotlinx.coroutines.tasks.await
 class AuthRepository(
     private val context: android.content.Context,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val api: br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
+    private val api: br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi,
+    private val tokenStorage: TokenStorage
 ) {
     init {
-        TokenManager.carregarTokens(context)
+        tokenStorage.carregarTokens()
     }
 
     fun usuarioIdOuGuest(): String = auth.currentUser?.uid ?: "guest"
@@ -19,7 +20,7 @@ class AuthRepository(
     fun usuarioAtual() = auth.currentUser
 
     fun estaAutenticado(): Boolean {
-        return auth.currentUser != null && !TokenManager.accessToken.isNullOrBlank()
+        return auth.currentUser != null && !tokenStorage.accessToken.isNullOrBlank()
     }
 
     suspend fun cadastrarComEmail(email: String, senha: String) {
@@ -41,8 +42,7 @@ class AuthRepository(
 
         val data = response.data ?: throw Exception("Erro no backend")
 
-        TokenManager.salvarTokens(
-            context = context,
+        tokenStorage.salvarTokens(
             accessToken = data.accessToken,
             refreshToken = data.refreshToken
         )
@@ -64,8 +64,7 @@ class AuthRepository(
 
         val data = response.data ?: throw Exception("Erro no backend")
 
-        TokenManager.salvarTokens(
-            context = context,
+        tokenStorage.salvarTokens(
             accessToken = data.accessToken,
             refreshToken = data.refreshToken
         )
@@ -73,6 +72,6 @@ class AuthRepository(
 
     fun logout() {
         auth.signOut()
-        TokenManager.limpar(context)
+        tokenStorage.limpar()
     }
 }
