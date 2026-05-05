@@ -1,0 +1,35 @@
+name: Android CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches:
+      - main
+      - 'melhoria-*'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
+
+      - name: Compile debug Kotlin
+        run: ./gradlew :app:compileDebugKotlin
+
+      - name: Run tests
+        run: ./gradlew test
