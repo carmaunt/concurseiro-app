@@ -6,13 +6,18 @@ import br.com.mauricio.oconcurseiro.data.local.AppDatabase
 import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
 import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
+import br.com.mauricio.oconcurseiro.domain.repository.ComentarioRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.repository.QuestaoRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.repository.RespostaRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarDesempenhoHomeUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CriarComentarioUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CurtirComentarioUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.DescurtirComentarioUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarComentariosUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
 import com.google.firebase.auth.FirebaseAuth
@@ -88,7 +93,6 @@ object AppModule {
         return SalvarRespostaQuestaoUseCase(repository)
     }
 
-
     @Provides
     @Singleton
     fun provideCarregarDesempenhoHomeUseCase(
@@ -103,6 +107,38 @@ object AppModule {
         repository: RespostaRepositoryContract
     ): BuscarRespostaAnteriorUseCase {
         return BuscarRespostaAnteriorUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideListarComentariosUseCase(
+        repository: ComentarioRepositoryContract
+    ): ListarComentariosUseCase {
+        return ListarComentariosUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCriarComentarioUseCase(
+        repository: ComentarioRepositoryContract
+    ): CriarComentarioUseCase {
+        return CriarComentarioUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCurtirComentarioUseCase(
+        repository: ComentarioRepositoryContract
+    ): CurtirComentarioUseCase {
+        return CurtirComentarioUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDescurtirComentarioUseCase(
+        repository: ComentarioRepositoryContract
+    ): DescurtirComentarioUseCase {
+        return DescurtirComentarioUseCase(repository)
     }
 
     @Provides
