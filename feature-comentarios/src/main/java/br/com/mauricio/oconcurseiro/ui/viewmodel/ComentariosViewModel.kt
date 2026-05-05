@@ -6,7 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.domain.model.Comentario
-import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
+import br.com.mauricio.oconcurseiro.domain.usecase.CriarComentarioUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CurtirComentarioUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.DescurtirComentarioUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.ListarComentariosUseCase
 import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,7 +17,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ComentariosViewModel @Inject constructor(
-    private val repository: QuestaoRepository
+    private val listarComentariosUseCase: ListarComentariosUseCase,
+    private val criarComentarioUseCase: CriarComentarioUseCase,
+    private val curtirComentarioUseCase: CurtirComentarioUseCase,
+    private val descurtirComentarioUseCase: DescurtirComentarioUseCase
 ) : ViewModel() {
 
     var questaoId: String by mutableStateOf("")
@@ -58,25 +64,15 @@ class ComentariosViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val resp = repository.listarComentarios(
+                val resp = listarComentariosUseCase(
                     questaoId = questaoId,
                     page = paginaAtual,
                     size = 20,
                     ordenar = ordenacao
                 )
-                val novos = resp.content.map { dto ->
-                    Comentario(
-                        id = dto.id,
-                        questaoId = dto.questaoId,
-                        autor = dto.autor,
-                        texto = dto.texto,
-                        curtidas = dto.curtidas,
-                        descurtidas = dto.descurtidas,
-                        criadoEm = dto.criadoEm
-                    )
-                }
+                val novos = resp.content
                 comentarios = if (resetar) novos else comentarios + novos
-                temMaisPaginas = !resp.resolvedLast
+                temMaisPaginas = !resp.last
             } catch (e: Exception) {
                 erro = mapErrorMessage(e)
             } finally {
@@ -104,15 +100,10 @@ class ComentariosViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val dto = repository.criarComentario(questaoId, autor, texto)
-                val novo = Comentario(
-                    id = dto.id,
-                    questaoId = dto.questaoId,
-                    autor = dto.autor,
-                    texto = dto.texto,
-                    curtidas = dto.curtidas,
-                    descurtidas = dto.descurtidas,
-                    criadoEm = dto.criadoEm
+                val novo = criarComentarioUseCase(
+                    questaoId = questaoId,
+                    autor = autor,
+                    texto = texto
                 )
                 comentarios = listOf(novo) + comentarios
                 onSucesso()
@@ -134,7 +125,7 @@ class ComentariosViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                repository.curtirComentario(comentarioId)
+                curtirComentarioUseCase(comentarioId)
             } catch (_: Exception) {
                 comentarios = comentarios.map {
                     if (it.id == comentarioId) it.copy(curtidas = it.curtidas - 1) else it
@@ -154,7 +145,7 @@ class ComentariosViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                repository.descurtirComentario(comentarioId)
+                descurtirComentarioUseCase(comentarioId)
             } catch (_: Exception) {
                 comentarios = comentarios.map {
                     if (it.id == comentarioId) it.copy(descurtidas = it.descurtidas - 1) else it
@@ -166,5 +157,4 @@ class ComentariosViewModel @Inject constructor(
 
     fun jaCurtiu(comentarioId: Long): Boolean = comentarioId in curtidasLocais
     fun jaDescurtiu(comentarioId: Long): Boolean = comentarioId in descurtidasLocais
-
 }
