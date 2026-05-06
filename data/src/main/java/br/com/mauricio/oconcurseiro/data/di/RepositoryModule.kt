@@ -1,7 +1,9 @@
 package br.com.mauricio.oconcurseiro.data.di
 
+import br.com.mauricio.oconcurseiro.data.repository.ComentarioRepository
 import br.com.mauricio.oconcurseiro.data.repository.QuestaoRepository
 import br.com.mauricio.oconcurseiro.data.repository.RespostaRepository
+import br.com.mauricio.oconcurseiro.domain.repository.ComentarioRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.repository.QuestaoRepositoryContract
 import br.com.mauricio.oconcurseiro.domain.repository.RespostaRepositoryContract
 import dagger.Binds
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindRespostaRepository(
         repository: RespostaRepository
     ): RespostaRepositoryContract
+
+    @Binds
+    @Singleton
+    abstract fun bindComentarioRepository(
+        repository: ComentarioRepository
+    ): ComentarioRepositoryContract
 }
