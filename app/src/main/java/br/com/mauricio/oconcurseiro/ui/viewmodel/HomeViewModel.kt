@@ -1,8 +1,5 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
@@ -11,6 +8,10 @@ import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarDesempenhoHomeUseCase
 import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -18,22 +19,25 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    @param:dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
     private val repository: QuestaoRepository,
     private val authRepository: AuthRepository,
     private val carregarDesempenhoHomeUseCase: CarregarDesempenhoHomeUseCase
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(HomeUiState())
-        private set
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
         carregarEstatisticas()
     }
 
     fun carregarEstatisticas() {
-        uiState = uiState.copy(isLoading = true)
-        uiState = uiState.copy(erro = null)
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                erro = null
+            )
+        }
 
         viewModelScope.launch {
             try {
@@ -44,28 +48,37 @@ class HomeViewModel @Inject constructor(
                             size = 1,
                             filtro = FiltroParams()
                         )
-                        uiState = uiState.copy(totalQuestoes = resp.totalElements)
+
+                        _uiState.update {
+                            it.copy(totalQuestoes = resp.totalElements)
+                        }
                     } catch (_: Exception) {
                     }
                 }
 
                 val disciplinasJob = launch {
                     try {
-                        uiState = uiState.copy(totalDisciplinas = repository.listarDisciplinas().size)
+                        _uiState.update {
+                            it.copy(totalDisciplinas = repository.listarDisciplinas().size)
+                        }
                     } catch (_: Exception) {
                     }
                 }
 
                 val bancasJob = launch {
                     try {
-                        uiState = uiState.copy(totalBancas = repository.listarBancas().size)
+                        _uiState.update {
+                            it.copy(totalBancas = repository.listarBancas().size)
+                        }
                     } catch (_: Exception) {
                     }
                 }
 
                 val instituicoesJob = launch {
                     try {
-                        uiState = uiState.copy(totalInstituicoes = repository.listarInstituicoes().size)
+                        _uiState.update {
+                            it.copy(totalInstituicoes = repository.listarInstituicoes().size)
+                        }
                     } catch (_: Exception) {
                     }
                 }
@@ -83,26 +96,35 @@ class HomeViewModel @Inject constructor(
                 instituicoesJob.join()
                 historicoJob.join()
 
-                uiState = uiState.copy(
-                    statsCarregadas = uiState.totalQuestoes > 0 ||
-                            uiState.totalDisciplinas > 0 ||
-                            uiState.totalBancas > 0 ||
-                            uiState.totalInstituicoes > 0
-                )
+                val estadoAtual = _uiState.value
+                val statsCarregadas = estadoAtual.totalQuestoes > 0 ||
+                        estadoAtual.totalDisciplinas > 0 ||
+                        estadoAtual.totalBancas > 0 ||
+                        estadoAtual.totalInstituicoes > 0
 
-                if (!uiState.statsCarregadas) {
-                    uiState = uiState.copy(erro = "Não foi possível conectar ao servidor")
+                _uiState.update {
+                    it.copy(statsCarregadas = statsCarregadas)
+                }
+
+                if (!statsCarregadas) {
+                    _uiState.update {
+                        it.copy(erro = "Não foi possível conectar ao servidor")
+                    }
                 }
             } catch (e: Exception) {
-                uiState = uiState.copy(
-                    erro = when (e) {
-                        is UnknownHostException -> "Sem conexão com a internet"
-                        is SocketTimeoutException -> "Servidor não respondeu"
-                        else -> "Falha ao carregar dados"
-                    }
-                )
+                _uiState.update {
+                    it.copy(
+                        erro = when (e) {
+                            is UnknownHostException -> "Sem conexão com a internet"
+                            is SocketTimeoutException -> "Servidor não respondeu"
+                            else -> "Falha ao carregar dados"
+                        }
+                    )
+                }
             } finally {
-                uiState = uiState.copy(isLoading = false)
+                _uiState.update {
+                    it.copy(isLoading = false)
+                }
             }
         }
     }
@@ -125,13 +147,15 @@ class HomeViewModel @Inject constructor(
             desde = seteDiasAtras
         )
 
-        uiState = uiState.copy(
-            resolvidas7dias = desempenho.resolvidas7dias,
-            acertos7dias = desempenho.acertos7dias,
-            erros7dias = desempenho.erros7dias,
-            totalResolvidas = desempenho.totalResolvidas,
-            totalAcertos = desempenho.totalAcertos,
-            desempenhoPorDisciplina = desempenho.desempenhoPorDisciplina
-        )
+        _uiState.update {
+            it.copy(
+                resolvidas7dias = desempenho.resolvidas7dias,
+                acertos7dias = desempenho.acertos7dias,
+                erros7dias = desempenho.erros7dias,
+                totalResolvidas = desempenho.totalResolvidas,
+                totalAcertos = desempenho.totalAcertos,
+                desempenhoPorDisciplina = desempenho.desempenhoPorDisciplina
+            )
+        }
     }
 }

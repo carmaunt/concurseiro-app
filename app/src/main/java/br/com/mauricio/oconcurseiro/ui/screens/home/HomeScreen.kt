@@ -1,5 +1,7 @@
 package br.com.mauricio.oconcurseiro.ui.screens.home
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -13,12 +15,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Quiz
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.domain.model.DesempenhoDisciplina
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.ErrorState
+import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
 
@@ -50,10 +52,13 @@ fun HomeScreen(
     onLoginClick: () -> Unit,
     usuarioAutenticado: Boolean
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val erroAtual = uiState.erro
+
     var isRefreshing by remember { mutableStateOf(false) }
 
-    LaunchedEffect(viewModel.uiState.isLoading) {
-        if (!viewModel.uiState.isLoading) {
+    LaunchedEffect(uiState.isLoading) {
+        if (!uiState.isLoading) {
             isRefreshing = false
         }
     }
@@ -82,16 +87,16 @@ fun HomeScreen(
                     onLogout = onLogout
                 )
 
-                if (viewModel.uiState.isLoading && !isRefreshing) {
+                if (uiState.isLoading && !isRefreshing) {
                     ResolverQuestoesCardSkeleton()
                     Spacer(Modifier.height(12.dp))
                     DesempenhoSectionSkeleton()
                     Spacer(Modifier.height(20.dp))
                     RadarDisciplinasSkeleton()
                     Spacer(Modifier.height(24.dp))
-                } else if (viewModel.uiState.erro != null && !viewModel.uiState.statsCarregadas) {
+                } else if (erroAtual != null && !uiState.statsCarregadas) {
                     ErrorState(
-                        message = viewModel.uiState.erro!!,
+                        message = erroAtual,
                         onRetry = { viewModel.carregarEstatisticas() }
                     )
                 } else {
@@ -99,11 +104,11 @@ fun HomeScreen(
 
                     Spacer(Modifier.height(12.dp))
 
-                    DesempenhoSection(viewModel)
+                    DesempenhoSection(uiState)
 
                     Spacer(Modifier.height(20.dp))
 
-                    RadarDisciplinasSection(viewModel)
+                    RadarDisciplinasSection(uiState)
 
                     Spacer(Modifier.height(24.dp))
                 }
@@ -111,9 +116,7 @@ fun HomeScreen(
         }
 
         BottomNavBar(
-            onOpenFilters = onOpenFilters,
-            onLogout = onLogout,
-            usuarioAutenticado = usuarioAutenticado
+            onOpenFilters = onOpenFilters
         )
     }
 }
@@ -224,7 +227,7 @@ private fun ResolverQuestoesCard(onClick: () -> Unit) {
 }
 
 @Composable
-private fun DesempenhoSection(viewModel: HomeViewModel) {
+private fun DesempenhoSection(uiState: HomeUiState) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
             text = "Acompanhe seu desempenho",
@@ -249,8 +252,8 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     PercentageCircle(
-                        percentage = if (viewModel.uiState.resolvidas7dias > 0) {
-                            (viewModel.uiState.acertos7dias * 100 / viewModel.uiState.resolvidas7dias)
+                        percentage = if (uiState.resolvidas7dias > 0) {
+                            uiState.acertos7dias * 100 / uiState.resolvidas7dias
                         } else {
                             0
                         }
@@ -265,30 +268,36 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                             color = TextPrimary,
                             fontWeight = FontWeight.SemiBold
                         )
+
                         Spacer(Modifier.height(4.dp))
+
                         Row {
                             Text(
-                                text = "Resolvidas: ${viewModel.uiState.resolvidas7dias}",
+                                text = "Resolvidas: ${uiState.resolvidas7dias}",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
+
                             Text(
                                 text = " • ",
                                 fontSize = 12.sp,
                                 color = TextPlaceholder
                             )
+
                             Text(
-                                text = "Certas: ${viewModel.uiState.acertos7dias}",
+                                text = "Certas: ${uiState.acertos7dias}",
                                 fontSize = 12.sp,
                                 color = SuccessBorder
                             )
+
                             Text(
                                 text = " • ",
                                 fontSize = 12.sp,
                                 color = TextPlaceholder
                             )
+
                             Text(
-                                text = "Erradas: ${viewModel.uiState.erros7dias}",
+                                text = "Erradas: ${uiState.erros7dias}",
                                 fontSize = 12.sp,
                                 color = ErrorBorder
                             )
@@ -296,7 +305,7 @@ private fun DesempenhoSection(viewModel: HomeViewModel) {
                     }
                 }
 
-                if (viewModel.uiState.resolvidas7dias == 0) {
+                if (uiState.resolvidas7dias == 0) {
                     Spacer(Modifier.height(12.dp))
 
                     Text(
@@ -329,6 +338,7 @@ private fun PercentageCircle(percentage: Int) {
                 useCenter = false,
                 style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
             )
+
             if (percentage > 0) {
                 drawArc(
                     color = progressColor,
@@ -339,6 +349,7 @@ private fun PercentageCircle(percentage: Int) {
                 )
             }
         }
+
         Text(
             text = "$percentage%",
             style = MaterialTheme.typography.labelMedium,
@@ -350,9 +361,7 @@ private fun PercentageCircle(percentage: Int) {
 
 @Composable
 private fun BottomNavBar(
-    onOpenFilters: () -> Unit,
-    onLogout: () -> Unit,
-    usuarioAutenticado: Boolean
+    onOpenFilters: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -388,7 +397,9 @@ private fun BottomNavBar(
                         tint = BrandPrimary,
                         modifier = Modifier.size(24.dp)
                     )
+
                     Spacer(Modifier.height(2.dp))
+
                     Text(
                         text = "Filtros",
                         style = MaterialTheme.typography.labelMedium,
@@ -402,8 +413,8 @@ private fun BottomNavBar(
 }
 
 @Composable
-private fun RadarDisciplinasSection(viewModel: HomeViewModel) {
-    val disciplinas = viewModel.uiState.desempenhoPorDisciplina
+private fun RadarDisciplinasSection(uiState: HomeUiState) {
+    val disciplinas = uiState.desempenhoPorDisciplina
     if (disciplinas.isEmpty()) return
 
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
@@ -428,6 +439,7 @@ private fun RadarDisciplinasSection(viewModel: HomeViewModel) {
             ) {
                 disciplinas.forEachIndexed { index, item ->
                     DisciplinaProgressRow(item)
+
                     if (index < disciplinas.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
@@ -456,7 +468,10 @@ private fun DisciplinaProgressRow(item: DesempenhoDisciplina) {
     }
 
     var animationStarted by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { animationStarted = true }
+
+    LaunchedEffect(Unit) {
+        animationStarted = true
+    }
 
     val animatedProgress by animateFloatAsState(
         targetValue = if (animationStarted) item.aproveitamento / 100f else 0f,
@@ -501,7 +516,9 @@ private fun DisciplinaProgressRow(item: DesempenhoDisciplina) {
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
+
                 Spacer(Modifier.width(8.dp))
+
                 Text(
                     text = "${item.total} questão${if (item.total != 1) "ões" else ""}",
                     style = MaterialTheme.typography.labelMedium,
