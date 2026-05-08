@@ -3,7 +3,7 @@
 <data-extraction-rules>
     <cloud-backup>
         <!-- Inclui o banco local de respostas do usuário (histórico de estudos) -->
-        <include domain="database" path="concurseiro_db" />
+        <include domain="database" path="concurseiro.db" />
 
         <!-- Exclui todos os SharedPreferences (contêm tokens e dados sensíveis) -->
         <exclude domain="sharedpref" path="." />
@@ -15,7 +15,7 @@
 
     <device-transfer>
         <!-- Transferência entre dispositivos: inclui histórico de estudos -->
-        <include domain="database" path="concurseiro_db" />
+        <include domain="database" path="concurseiro.db" />
 
         <!-- Exclui dados temporários e credenciais -->
         <exclude domain="sharedpref" path="." />
