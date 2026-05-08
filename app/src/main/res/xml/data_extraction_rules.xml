@@ -1,24 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Regras para Android 12+ (API 31+) -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- Inclui o banco local de respostas do usuário (histórico de estudos) -->
+        <!-- Inclui somente o banco local de respostas do usuário (histórico de estudos) -->
         <include domain="database" path="concurseiro.db" />
-
-        <!-- Exclui todos os SharedPreferences (contêm tokens e dados sensíveis) -->
-        <exclude domain="sharedpref" path="." />
-
-        <!-- Exclui cache -->
-        <exclude domain="cache" path="." />
-        <exclude domain="external-cache" path="." />
     </cloud-backup>
 
     <device-transfer>
-        <!-- Transferência entre dispositivos: inclui histórico de estudos -->
+        <!-- Inclui somente o banco local de respostas do usuário (histórico de estudos) -->
         <include domain="database" path="concurseiro.db" />
-
-        <!-- Exclui dados temporários e credenciais -->
-        <exclude domain="sharedpref" path="." />
-        <exclude domain="cache" path="." />
     </device-transfer>
 </data-extraction-rules>
