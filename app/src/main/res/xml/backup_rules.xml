@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!-- Inclui somente o banco local de respostas do usuário (histórico de estudos) -->
-    <include domain="database" path="concurseiro.db" />
+    <!-- Não exporta o banco local automaticamente. O histórico deve ser restaurado por sincronização controlada com a API, não por backup bruto do SQLite. -->
+    <exclude domain="database" path="concurseiro.db" />
 </full-backup-content>
