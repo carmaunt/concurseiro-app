@@ -78,8 +78,9 @@ android {
         buildConfig = true
     }
     lint {
-        abortOnError = false
+        abortOnError = true
         warningsAsErrors = false
+        checkReleaseBuilds = true
     }
 }
 
