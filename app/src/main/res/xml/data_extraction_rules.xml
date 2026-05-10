@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <!-- Inclui somente o banco local de respostas do usuário (histórico de estudos) -->
-        <include domain="database" path="concurseiro.db" />
+        <!-- Evita exportação automática do banco SQLite para nuvem -->
+        <exclude domain="database" path="concurseiro.db" />
     </cloud-backup>
 
     <device-transfer>
-        <!-- Inclui somente o banco local de respostas do usuário (histórico de estudos) -->
-        <include domain="database" path="concurseiro.db" />
+        <!-- Evita transferência automática do banco entre dispositivos -->
+        <exclude domain="database" path="concurseiro.db" />
     </device-transfer>
 </data-extraction-rules>
