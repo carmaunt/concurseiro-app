@@ -24,8 +24,11 @@ android {
         applicationId = "br.com.mauricio.oconcurseiro"
         minSdk = 24
         targetSdk = 36
+        // Incrementar sempre que enviar uma nova versão para a Play Store.
         versionCode = 1
-        versionName = "1.0"
+
+        // Versão visível para o usuário na loja e nas configurações do app.
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
