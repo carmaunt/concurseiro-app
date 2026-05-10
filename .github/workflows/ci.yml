@@ -88,5 +88,24 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
 
+      - name: Create temporary release signing config
+        run: |
+          keytool -genkeypair \
+            -v \
+            -keystore ci-release.keystore \
+            -storepass ci-release-password \
+            -keypass ci-release-password \
+            -alias ci-release-key \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=CI,O=Concurseiro,C=BR"
+          cat >> local.properties <<EOF
+          RELEASE_STORE_FILE=../ci-release.keystore
+          RELEASE_STORE_PASSWORD=ci-release-password
+          RELEASE_KEY_ALIAS=ci-release-key
+          RELEASE_KEY_PASSWORD=ci-release-password
+          EOF
+
       - name: Assemble release APK
         run: ./gradlew assembleRelease --no-daemon --stacktrace
