@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,6 +7,13 @@ plugins {
     alias(libs.plugins.ksp)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+}
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { load(it) }
+    }
 }
 
 android {
@@ -21,11 +30,33 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val releaseStoreFile = localProperties.getProperty("RELEASE_STORE_FILE")
+            val releaseStorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+            val releaseKeyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
+            val releaseKeyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+
+            if (
+                !releaseStoreFile.isNullOrBlank() &&
+                !releaseStorePassword.isNullOrBlank() &&
+                !releaseKeyAlias.isNullOrBlank() &&
+                !releaseKeyPassword.isNullOrBlank()
+            ) {
+                storeFile = file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         debug {
             buildConfigField("String", "BASE_URL", "\"https://concurseiro-api-lnae.onrender.com/\"")
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
