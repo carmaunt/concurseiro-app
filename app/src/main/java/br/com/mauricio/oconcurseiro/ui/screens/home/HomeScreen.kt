@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -50,6 +51,7 @@ fun HomeScreen(
     onOpenFilters: () -> Unit,
     onLogout: () -> Unit,
     onLoginClick: () -> Unit,
+    onAvisoLegal: () -> Unit,
     usuarioAutenticado: Boolean
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -109,6 +111,10 @@ fun HomeScreen(
                     Spacer(Modifier.height(20.dp))
 
                     RadarDisciplinasSection(uiState)
+
+                    Spacer(Modifier.height(20.dp))
+
+                    AvisoLegalBanner(onClick = onAvisoLegal)
 
                     Spacer(Modifier.height(24.dp))
                 }
@@ -408,6 +414,51 @@ private fun BottomNavBar(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun AvisoLegalBanner(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = SurfaceCard,
+        contentColor = TextSecondary
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = TextPlaceholder,
+                modifier = Modifier.size(18.dp)
+            )
+
+            Spacer(Modifier.width(10.dp))
+
+            Text(
+                text = "App independente. Consulte sempre o edital, o órgão responsável e a banca organizadora para informações oficiais.",
+                style = MaterialTheme.typography.labelMedium,
+                color = TextSecondary,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = "Ver aviso completo",
+                tint = TextPlaceholder,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }
