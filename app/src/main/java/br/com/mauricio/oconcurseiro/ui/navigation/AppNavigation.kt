@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalContext
 import br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog
 import br.com.mauricio.oconcurseiro.ui.screens.auth.LoginScreen
 import br.com.mauricio.oconcurseiro.ui.screens.auth.RegisterScreen
+import br.com.mauricio.oconcurseiro.ui.screens.aviso.AvisoLegalScreen
 import br.com.mauricio.oconcurseiro.ui.screens.comentarios.ComentariosScreen
 import br.com.mauricio.oconcurseiro.ui.screens.filtro.FiltroScreen
 import br.com.mauricio.oconcurseiro.ui.screens.home.HomeScreen
@@ -129,7 +130,14 @@ fun AppNavigation() {
                     homeViewModel.atualizarDesempenho()
                 },
                 onLoginClick = { navController.navigate(NavRoutes.Login.route) },
+                onAvisoLegal = { navController.navigate(NavRoutes.AvisoLegal.route) },
                 usuarioAutenticado = authViewModel.usuarioAutenticado
+            )
+        }
+
+        composable(NavRoutes.AvisoLegal.route) {
+            AvisoLegalScreen(
+                onBack = { navController.popBackStack() }
             )
         }
 

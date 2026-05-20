@@ -10,4 +10,5 @@ sealed class NavRoutes(val route: String) {
     object Comentarios : NavRoutes("comentarios/{questaoId}") {
         fun createRoute(questaoId: String) = "comentarios/$questaoId"
     }
+    object AvisoLegal : NavRoutes("aviso_legal")
 }
