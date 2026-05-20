@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "389724825283-0id0g5ttrh4isloavm4db5h4gs2ucppq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.mauricio.oconcurseiro",
+            "certificate_hash": "d085b44c279476f871e1d34440d1616572e668ba"
+          }
+        },
+        {
           "client_id": "389724825283-3hjn7uc2tkr2t52kmptpeupc42k9tcf8.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
