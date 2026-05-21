@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -52,6 +53,7 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onLoginClick: () -> Unit,
     onAvisoLegal: () -> Unit,
+    onPrivacidadeDados: () -> Unit,
     usuarioAutenticado: Boolean
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -113,6 +115,10 @@ fun HomeScreen(
                     RadarDisciplinasSection(uiState)
 
                     Spacer(Modifier.height(20.dp))
+
+                    PrivacidadeDadosBanner(onClick = onPrivacidadeDados)
+
+                    Spacer(Modifier.height(10.dp))
 
                     AvisoLegalBanner(onClick = onAvisoLegal)
 
@@ -414,6 +420,59 @@ private fun BottomNavBar(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PrivacidadeDadosBanner(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = SurfaceWhite,
+        contentColor = TextPrimary,
+        shadowElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.PrivacyTip,
+                contentDescription = null,
+                tint = BrandPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+
+            Spacer(Modifier.width(10.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Privacidade e dados",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Política de Privacidade, aviso legal e exclusão de conta.",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TextSecondary
+                )
+            }
+
+            Spacer(Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = "Abrir privacidade e dados",
+                tint = TextPlaceholder,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }
