@@ -1,5 +1,7 @@
 package br.com.mauricio.oconcurseiro.ui.navigation
 
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog
@@ -9,6 +11,7 @@ import br.com.mauricio.oconcurseiro.ui.screens.aviso.AvisoLegalScreen
 import br.com.mauricio.oconcurseiro.ui.screens.comentarios.ComentariosScreen
 import br.com.mauricio.oconcurseiro.ui.screens.filtro.FiltroScreen
 import br.com.mauricio.oconcurseiro.ui.screens.home.HomeScreen
+import br.com.mauricio.oconcurseiro.ui.screens.privacidade.PrivacidadeDadosScreen
 import br.com.mauricio.oconcurseiro.ui.screens.questao.QuestaoScreen
 import br.com.mauricio.oconcurseiro.ui.screens.splash.SplashScreen
 import br.com.mauricio.oconcurseiro.ui.viewmodel.AuthViewModel
@@ -30,10 +33,17 @@ fun AppNavigation() {
     val comentariosViewModel: ComentariosViewModel = hiltViewModel()
     val navController = rememberNavController()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(authViewModel.usuarioAutenticado) {
         homeViewModel.atualizarDesempenho()
     }
+
+    LaunchedEffect(authViewModel.mensagemSucesso) {
+        authViewModel.mensagemSucesso?.let { snackbarHostState.showSnackbar(it) }
+    }
+
+    SnackbarHost(hostState = snackbarHostState)
 
     if (authViewModel.mostrarLimiteDialog) {
         GuestLimitLoginDialog(
@@ -131,6 +141,7 @@ fun AppNavigation() {
                 },
                 onLoginClick = { navController.navigate(NavRoutes.Login.route) },
                 onAvisoLegal = { navController.navigate(NavRoutes.AvisoLegal.route) },
+                onPrivacidadeDados = { navController.navigate(NavRoutes.Privacidade.route) },
                 usuarioAutenticado = authViewModel.usuarioAutenticado
             )
         }
@@ -138,6 +149,24 @@ fun AppNavigation() {
         composable(NavRoutes.AvisoLegal.route) {
             AvisoLegalScreen(
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(NavRoutes.Privacidade.route) {
+            PrivacidadeDadosScreen(
+                usuarioAutenticado = authViewModel.usuarioAutenticado,
+                isLoading = authViewModel.isLoading,
+                erro = authViewModel.erro,
+                onBack = { navController.popBackStack() },
+                onAvisoLegal = { navController.navigate(NavRoutes.AvisoLegal.route) },
+                onExcluirConta = { onSucesso ->
+                    authViewModel.excluirConta {
+                        navController.navigate(NavRoutes.Home.route) {
+                            popUpTo(NavRoutes.Home.route) { inclusive = true }
+                        }
+                        onSucesso()
+                    }
+                }
             )
         }
 
