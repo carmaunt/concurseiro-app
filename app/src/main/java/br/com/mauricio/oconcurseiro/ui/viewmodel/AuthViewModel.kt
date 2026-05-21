@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.auth.obterIdTokenGoogle
 import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
+import com.google.firebase.FirebaseException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,6 +33,9 @@ class AuthViewModel @Inject constructor(
         private set
 
     var loginDialogOrigemComentarios by mutableStateOf(false)
+        private set
+
+    var mensagemSucesso by mutableStateOf<String?>(null)
         private set
 
     val nomeUsuario: String
@@ -123,6 +127,27 @@ class AuthViewModel @Inject constructor(
             val token = obterIdTokenGoogle(context)
             if (token != null) {
                 loginComGoogle(token, onSucesso)
+            }
+        }
+    }
+
+    fun excluirConta(onSucesso: () -> Unit) {
+        isLoading = true
+        erro = null
+        mensagemSucesso = null
+
+        viewModelScope.launch {
+            try {
+                repository.excluirConta()
+                usuarioAutenticado = repository.estaAutenticado()
+                mensagemSucesso = "Conta excluída com sucesso."
+                onSucesso()
+            } catch (e: FirebaseException) {
+                erro = "Por segurança, faça login novamente antes de excluir sua conta."
+            } catch (e: Exception) {
+                erro = e.message ?: "Erro ao excluir conta"
+            } finally {
+                isLoading = false
             }
         }
     }

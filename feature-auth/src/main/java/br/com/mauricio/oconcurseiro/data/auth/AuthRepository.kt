@@ -70,6 +70,17 @@ class AuthRepository(
         )
     }
 
+    suspend fun excluirConta() {
+        val user = auth.currentUser ?: throw Exception("Nenhum usuário autenticado")
+
+        // TODO: quando o backend disponibilizar endpoint de exclusão de conta,
+        // chamar a API antes de remover a conta do Firebase. O endpoint deve remover
+        // ou anonimizar dados do usuário conforme a Política de Privacidade.
+        user.delete().await()
+        tokenStorage.limpar()
+        auth.signOut()
+    }
+
     fun logout() {
         auth.signOut()
         tokenStorage.limpar()
