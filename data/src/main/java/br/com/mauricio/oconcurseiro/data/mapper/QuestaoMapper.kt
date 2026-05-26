@@ -34,7 +34,10 @@ object QuestaoMapper {
             enunciado = dto.enunciado,
             questao = dto.questao,
             gabarito = dto.gabarito,
-            alternativas = alternativas
+            alternativas = alternativas,
+            textoApoioId = dto.textoApoioId,
+            textoApoioTitulo = dto.textoApoioTitulo,
+            textoApoioConteudo = dto.textoApoioConteudo
         )
     }
 
