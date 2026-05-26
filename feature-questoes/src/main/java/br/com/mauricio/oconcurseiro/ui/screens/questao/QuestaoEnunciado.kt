@@ -18,7 +18,8 @@ import br.com.mauricio.oconcurseiro.ui.theme.*
 @Composable
 fun QuestaoEnunciado(questao: Questao) {
 
-    var enunciadoAberto by remember { mutableStateOf(false) }
+    val textoAssociado = questao.textoAssociado
+    var enunciadoAberto by remember(questao.id, textoAssociado) { mutableStateOf(textoAssociado.isNotBlank()) }
 
     Column {
 
@@ -28,48 +29,50 @@ fun QuestaoEnunciado(questao: Questao) {
             color = TextSecondary
         )
 
-        Spacer(Modifier.height(20.dp))
+        if (textoAssociado.isNotBlank()) {
+            Spacer(Modifier.height(20.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(SurfaceCard, RoundedCornerShape(14.dp))
-                .clickable { enunciadoAberto = !enunciadoAberto }
-                .padding(horizontal = 16.dp, vertical = 14.dp)
-        ) {
-            Text(
-                text = "Texto associado",
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = if (enunciadoAberto) "−" else "+",
-                color = TextSecondary
-            )
-        }
-
-        AnimatedVisibility(
-            visible = enunciadoAberto,
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
-            Column {
-                Spacer(Modifier.height(12.dp))
-
-                MarkdownCompatText(
-                    text = questao.enunciado,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(SurfaceCard, RoundedCornerShape(14.dp))
+                    .clickable { enunciadoAberto = !enunciadoAberto }
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
+            ) {
+                Text(
+                    text = questao.textoApoioTitulo?.takeIf { it.isNotBlank() } ?: "Texto associado",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
+                    color = TextPrimary,
+                    modifier = Modifier.weight(1f)
                 )
 
-                Spacer(Modifier.height(18.dp))
+                Text(
+                    text = if (enunciadoAberto) "−" else "+",
+                    color = TextSecondary
+                )
             }
-        }
 
-        if (!enunciadoAberto) {
-            Spacer(Modifier.height(10.dp))
+            AnimatedVisibility(
+                visible = enunciadoAberto,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column {
+                    Spacer(Modifier.height(12.dp))
+
+                    MarkdownCompatText(
+                        text = textoAssociado,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary
+                    )
+
+                    Spacer(Modifier.height(18.dp))
+                }
+            }
+
+            if (!enunciadoAberto) {
+                Spacer(Modifier.height(10.dp))
+            }
         }
 
         if (questao.questao.isNotBlank()) {
