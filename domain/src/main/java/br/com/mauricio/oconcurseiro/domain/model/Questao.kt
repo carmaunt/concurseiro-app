@@ -15,12 +15,12 @@ data class Questao(
     val nivel: String,
     val modalidade: String,
     val enunciado: String,
-    val textoApoioId: Long? = null,
-    val textoApoioTitulo: String? = null,
-    val textoApoioConteudo: String? = null,
     val questao: String,
     val gabarito: String,
-    val alternativas: List<Alternativa>
+    val alternativas: List<Alternativa>,
+    val textoApoioId: Long? = null,
+    val textoApoioTitulo: String? = null,
+    val textoApoioConteudo: String? = null
 ) {
     val textoAssociado: String
         get() = listOfNotNull(
