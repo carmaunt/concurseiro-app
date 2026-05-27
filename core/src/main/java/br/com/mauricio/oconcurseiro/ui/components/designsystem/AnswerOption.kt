@@ -23,6 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,13 +131,56 @@ fun AnswerOption(
         Spacer(Modifier.width(12.dp))
 
         Text(
-            text = text,
+            text = parseInlineMarkdown(text),
             style = MaterialTheme.typography.bodySmall,
             color = textColor,
             fontWeight = if (state != AnswerState.DEFAULT) FontWeight.Medium else FontWeight.Normal,
             modifier = Modifier.weight(1f),
             lineHeight = 20.sp
         )
+    }
+}
+
+private fun parseInlineMarkdown(raw: String): AnnotatedString {
+    return buildAnnotatedString {
+        var index = 0
+
+        while (index < raw.length) {
+            when {
+                raw.startsWith("**", index) -> {
+                    val end = raw.indexOf("**", startIndex = index + 2)
+                    if (end > index + 2) {
+                        val content = raw.substring(index + 2, end)
+                        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                        append(content)
+                        pop()
+                        index = end + 2
+                    } else {
+                        append(raw[index])
+                        index++
+                    }
+                }
+
+                raw[index] == '*' -> {
+                    val end = raw.indexOf('*', startIndex = index + 1)
+                    if (end > index + 1) {
+                        val content = raw.substring(index + 1, end)
+                        pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                        append(content)
+                        pop()
+                        index = end + 1
+                    } else {
+                        append(raw[index])
+                        index++
+                    }
+                }
+
+                else -> {
+                    append(raw[index])
+                    index++
+                }
+            }
+        }
     }
 }
 
