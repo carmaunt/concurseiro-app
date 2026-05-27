@@ -39,8 +39,10 @@ fun ComentariosScreen(
     onLoginRequired: () -> Unit,
     onBack: () -> Unit
 ) {
-    LaunchedEffect(questaoId) {
-        viewModel.carregarComentarios(questaoId)
+    LaunchedEffect(questaoId, usuarioAutenticado) {
+        if (usuarioAutenticado) {
+            viewModel.carregarComentarios(questaoId)
+        }
     }
 
     var textoComentario by remember { mutableStateOf("") }
@@ -64,13 +66,28 @@ fun ComentariosScreen(
             }
         }
 
-        LaunchedEffect(proximoDoFim) {
-            if (proximoDoFim && viewModel.temMaisPaginas && !viewModel.isLoading) {
+        LaunchedEffect(proximoDoFim, usuarioAutenticado) {
+            if (usuarioAutenticado && proximoDoFim && viewModel.temMaisPaginas && !viewModel.isLoading) {
                 viewModel.carregarMais()
             }
         }
 
-        if (comentarios.isEmpty() && !viewModel.isLoading) {
+        if (!usuarioAutenticado) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Faça login para visualizar comentários de outros concurseiros",
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        } else if (comentarios.isEmpty() && !viewModel.isLoading) {
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -133,7 +150,6 @@ fun ComentariosScreen(
             }
         }
 
-        // 🔥 MENSAGEM INTELIGENTE
         if (viewModel.erroEnvio != null) {
             Text(
                 text = viewModel.erroEnvio ?: "",
@@ -158,8 +174,6 @@ fun ComentariosScreen(
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                // 🔒 INPUT BLOQUEADO
                 OutlinedTextField(
                     value = textoComentario,
                     onValueChange = {
@@ -195,7 +209,6 @@ fun ComentariosScreen(
 
                 Spacer(Modifier.width(10.dp))
 
-                // 🔒 BOTÃO BLOQUEADO
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -398,4 +411,3 @@ fun ComentarioItem(
         HorizontalDivider(color = BorderDefault, thickness = 0.5.dp)
     }
 }
-
