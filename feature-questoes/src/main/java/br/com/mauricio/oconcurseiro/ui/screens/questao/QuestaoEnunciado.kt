@@ -19,7 +19,7 @@ import br.com.mauricio.oconcurseiro.ui.theme.*
 fun QuestaoEnunciado(questao: Questao) {
 
     val textoAssociado = questao.textoAssociado
-    var enunciadoAberto by remember(questao.id, textoAssociado) { mutableStateOf(textoAssociado.isNotBlank()) }
+    var textoAssociadoAberto by remember(questao.id, textoAssociado) { mutableStateOf(false) }
 
     Column {
 
@@ -36,7 +36,7 @@ fun QuestaoEnunciado(questao: Questao) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(SurfaceCard, RoundedCornerShape(14.dp))
-                    .clickable { enunciadoAberto = !enunciadoAberto }
+                    .clickable { textoAssociadoAberto = !textoAssociadoAberto }
                     .padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
                 Text(
@@ -47,13 +47,13 @@ fun QuestaoEnunciado(questao: Questao) {
                 )
 
                 Text(
-                    text = if (enunciadoAberto) "−" else "+",
+                    text = if (textoAssociadoAberto) "−" else "+",
                     color = TextSecondary
                 )
             }
 
             AnimatedVisibility(
-                visible = enunciadoAberto,
+                visible = textoAssociadoAberto,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
@@ -70,9 +70,7 @@ fun QuestaoEnunciado(questao: Questao) {
                 }
             }
 
-            if (!enunciadoAberto) {
-                Spacer(Modifier.height(10.dp))
-            }
+            Spacer(Modifier.height(if (textoAssociadoAberto) 0.dp else 10.dp))
         }
 
         if (questao.questao.isNotBlank()) {
