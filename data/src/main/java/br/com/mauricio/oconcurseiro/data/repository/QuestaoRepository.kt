@@ -54,6 +54,8 @@ class QuestaoRepository @Inject constructor(
             disciplinaId = filtro.disciplinaId,
             assunto = if (filtro.assuntoId != null) null else filtro.assunto,
             assuntoId = filtro.assuntoId,
+            subassunto = if (filtro.subassuntoId != null) null else filtro.subassunto,
+            subassuntoId = filtro.subassuntoId,
             banca = if (filtro.bancaId != null) null else filtro.banca,
             bancaId = filtro.bancaId,
             instituicao = if (filtro.instituicaoId != null) null else filtro.instituicao,
