@@ -25,10 +25,10 @@ android {
         minSdk = 24
         targetSdk = 36
         // Incrementar sempre que enviar uma nova versão para a Play Store.
-        versionCode = 3
+        versionCode = 4
 
         // Versão visível para o usuário na loja e nas configurações do app.
-        versionName = "1.0.1"
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -126,6 +126,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.play.services.auth)
     implementation(project(":domain"))
     implementation(project(":core"))
     implementation(project(":data"))

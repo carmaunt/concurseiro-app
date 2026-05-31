@@ -9,10 +9,15 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+build/
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+local.properties*.bak
+*.jks
+*.pem
+.vscode/
 
 # IDE and editor config
 .idea/

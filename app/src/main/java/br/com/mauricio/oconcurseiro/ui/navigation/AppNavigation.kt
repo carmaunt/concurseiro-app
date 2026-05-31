@@ -1,5 +1,7 @@
 package br.com.mauricio.oconcurseiro.ui.navigation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -31,6 +33,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+
+private const val WEB_CLIENT_ID =
+    "389724825283-44h5hhvdp7ion9ul7srmllej47p0llg8.apps.googleusercontent.com"
 
 @Composable
 fun AppNavigation() {
@@ -41,6 +48,30 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    var onGoogleLoginSuccess by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val googleSignInClient = remember(context) {
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(WEB_CLIENT_ID)
+            .requestEmail()
+            .build()
+
+        GoogleSignIn.getClient(context, signInOptions)
+    }
+    val googleLoginLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        authViewModel.loginComGoogleIntent(result.data) {
+            onGoogleLoginSuccess?.invoke()
+            onGoogleLoginSuccess = null
+        }
+    }
+
+    fun iniciarLoginGoogle(onSucesso: () -> Unit) {
+        onGoogleLoginSuccess = onSucesso
+        googleSignInClient.revokeAccess().addOnCompleteListener {
+            googleLoginLauncher.launch(googleSignInClient.signInIntent)
+        }
+    }
 
     LaunchedEffect(authViewModel.usuarioAutenticado) {
         homeViewModel.atualizarDesempenho()
@@ -75,7 +106,7 @@ fun AppNavigation() {
                 navController.navigate(NavRoutes.Register.route)
             },
             onLoginGoogleClick = {
-                authViewModel.loginComGoogleComContexto(context) {
+                iniciarLoginGoogle {
                     authViewModel.fecharDialog()
                     if (!authViewModel.loginDialogOrigemComentarios) {
                         navController.navigate(NavRoutes.Home.route) { popUpTo(0) }
@@ -110,7 +141,7 @@ fun AppNavigation() {
                     },
                     onAbrirCadastro = { navController.navigate(NavRoutes.Register.route) },
                     onLoginGoogleClick = {
-                        authViewModel.loginComGoogleComContexto(context) {
+                        iniciarLoginGoogle {
                             navController.navigate(NavRoutes.Home.route) {
                                 popUpTo(NavRoutes.Login.route) { inclusive = true }
                             }
