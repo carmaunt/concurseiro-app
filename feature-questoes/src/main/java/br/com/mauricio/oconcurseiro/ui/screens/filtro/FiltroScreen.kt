@@ -38,6 +38,7 @@ fun FiltroScreen(
 
     var disciplinaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
     var assuntoSelecionado by remember { mutableStateOf<CatalogoItem?>(null) }
+    var subassuntoSelecionado by remember { mutableStateOf<CatalogoItem?>(null) }
     var bancaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
     var instituicaoSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
 
@@ -48,6 +49,7 @@ fun FiltroScreen(
     val scroll = rememberScrollState()
 
     var disciplinaRestaurada by remember { mutableStateOf(false) }
+    var assuntoRestaurado by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.disciplinas) {
         if (!disciplinaRestaurada && viewModel.disciplinas.isNotEmpty() && filtroAtual.disciplinaId != null) {
@@ -69,8 +71,15 @@ fun FiltroScreen(
     }
 
     LaunchedEffect(viewModel.assuntos) {
-        if (viewModel.assuntos.isNotEmpty() && filtroAtual.assuntoId != null && assuntoSelecionado == null) {
+        if (!assuntoRestaurado && viewModel.assuntos.isNotEmpty() && filtroAtual.assuntoId != null) {
             assuntoSelecionado = viewModel.assuntos.find { it.id == filtroAtual.assuntoId }
+            assuntoRestaurado = true
+        }
+    }
+
+    LaunchedEffect(viewModel.subassuntos) {
+        if (viewModel.subassuntos.isNotEmpty() && filtroAtual.subassuntoId != null && subassuntoSelecionado == null) {
+            subassuntoSelecionado = viewModel.subassuntos.find { it.id == filtroAtual.subassuntoId }
         }
     }
 
@@ -83,7 +92,19 @@ fun FiltroScreen(
         }
         if (disciplinaRestaurada) {
             assuntoSelecionado = null
+            subassuntoSelecionado = null
+            viewModel.limparSubAssuntos()
         }
+    }
+
+    LaunchedEffect(assuntoSelecionado) {
+        val id = assuntoSelecionado?.id
+        if (id != null) {
+            viewModel.carregarSubAssuntos(id)
+        } else {
+            viewModel.limparSubAssuntos()
+        }
+        subassuntoSelecionado = null
     }
 
     Column(modifier = Modifier.fillMaxSize().background(SurfaceWhite)) {
@@ -168,6 +189,7 @@ fun FiltroScreen(
                     selecionado = disciplinaSelecionada,
                     onSelecionar = {
                         disciplinaRestaurada = true
+                        assuntoRestaurado = true
                         disciplinaSelecionada = it
                     },
                     carregando = catalogosCarregando
@@ -179,9 +201,23 @@ fun FiltroScreen(
                     label = "Assunto",
                     itens = viewModel.assuntos,
                     selecionado = assuntoSelecionado,
-                    onSelecionar = { assuntoSelecionado = it },
+                    onSelecionar = {
+                        assuntoRestaurado = true
+                        assuntoSelecionado = it
+                    },
                     enabled = disciplinaSelecionada != null,
                     placeholder = if (disciplinaSelecionada == null) "Selecione a disciplina primeiro" else "Selecione o assunto"
+                )
+
+                Spacer(Modifier.height(14.dp))
+
+                DropdownSelector(
+                    label = "Subassunto",
+                    itens = viewModel.subassuntos,
+                    selecionado = subassuntoSelecionado,
+                    onSelecionar = { subassuntoSelecionado = it },
+                    enabled = assuntoSelecionado != null,
+                    placeholder = if (assuntoSelecionado == null) "Selecione o assunto primeiro" else "Selecione o subassunto"
                 )
 
                 Spacer(Modifier.height(14.dp))
@@ -275,6 +311,7 @@ fun FiltroScreen(
                         keyword = ""
                         disciplinaSelecionada = null
                         assuntoSelecionado = null
+                        subassuntoSelecionado = null
                         bancaSelecionada = null
                         instituicaoSelecionada = null
                         cargo = ""
@@ -300,6 +337,8 @@ fun FiltroScreen(
                                 disciplina = disciplinaSelecionada?.nome,
                                 assuntoId = assuntoSelecionado?.id,
                                 assunto = assuntoSelecionado?.nome,
+                                subassuntoId = subassuntoSelecionado?.id,
+                                subassunto = subassuntoSelecionado?.nome,
                                 bancaId = bancaSelecionada?.id,
                                 banca = bancaSelecionada?.nome,
                                 instituicaoId = instituicaoSelecionada?.id,
@@ -505,4 +544,3 @@ fun ChipOpcao(texto: String, selecionado: Boolean, onClick: () -> Unit) {
         Text(texto, color = textColor, style = MaterialTheme.typography.labelSmall)
     }
 }
-
