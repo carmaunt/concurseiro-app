@@ -246,4 +246,8 @@ class QuestaoViewModel @Inject constructor(
             }
         }
     }
+
+    fun limparSubAssuntos() {
+        subassuntos = emptyList()
+    }
 }
