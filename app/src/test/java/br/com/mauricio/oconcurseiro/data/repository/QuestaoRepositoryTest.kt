@@ -229,7 +229,7 @@ class FakeableQuestaoRepository(private val api: ConcurseiroApi) {
         assunto = if (filtro.assuntoId != null || !filtro.assuntoIds.isNullOrEmpty()) null else filtro.assunto,
         assuntoIds = when {
             !filtro.assuntoIds.isNullOrEmpty() -> filtro.assuntoIds
-            filtro.assuntoId != null -> listOf(filtro.assuntoId)
+            filtro.assuntoId != null -> listOfNotNull(filtro.assuntoId)
             else -> null
         },
         banca = if (filtro.bancaId != null) null else filtro.banca,
