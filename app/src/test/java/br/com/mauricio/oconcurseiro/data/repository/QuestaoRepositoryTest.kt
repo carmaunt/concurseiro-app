@@ -73,7 +73,7 @@ class QuestaoRepositoryTest {
                 size = capture(sizeSlot),
                 sort = any(),
                 texto = any(), disciplina = any(), disciplinaId = any(),
-                assunto = any(), assuntoId = any(), banca = any(), bancaId = any(),
+                assunto = any(), assuntoIds = any(), banca = any(), bancaId = any(),
                 instituicao = any(), instituicaoId = any(), ano = any(),
                 cargo = any(), nivel = any(), modalidade = any()
             )
@@ -226,8 +226,12 @@ class FakeableQuestaoRepository(private val api: ConcurseiroApi) {
         texto = filtro.texto,
         disciplina = if (filtro.disciplinaId != null) null else filtro.disciplina,
         disciplinaId = filtro.disciplinaId,
-        assunto = if (filtro.assuntoId != null) null else filtro.assunto,
-        assuntoId = filtro.assuntoId,
+        assunto = if (filtro.assuntoId != null || !filtro.assuntoIds.isNullOrEmpty()) null else filtro.assunto,
+        assuntoIds = when {
+            !filtro.assuntoIds.isNullOrEmpty() -> filtro.assuntoIds
+            filtro.assuntoId != null -> listOf(filtro.assuntoId)
+            else -> null
+        },
         banca = if (filtro.bancaId != null) null else filtro.banca,
         bancaId = filtro.bancaId,
         instituicao = if (filtro.instituicaoId != null) null else filtro.instituicao,
