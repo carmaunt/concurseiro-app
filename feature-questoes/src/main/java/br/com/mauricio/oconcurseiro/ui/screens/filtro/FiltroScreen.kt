@@ -41,7 +41,7 @@ fun FiltroScreen(
     var keyword by remember { mutableStateOf(filtroAtual.texto ?: "") }
 
     var disciplinaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
-    var assuntoSelecionado by remember { mutableStateOf<CatalogoItem?>(null) }
+    var assuntosSelecionados by remember { mutableStateOf<Set<CatalogoItem>>(emptySet()) }
     var subassuntoSelecionado by remember { mutableStateOf<CatalogoItem?>(null) }
     var bancaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
     var instituicaoSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
@@ -75,9 +75,14 @@ fun FiltroScreen(
     }
 
     LaunchedEffect(viewModel.assuntos) {
-        if (!assuntoRestaurado && viewModel.assuntos.isNotEmpty() && filtroAtual.assuntoId != null) {
-            assuntoSelecionado = viewModel.assuntos.find { it.id == filtroAtual.assuntoId }
-            assuntoRestaurado = true
+        if (!assuntoRestaurado && viewModel.assuntos.isNotEmpty()) {
+            val idsParaRestaurar = filtroAtual.assuntoIds?.toSet()
+                ?: filtroAtual.assuntoId?.let { setOf(it) }
+                ?: emptySet()
+            if (idsParaRestaurar.isNotEmpty()) {
+                assuntosSelecionados = viewModel.assuntos.filter { it.id in idsParaRestaurar }.toSet()
+                assuntoRestaurado = true
+            }
         }
     }
 
@@ -95,14 +100,18 @@ fun FiltroScreen(
             viewModel.limparAssuntos()
         }
         if (disciplinaRestaurada) {
-            assuntoSelecionado = null
+            assuntosSelecionados = emptySet()
             subassuntoSelecionado = null
             viewModel.limparSubAssuntos()
         }
     }
 
-    LaunchedEffect(assuntoSelecionado) {
-        val id = assuntoSelecionado?.id
+    val assuntoUnico by remember { derivedStateOf {
+        if (assuntosSelecionados.size == 1) assuntosSelecionados.first() else null
+    } }
+
+    LaunchedEffect(assuntoUnico) {
+        val id = assuntoUnico?.id
         if (id != null) {
             viewModel.carregarSubAssuntos(id)
         } else {
@@ -204,13 +213,15 @@ fun FiltroScreen(
                 DropdownSelector(
                     label = "Assunto",
                     itens = viewModel.assuntos,
-                    selecionado = assuntoSelecionado,
-                    onSelecionar = {
+                    selecionado = null,
+                    onSelecionar = {},
+                    multiSelecionados = assuntosSelecionados.map { it.id }.toSet(),
+                    onMultiSelecionar = { ids ->
                         assuntoRestaurado = true
-                        assuntoSelecionado = it
+                        assuntosSelecionados = viewModel.assuntos.filter { it.id in ids }.toSet()
                     },
                     enabled = disciplinaSelecionada != null,
-                    placeholder = if (disciplinaSelecionada == null) "Selecione a disciplina primeiro" else "Selecione o assunto"
+                    placeholder = if (disciplinaSelecionada == null) "Selecione a disciplina primeiro" else "Selecione o(s) assunto(s)"
                 )
 
                 Spacer(Modifier.height(14.dp))
@@ -220,8 +231,12 @@ fun FiltroScreen(
                     itens = viewModel.subassuntos,
                     selecionado = subassuntoSelecionado,
                     onSelecionar = { subassuntoSelecionado = it },
-                    enabled = assuntoSelecionado != null,
-                    placeholder = if (assuntoSelecionado == null) "Selecione o assunto primeiro" else "Selecione o subassunto"
+                    enabled = assuntosSelecionados.size == 1,
+                    placeholder = when {
+                        assuntosSelecionados.isEmpty() -> "Selecione o assunto primeiro"
+                        assuntosSelecionados.size > 1  -> "Selecione apenas 1 assunto"
+                        else                           -> "Selecione o subassunto"
+                    }
                 )
 
                 Spacer(Modifier.height(14.dp))
@@ -314,7 +329,7 @@ fun FiltroScreen(
                     onClick = {
                         keyword = ""
                         disciplinaSelecionada = null
-                        assuntoSelecionado = null
+                        assuntosSelecionados = emptySet()
                         subassuntoSelecionado = null
                         bancaSelecionada = null
                         instituicaoSelecionada = null
@@ -339,8 +354,9 @@ fun FiltroScreen(
                                 texto = keyword.takeIf { it.isNotBlank() },
                                 disciplinaId = disciplinaSelecionada?.id,
                                 disciplina = disciplinaSelecionada?.nome,
-                                assuntoId = assuntoSelecionado?.id,
-                                assunto = assuntoSelecionado?.nome,
+                                assuntoId = if (assuntosSelecionados.size == 1) assuntosSelecionados.first().id else null,
+                                assunto = if (assuntosSelecionados.size == 1) assuntosSelecionados.first().nome else null,
+                                assuntoIds = if (assuntosSelecionados.size > 1) assuntosSelecionados.map { it.id } else null,
                                 subassuntoId = subassuntoSelecionado?.id,
                                 subassunto = subassuntoSelecionado?.nome,
                                 bancaId = bancaSelecionada?.id,
@@ -373,15 +389,31 @@ fun DropdownSelector(
     itens: List<CatalogoItem>,
     selecionado: CatalogoItem?,
     onSelecionar: (CatalogoItem?) -> Unit,
+    multiSelecionados: Set<Long> = emptySet(),
+    onMultiSelecionar: ((Set<Long>) -> Unit)? = null,
     enabled: Boolean = true,
     carregando: Boolean = false,
     placeholder: String = "Selecione $label"
 ) {
+    val isMultiMode = onMultiSelecionar != null
     var expandido by remember { mutableStateOf(false) }
     val isEnabled = enabled && !carregando
     val alpha = if (isEnabled) 1f else 0.5f
     val listState = rememberLazyListState()
     val temMaisAbaixo by remember { derivedStateOf { listState.canScrollForward } }
+
+    val hasSelection = if (isMultiMode) multiSelecionados.isNotEmpty() else selecionado != null
+
+    val displayText = when {
+        isMultiMode -> when {
+            multiSelecionados.isEmpty() -> if (carregando) "Carregando..." else placeholder
+            multiSelecionados.size == 1 -> itens.find { it.id == multiSelecionados.first() }?.nome ?: placeholder
+            else -> "${multiSelecionados.size} selecionados"
+        }
+        selecionado != null -> selecionado.nome
+        carregando -> "Carregando..."
+        else -> placeholder
+    }
 
     Column {
         Text(
@@ -399,37 +431,34 @@ fun DropdownSelector(
                     .clip(RoundedCornerShape(14.dp))
                     .border(
                         1.dp,
-                        if (selecionado != null) BrandPrimary else BorderDefault,
+                        if (hasSelection) BrandPrimary else BorderDefault,
                         RoundedCornerShape(14.dp)
                     )
-                    .background(if (selecionado != null) BrandPrimaryBackground else SurfaceWhite)
-                    .clickable(enabled = enabled) { expandido = true }
+                    .background(if (hasSelection) BrandPrimaryBackground else SurfaceWhite)
+                    .clickable(enabled = isEnabled) { expandido = true }
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val displayText = when {
-                    selecionado != null -> selecionado.nome
-                    carregando          -> "Carregando..."
-                    else                -> placeholder
-                }
-
                 Text(
                     text = displayText,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (selecionado != null) TextPrimary else TextPlaceholder.copy(alpha = alpha),
+                    color = if (hasSelection) TextPrimary else TextPlaceholder.copy(alpha = alpha),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
 
-                if (selecionado != null) {
+                if (hasSelection) {
                     Text(
                         text = "✕",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextSecondary,
                         modifier = Modifier
                             .clip(RoundedCornerShape(999.dp))
-                            .clickable { onSelecionar(null) }
+                            .clickable {
+                                if (isMultiMode) onMultiSelecionar!!(emptySet())
+                                else onSelecionar(null)
+                            }
                             .padding(4.dp)
                     )
                 } else {
@@ -461,19 +490,45 @@ fun DropdownSelector(
                     Box(modifier = Modifier.heightIn(max = 300.dp)) {
                         LazyColumn(state = listState) {
                             itemsIndexed(itens) { index, item ->
-                                val isSelected = selecionado?.id == item.id
+                                val isSelected = if (isMultiMode)
+                                    multiSelecionados.contains(item.id)
+                                else
+                                    selecionado?.id == item.id
+
                                 DropdownMenuItem(
                                     text = {
-                                        Text(
-                                            text = "${index + 1}. ${item.nome}",
-                                            style = if (isSelected) MaterialTheme.typography.labelMedium
-                                                    else MaterialTheme.typography.bodySmall,
-                                            color = if (isSelected) BrandPrimary else TextPrimary
-                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            if (isMultiMode) {
+                                                Checkbox(
+                                                    checked = isSelected,
+                                                    onCheckedChange = null,
+                                                    colors = CheckboxDefaults.colors(
+                                                        checkedColor = BrandPrimary,
+                                                        uncheckedColor = BorderDefault
+                                                    ),
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                                Spacer(Modifier.width(10.dp))
+                                            }
+                                            Text(
+                                                text = "${index + 1}. ${item.nome}",
+                                                style = if (isSelected) MaterialTheme.typography.labelMedium
+                                                        else MaterialTheme.typography.bodySmall,
+                                                color = if (isSelected) BrandPrimary else TextPrimary
+                                            )
+                                        }
                                     },
                                     onClick = {
-                                        onSelecionar(item)
-                                        expandido = false
+                                        if (isMultiMode) {
+                                            val newSet = if (isSelected)
+                                                multiSelecionados - item.id
+                                            else
+                                                multiSelecionados + item.id
+                                            onMultiSelecionar!!(newSet)
+                                        } else {
+                                            onSelecionar(item)
+                                            expandido = false
+                                        }
                                     },
                                     modifier = Modifier.background(
                                         if (isSelected) BrandPrimaryBackground else Color.Transparent
