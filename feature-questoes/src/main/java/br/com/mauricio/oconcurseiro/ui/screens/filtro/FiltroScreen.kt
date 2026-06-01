@@ -6,7 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -460,12 +460,12 @@ fun DropdownSelector(
                 } else {
                     Box(modifier = Modifier.heightIn(max = 300.dp)) {
                         LazyColumn(state = listState) {
-                            items(itens) { item ->
+                            itemsIndexed(itens) { index, item ->
                                 val isSelected = selecionado?.id == item.id
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            text = item.nome,
+                                            text = "${index + 1}. ${item.nome}",
                                             style = if (isSelected) MaterialTheme.typography.labelMedium
                                                     else MaterialTheme.typography.bodySmall,
                                             color = if (isSelected) BrandPrimary else TextPrimary
