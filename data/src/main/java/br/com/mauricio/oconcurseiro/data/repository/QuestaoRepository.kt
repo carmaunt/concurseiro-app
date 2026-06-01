@@ -55,7 +55,7 @@ class QuestaoRepository @Inject constructor(
             assunto = if (filtro.assuntoId != null || !filtro.assuntoIds.isNullOrEmpty()) null else filtro.assunto,
             assuntoIds = when {
                 !filtro.assuntoIds.isNullOrEmpty() -> filtro.assuntoIds
-                filtro.assuntoId != null            -> listOf(filtro.assuntoId)
+                filtro.assuntoId != null            -> listOfNotNull(filtro.assuntoId)
                 else                                -> null
             },
             subassunto = if (filtro.subassuntoId != null) null else filtro.subassunto,
