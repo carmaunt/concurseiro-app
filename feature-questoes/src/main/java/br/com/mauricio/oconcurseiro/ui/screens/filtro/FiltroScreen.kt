@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -14,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -376,6 +380,8 @@ fun DropdownSelector(
     var expandido by remember { mutableStateOf(false) }
     val isEnabled = enabled && !carregando
     val alpha = if (isEnabled) 1f else 0.5f
+    val listState = rememberLazyListState()
+    val temMaisAbaixo by remember { derivedStateOf { listState.canScrollForward } }
 
     Column {
         Text(
@@ -403,8 +409,8 @@ fun DropdownSelector(
             ) {
                 val displayText = when {
                     selecionado != null -> selecionado.nome
-                    carregando -> "Carregando..."
-                    else -> placeholder
+                    carregando          -> "Carregando..."
+                    else                -> placeholder
                 }
 
                 Text(
@@ -438,9 +444,7 @@ fun DropdownSelector(
             DropdownMenu(
                 expanded = expandido,
                 onDismissRequest = { expandido = false },
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .heightIn(max = 300.dp)
+                modifier = Modifier.fillMaxWidth(0.9f)
             ) {
                 if (itens.isEmpty()) {
                     DropdownMenuItem(
@@ -454,24 +458,51 @@ fun DropdownSelector(
                         onClick = { expandido = false }
                     )
                 } else {
-                    itens.forEach { item ->
-                        val isSelected = selecionado?.id == item.id
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = item.nome,
-                                    style = if (isSelected) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall,
-                                    color = if (isSelected) BrandPrimary else TextPrimary
+                    Box(modifier = Modifier.heightIn(max = 300.dp)) {
+                        LazyColumn(state = listState) {
+                            items(itens) { item ->
+                                val isSelected = selecionado?.id == item.id
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = item.nome,
+                                            style = if (isSelected) MaterialTheme.typography.labelMedium
+                                                    else MaterialTheme.typography.bodySmall,
+                                            color = if (isSelected) BrandPrimary else TextPrimary
+                                        )
+                                    },
+                                    onClick = {
+                                        onSelecionar(item)
+                                        expandido = false
+                                    },
+                                    modifier = Modifier.background(
+                                        if (isSelected) BrandPrimaryBackground else Color.Transparent
+                                    )
                                 )
-                            },
-                            onClick = {
-                                onSelecionar(item)
-                                expandido = false
-                            },
-                            modifier = Modifier.background(
-                                if (isSelected) BrandPrimaryBackground else Color.Transparent
-                            )
-                        )
+                            }
+                        }
+
+                        if (temMaisAbaixo) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .fillMaxWidth()
+                                    .height(52.dp)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(Color.Transparent, SurfaceWhite)
+                                        )
+                                    ),
+                                contentAlignment = Alignment.BottomCenter
+                            ) {
+                                Text(
+                                    text = "▾",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = TextSecondary,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
