@@ -17,7 +17,7 @@ interface ConcurseiroApi {
         @Query("disciplina") disciplina: String? = null,
         @Query("disciplinaId") disciplinaId: Long? = null,
         @Query("assunto") assunto: String? = null,
-        @Query("assuntoId") assuntoId: Long? = null,
+        @Query("assuntoId") assuntoIds: List<Long>? = null,
         @Query("subassunto") subassunto: String? = null,
         @Query("subassuntoId") subassuntoId: Long? = null,
         @Query("banca") banca: String? = null,
