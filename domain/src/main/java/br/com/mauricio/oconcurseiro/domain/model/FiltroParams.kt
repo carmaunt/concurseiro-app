@@ -6,6 +6,7 @@ data class FiltroParams(
     val disciplinaId: Long? = null,
     val assunto: String? = null,
     val assuntoId: Long? = null,
+    val assuntoIds: List<Long>? = null,
     val subassunto: String? = null,
     val subassuntoId: Long? = null,
     val banca: String? = null,
