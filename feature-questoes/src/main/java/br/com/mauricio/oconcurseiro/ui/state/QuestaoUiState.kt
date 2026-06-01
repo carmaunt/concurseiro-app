@@ -12,5 +12,6 @@ data class QuestaoUiState(
     val totalQuestoes: Int = 0,
     val paginaAtual: Int = 0,
     val respostaAnterior: RespostaAnterior? = null,
-    val jaCarregou: Boolean = false
+    val jaCarregou: Boolean = false,
+    val isPreCarregando: Boolean = false
 )
