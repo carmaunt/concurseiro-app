@@ -31,6 +31,7 @@ replit.md
 
 # Temporary assets attached during development sessions
 attached_assets/
+local-pdfs/
 
 # Backend code lives in its own repository
 backend-changes/

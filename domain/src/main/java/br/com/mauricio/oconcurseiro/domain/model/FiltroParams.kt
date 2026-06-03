@@ -9,6 +9,7 @@ data class FiltroParams(
     val assuntoIds: List<Long>? = null,
     val subassunto: String? = null,
     val subassuntoId: Long? = null,
+    val subassuntoIds: List<Long>? = null,
     val banca: String? = null,
     val bancaId: Long? = null,
     val instituicao: String? = null,

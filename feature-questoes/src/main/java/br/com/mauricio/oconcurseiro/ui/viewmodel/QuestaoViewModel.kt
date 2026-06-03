@@ -18,6 +18,9 @@ import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
 import br.com.mauricio.oconcurseiro.ui.state.QuestaoUiState
 import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,6 +60,12 @@ class QuestaoViewModel @Inject constructor(
         private set
 
     var subassuntos: List<CatalogoItem> by mutableStateOf(emptyList())
+        private set
+
+    var subassuntosPorAssunto: Map<Long, List<CatalogoItem>> by mutableStateOf(emptyMap())
+        private set
+
+    var subassuntosCarregando: Boolean by mutableStateOf(false)
         private set
 
     var catalogosCarregando: Boolean by mutableStateOf(true)
@@ -226,8 +235,10 @@ class QuestaoViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 assuntos = listarAssuntosPorDisciplinaUseCase(disciplinaId)
+                subassuntosPorAssunto = emptyMap()
             } catch (_: Exception) {
                 assuntos = emptyList()
+                subassuntosPorAssunto = emptyMap()
             }
         }
     }
@@ -235,6 +246,8 @@ class QuestaoViewModel @Inject constructor(
     fun limparAssuntos() {
         assuntos = emptyList()
         subassuntos = emptyList()
+        subassuntosPorAssunto = emptyMap()
+        subassuntosCarregando = false
     }
 
     fun carregarSubAssuntos(assuntoId: Long) {
@@ -249,5 +262,36 @@ class QuestaoViewModel @Inject constructor(
 
     fun limparSubAssuntos() {
         subassuntos = emptyList()
+    }
+
+    fun carregarSubAssuntosDosAssuntos(assuntoIds: List<Long>) {
+        val idsPendentes = assuntoIds
+            .distinct()
+            .filterNot { subassuntosPorAssunto.containsKey(it) }
+
+        if (idsPendentes.isEmpty() || subassuntosCarregando) return
+
+        viewModelScope.launch {
+            subassuntosCarregando = true
+
+            try {
+                val carregados = coroutineScope {
+                    idsPendentes.map { assuntoId ->
+                        async {
+                            val subassuntos = try {
+                                listarSubAssuntosUseCase(assuntoId)
+                            } catch (_: Exception) {
+                                emptyList()
+                            }
+                            assuntoId to subassuntos
+                        }
+                    }.awaitAll()
+                }
+
+                subassuntosPorAssunto = subassuntosPorAssunto + carregados
+            } finally {
+                subassuntosCarregando = false
+            }
+        }
     }
 }

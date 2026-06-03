@@ -5,6 +5,7 @@ import br.com.mauricio.oconcurseiro.data.remote.CatalogoItemDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioRequestDto
 import br.com.mauricio.oconcurseiro.data.remote.ComentarioResponseDto
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
+import br.com.mauricio.oconcurseiro.data.remote.PageInfo
 import br.com.mauricio.oconcurseiro.data.remote.PageResponse
 import br.com.mauricio.oconcurseiro.data.remote.QuestaoDto
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
@@ -17,6 +18,11 @@ import javax.inject.Inject
 class QuestaoRepository @Inject constructor(
     private val api: ConcurseiroApi
 ) : QuestaoRepositoryContract {
+
+    private data class FiltroQuestaoCriterio(
+        val assuntoId: Long? = null,
+        val subassuntoId: Long? = null
+    )
 
     override suspend fun buscarPagina(
         page: Int,
@@ -45,6 +51,62 @@ class QuestaoRepository @Inject constructor(
         size: Int = 1,
         filtro: FiltroParams = FiltroParams()
     ): PageResponse<QuestaoDto> {
+        val criterios = montarCriterios(filtro)
+
+        if (criterios.size > 1) {
+            return buscarPaginaDtoPorMultiplosAssuntos(
+                page = page,
+                size = size,
+                filtro = filtro,
+                criterios = criterios
+            )
+        }
+
+        return buscarPaginaDtoDireta(
+            page = page,
+            size = size,
+            filtro = criterios.firstOrNull()?.aplicarEm(filtro) ?: filtro
+        )
+    }
+
+    private fun montarCriterios(filtro: FiltroParams): List<FiltroQuestaoCriterio> {
+        val criterios = mutableListOf<FiltroQuestaoCriterio>()
+
+        filtro.assuntoIds.orEmpty().forEach { assuntoId ->
+            criterios += FiltroQuestaoCriterio(assuntoId = assuntoId)
+        }
+
+        if (filtro.assuntoId != null) {
+            criterios += FiltroQuestaoCriterio(assuntoId = filtro.assuntoId)
+        }
+
+        filtro.subassuntoIds.orEmpty().forEach { subassuntoId ->
+            criterios += FiltroQuestaoCriterio(subassuntoId = subassuntoId)
+        }
+
+        if (filtro.subassuntoId != null) {
+            criterios += FiltroQuestaoCriterio(subassuntoId = filtro.subassuntoId)
+        }
+
+        return criterios.distinct()
+    }
+
+    private fun FiltroQuestaoCriterio.aplicarEm(filtro: FiltroParams): FiltroParams {
+        return filtro.copy(
+            assunto = null,
+            assuntoId = assuntoId,
+            assuntoIds = null,
+            subassunto = null,
+            subassuntoId = subassuntoId,
+            subassuntoIds = null
+        )
+    }
+
+    private suspend fun buscarPaginaDtoDireta(
+        page: Int,
+        size: Int,
+        filtro: FiltroParams
+    ): PageResponse<QuestaoDto> {
         return api.listarQuestoes(
             page = page,
             size = size,
@@ -69,6 +131,82 @@ class QuestaoRepository @Inject constructor(
             nivel = filtro.nivel,
             modalidade = filtro.modalidade
         ).data
+    }
+
+    private suspend fun buscarPaginaDtoPorMultiplosAssuntos(
+        page: Int,
+        size: Int,
+        filtro: FiltroParams,
+        criterios: List<FiltroQuestaoCriterio>
+    ): PageResponse<QuestaoDto> {
+        val filtrosPorCriterio = criterios.map { criterio -> criterio.aplicarEm(filtro) }
+
+        val totais = filtrosPorCriterio.map { filtroPorCriterio ->
+            buscarPaginaDtoDireta(
+                page = 0,
+                size = 1,
+                filtro = filtroPorCriterio
+            ).resolvedTotalElements
+        }
+
+        val totalElements = totais.sum()
+        val safeSize = size.coerceAtLeast(1)
+        val totalPages = if (totalElements == 0L) {
+            0
+        } else {
+            ((totalElements + safeSize - 1) / safeSize).toInt()
+        }
+
+        val start = page.toLong() * safeSize
+        val endExclusive = (start + safeSize).coerceAtMost(totalElements)
+        val content = (start until endExclusive).mapNotNull { globalIndex ->
+            val (assuntoIndex, localPage) = resolverIndiceRoundRobin(
+                globalIndex = globalIndex,
+                totais = totais
+            ) ?: return@mapNotNull null
+
+            buscarPaginaDtoDireta(
+                page = localPage,
+                size = 1,
+                filtro = filtrosPorCriterio[assuntoIndex]
+            ).content.firstOrNull()
+        }
+
+        return PageResponse(
+            content = content,
+            page = PageInfo(
+                size = safeSize,
+                number = page,
+                totalElements = totalElements,
+                totalPages = totalPages
+            )
+        )
+    }
+
+    private fun resolverIndiceRoundRobin(
+        globalIndex: Long,
+        totais: List<Long>
+    ): Pair<Int, Int>? {
+        var restante = globalIndex
+        var paginaLocal = 0
+
+        while (true) {
+            var encontrouItemNoCiclo = false
+
+            totais.forEachIndexed { assuntoIndex, total ->
+                if (paginaLocal < total) {
+                    encontrouItemNoCiclo = true
+                    if (restante == 0L) {
+                        return assuntoIndex to paginaLocal
+                    }
+                    restante--
+                }
+            }
+
+            if (!encontrouItemNoCiclo) return null
+
+            paginaLocal++
+        }
     }
 
     suspend fun buscarQuestao(idQuestion: String): QuestaoDto {

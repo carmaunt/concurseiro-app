@@ -5,9 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -23,10 +20,48 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import java.util.Calendar
+import java.text.Normalizer
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.ui.components.AppHeader
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.QuestaoViewModel
+
+private data class AssuntoArvoreItem(
+    val key: String,
+    val item: CatalogoItem,
+    val texto: String,
+    val isSubassunto: Boolean,
+    val assuntoPaiId: Long? = null
+)
+
+private fun alternarAssuntoArvoreItem(
+    item: AssuntoArvoreItem,
+    selecionados: Set<String>,
+    itens: List<AssuntoArvoreItem>
+): Set<String> {
+    if (item.key in selecionados) return selecionados - item.key
+
+    return if (item.isSubassunto) {
+        selecionados - "a:${item.assuntoPaiId}" + item.key
+    } else {
+        val subassuntosDoAssunto = itens
+            .filter { it.assuntoPaiId == item.item.id }
+            .map { it.key }
+            .toSet()
+        selecionados + item.key + subassuntosDoAssunto
+    }
+}
+
+private fun normalizarBusca(valor: String): String {
+    return Normalizer.normalize(valor, Normalizer.Form.NFD)
+        .replace(Regex("\\p{M}+"), "")
+        .lowercase()
+        .trim()
+}
+
+private fun AssuntoArvoreItem.selecionadoPorAssuntoPai(selecionados: Set<String>): Boolean {
+    return isSubassunto && "a:$assuntoPaiId" in selecionados
+}
 
 @Composable
 fun FiltroScreen(
@@ -41,8 +76,7 @@ fun FiltroScreen(
     var keyword by remember { mutableStateOf(filtroAtual.texto ?: "") }
 
     var disciplinaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
-    var assuntosSelecionados by remember { mutableStateOf<Set<CatalogoItem>>(emptySet()) }
-    var subassuntoSelecionado by remember { mutableStateOf<CatalogoItem?>(null) }
+    var assuntoKeysSelecionadas by remember { mutableStateOf<Set<String>>(emptySet()) }
     var bancaSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
     var instituicaoSelecionada by remember { mutableStateOf<CatalogoItem?>(null) }
 
@@ -54,6 +88,55 @@ fun FiltroScreen(
 
     var disciplinaRestaurada by remember { mutableStateOf(false) }
     var assuntoRestaurado by remember { mutableStateOf(false) }
+
+    val assuntoArvoreItens by remember(viewModel.assuntos, viewModel.subassuntosPorAssunto) {
+        derivedStateOf {
+            viewModel.assuntos.flatMapIndexed { assuntoIndex, assunto ->
+                val numeroAssunto = assuntoIndex + 1
+                val assuntoItem = AssuntoArvoreItem(
+                    key = "a:${assunto.id}",
+                    item = assunto,
+                    texto = "$numeroAssunto - ${assunto.nome}",
+                    isSubassunto = false
+                )
+                val subassuntoItens = viewModel.subassuntosPorAssunto[assunto.id]
+                    .orEmpty()
+                    .mapIndexed { subIndex, subassunto ->
+                        AssuntoArvoreItem(
+                            key = "s:${subassunto.id}",
+                            item = subassunto,
+                            texto = "$numeroAssunto.${subIndex + 1} ${subassunto.nome}",
+                            isSubassunto = true,
+                            assuntoPaiId = assunto.id
+                        )
+                    }
+                listOf(assuntoItem) + subassuntoItens
+            }
+        }
+    }
+
+    val assuntoIdsSelecionados by remember(assuntoKeysSelecionadas) {
+        derivedStateOf {
+            assuntoKeysSelecionadas.mapNotNull { key ->
+                key.removePrefix("a:").toLongOrNull().takeIf { key.startsWith("a:") }
+            }
+        }
+    }
+
+    val subassuntoIdsSelecionados by remember(assuntoKeysSelecionadas, assuntoArvoreItens, assuntoIdsSelecionados) {
+        derivedStateOf {
+            val assuntoIdsSelecionadosSet = assuntoIdsSelecionados.toSet()
+            assuntoKeysSelecionadas.mapNotNull { key ->
+                if (!key.startsWith("s:")) {
+                    null
+                } else {
+                    val id = key.removePrefix("s:").toLongOrNull()
+                    val item = assuntoArvoreItens.find { it.key == key }
+                    id.takeUnless { item?.assuntoPaiId in assuntoIdsSelecionadosSet }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(viewModel.disciplinas) {
         if (!disciplinaRestaurada && viewModel.disciplinas.isNotEmpty() && filtroAtual.disciplinaId != null) {
@@ -76,20 +159,21 @@ fun FiltroScreen(
 
     LaunchedEffect(viewModel.assuntos) {
         if (!assuntoRestaurado && viewModel.assuntos.isNotEmpty()) {
-            val idsParaRestaurar = filtroAtual.assuntoIds?.toSet()
+            val assuntoIdsParaRestaurar = filtroAtual.assuntoIds?.toSet()
                 ?: filtroAtual.assuntoId?.let { setOf(it) }
                 ?: emptySet()
-            if (idsParaRestaurar.isNotEmpty()) {
-                assuntosSelecionados = viewModel.assuntos.filter { it.id in idsParaRestaurar }.toSet()
+            val subassuntoIdsParaRestaurar = filtroAtual.subassuntoIds?.toSet()
+                ?: filtroAtual.subassuntoId?.let { setOf(it) }
+                ?: emptySet()
+
+            if (assuntoIdsParaRestaurar.isNotEmpty() || subassuntoIdsParaRestaurar.isNotEmpty()) {
+                assuntoKeysSelecionadas =
+                    assuntoIdsParaRestaurar.map { "a:$it" }.toSet() +
+                    subassuntoIdsParaRestaurar.map { "s:$it" }.toSet()
                 assuntoRestaurado = true
             }
         }
-    }
 
-    LaunchedEffect(viewModel.subassuntos) {
-        if (viewModel.subassuntos.isNotEmpty() && filtroAtual.subassuntoId != null && subassuntoSelecionado == null) {
-            subassuntoSelecionado = viewModel.subassuntos.find { it.id == filtroAtual.subassuntoId }
-        }
     }
 
     LaunchedEffect(disciplinaSelecionada) {
@@ -100,24 +184,9 @@ fun FiltroScreen(
             viewModel.limparAssuntos()
         }
         if (disciplinaRestaurada) {
-            assuntosSelecionados = emptySet()
-            subassuntoSelecionado = null
+            assuntoKeysSelecionadas = emptySet()
             viewModel.limparSubAssuntos()
         }
-    }
-
-    val assuntoUnico by remember { derivedStateOf {
-        if (assuntosSelecionados.size == 1) assuntosSelecionados.first() else null
-    } }
-
-    LaunchedEffect(assuntoUnico) {
-        val id = assuntoUnico?.id
-        if (id != null) {
-            viewModel.carregarSubAssuntos(id)
-        } else {
-            viewModel.limparSubAssuntos()
-        }
-        subassuntoSelecionado = null
     }
 
     Column(modifier = Modifier.fillMaxSize().background(SurfaceWhite)) {
@@ -210,32 +279,32 @@ fun FiltroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                DropdownSelector(
-                    label = "Assunto",
-                    itens = viewModel.assuntos,
-                    selecionado = null,
-                    onSelecionar = {},
-                    multiSelecionados = assuntosSelecionados.map { it.id }.toSet(),
-                    onMultiSelecionar = { ids ->
+                val disciplinaNumero = disciplinaSelecionada?.let { disciplina ->
+                    viewModel.disciplinas.indexOfFirst { it.id == disciplina.id }
+                        .takeIf { it >= 0 }
+                        ?.plus(1)
+                }
+
+                DropdownAssuntoArvore(
+                    label = disciplinaSelecionada?.let { disciplina ->
+                        "Disciplina: ${disciplinaNumero ?: "-"} - ${disciplina.nome}"
+                    } ?: "Assunto",
+                    itens = assuntoArvoreItens,
+                    selecionados = assuntoKeysSelecionadas,
+                    onSelecionar = { keys ->
                         assuntoRestaurado = true
-                        assuntosSelecionados = viewModel.assuntos.filter { it.id in ids }.toSet()
+                        assuntoKeysSelecionadas = keys
+                    },
+                    onCarregarSubAssuntos = {
+                        viewModel.carregarSubAssuntosDosAssuntos(viewModel.assuntos.map { it.id })
                     },
                     enabled = disciplinaSelecionada != null,
-                    placeholder = if (disciplinaSelecionada == null) "Selecione a disciplina primeiro" else "Selecione o(s) assunto(s)"
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                DropdownSelector(
-                    label = "Subassunto",
-                    itens = viewModel.subassuntos,
-                    selecionado = subassuntoSelecionado,
-                    onSelecionar = { subassuntoSelecionado = it },
-                    enabled = assuntosSelecionados.size == 1,
-                    placeholder = when {
-                        assuntosSelecionados.isEmpty() -> "Selecione o assunto primeiro"
-                        assuntosSelecionados.size > 1  -> "Selecione apenas 1 assunto"
-                        else                           -> "Selecione o subassunto"
+                    carregando = disciplinaSelecionada != null && viewModel.assuntos.isEmpty(),
+                    carregandoSubassuntos = viewModel.subassuntosCarregando,
+                    placeholder = if (disciplinaSelecionada == null) {
+                        "Selecione a disciplina primeiro"
+                    } else {
+                        "Selecione assunto(s) e subassunto(s)"
                     }
                 )
 
@@ -329,8 +398,7 @@ fun FiltroScreen(
                     onClick = {
                         keyword = ""
                         disciplinaSelecionada = null
-                        assuntosSelecionados = emptySet()
-                        subassuntoSelecionado = null
+                        assuntoKeysSelecionadas = emptySet()
                         bancaSelecionada = null
                         instituicaoSelecionada = null
                         cargo = ""
@@ -354,11 +422,12 @@ fun FiltroScreen(
                                 texto = keyword.takeIf { it.isNotBlank() },
                                 disciplinaId = disciplinaSelecionada?.id,
                                 disciplina = disciplinaSelecionada?.nome,
-                                assuntoId = if (assuntosSelecionados.size == 1) assuntosSelecionados.first().id else null,
-                                assunto = if (assuntosSelecionados.size == 1) assuntosSelecionados.first().nome else null,
-                                assuntoIds = if (assuntosSelecionados.size > 1) assuntosSelecionados.map { it.id } else null,
-                                subassuntoId = subassuntoSelecionado?.id,
-                                subassunto = subassuntoSelecionado?.nome,
+                                assuntoId = if (assuntoIdsSelecionados.size == 1 && subassuntoIdsSelecionados.isEmpty()) assuntoIdsSelecionados.first() else null,
+                                assunto = null,
+                                assuntoIds = if (assuntoIdsSelecionados.size > 1 || subassuntoIdsSelecionados.isNotEmpty()) assuntoIdsSelecionados else null,
+                                subassuntoId = if (subassuntoIdsSelecionados.size == 1 && assuntoIdsSelecionados.isEmpty()) subassuntoIdsSelecionados.first() else null,
+                                subassunto = null,
+                                subassuntoIds = if (subassuntoIdsSelecionados.size > 1 || assuntoIdsSelecionados.isNotEmpty()) subassuntoIdsSelecionados else null,
                                 bancaId = bancaSelecionada?.id,
                                 banca = bancaSelecionada?.nome,
                                 instituicaoId = instituicaoSelecionada?.id,
@@ -384,6 +453,255 @@ fun FiltroScreen(
 }
 
 @Composable
+private fun DropdownAssuntoArvore(
+    label: String,
+    itens: List<AssuntoArvoreItem>,
+    selecionados: Set<String>,
+    onSelecionar: (Set<String>) -> Unit,
+    onCarregarSubAssuntos: () -> Unit,
+    enabled: Boolean = true,
+    carregando: Boolean = false,
+    carregandoSubassuntos: Boolean = false,
+    placeholder: String = "Selecione o assunto"
+) {
+    var expandido by remember { mutableStateOf(false) }
+    var busca by remember { mutableStateOf("") }
+    val isEnabled = enabled && !carregando
+    val alpha = if (isEnabled) 1f else 0.5f
+    val listScroll = rememberScrollState()
+    val temMaisAbaixo by remember { derivedStateOf { listScroll.canScrollForward } }
+    val buscaNormalizada by remember(busca) { derivedStateOf { normalizarBusca(busca) } }
+    val itensFiltrados by remember(itens, buscaNormalizada) {
+        derivedStateOf {
+            if (buscaNormalizada.isBlank()) {
+                itens
+            } else {
+                val assuntoIdsComSubassuntoEncontrado = itens
+                    .filter { item ->
+                        item.isSubassunto && normalizarBusca(item.item.nome).contains(buscaNormalizada)
+                    }
+                    .mapNotNull { it.assuntoPaiId }
+                    .toSet()
+
+                itens.filter { item ->
+                    normalizarBusca(item.item.nome).contains(buscaNormalizada) ||
+                            (!item.isSubassunto && item.item.id in assuntoIdsComSubassuntoEncontrado)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(expandido) {
+        if (expandido) onCarregarSubAssuntos()
+    }
+
+    val displayText = when {
+        carregando -> "Carregando..."
+        selecionados.isEmpty() -> placeholder
+        selecionados.size == 1 -> itens.find { it.key == selecionados.first() }?.texto ?: "1 selecionado"
+        else -> "${selecionados.size} selecionados"
+    }
+
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = TextLabel.copy(alpha = alpha),
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .border(
+                        1.dp,
+                        if (selecionados.isNotEmpty()) BrandPrimary else BorderDefault,
+                        RoundedCornerShape(14.dp)
+                    )
+                    .background(if (selecionados.isNotEmpty()) BrandPrimaryBackground else SurfaceWhite)
+                    .clickable(enabled = isEnabled) { expandido = true }
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = displayText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (selecionados.isNotEmpty()) TextPrimary else TextPlaceholder.copy(alpha = alpha),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (selecionados.isNotEmpty()) {
+                    Text(
+                        text = "✕",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .clickable { onSelecionar(emptySet()) }
+                            .padding(4.dp)
+                    )
+                } else {
+                    Text(
+                        text = "▾",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextSecondary.copy(alpha = alpha)
+                    )
+                }
+            }
+
+            DropdownMenu(
+                expanded = expandido,
+                onDismissRequest = {
+                    expandido = false
+                    busca = ""
+                },
+                modifier = Modifier.fillMaxWidth(0.92f)
+            ) {
+                CampoTexto(
+                    valor = busca,
+                    placeholder = "Buscar assunto ou subassunto",
+                    onValueChange = { busca = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+
+                if (carregandoSubassuntos) {
+                    Text(
+                        text = "Carregando subassuntos...",
+                        color = TextSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                    )
+                }
+
+                if (itens.isEmpty()) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                "Nenhum item disponível",
+                                color = TextPlaceholder,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        },
+                        onClick = { expandido = false }
+                    )
+                } else if (itensFiltrados.isEmpty()) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                "Nenhum resultado encontrado",
+                                color = TextPlaceholder,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        },
+                        onClick = { }
+                    )
+                } else {
+                    Box(modifier = Modifier.heightIn(max = 340.dp)) {
+                        Column(modifier = Modifier.verticalScroll(listScroll)) {
+                            itensFiltrados.forEach { item ->
+                                val isSelected = item.key in selecionados || item.selecionadoPorAssuntoPai(selecionados)
+
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.padding(start = if (item.isSubassunto) 18.dp else 0.dp)
+                                        ) {
+                                            Checkbox(
+                                                checked = isSelected,
+                                                onCheckedChange = { checked ->
+                                                    val newSet = if (checked) {
+                                                        alternarAssuntoArvoreItem(item, selecionados, itens)
+                                                    } else {
+                                                        if (item.isSubassunto) {
+                                                            selecionados - item.key - "a:${item.assuntoPaiId}"
+                                                        } else {
+                                                            val subassuntosDoAssunto = itens
+                                                                .filter { it.assuntoPaiId == item.item.id }
+                                                                .map { it.key }
+                                                                .toSet()
+                                                            selecionados - item.key - subassuntosDoAssunto
+                                                        }
+                                                    }
+                                                    onSelecionar(newSet)
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkedColor = BrandPrimary,
+                                                    checkmarkColor = TextOnBrand,
+                                                    uncheckedColor = TextSecondary
+                                                ),
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                            Spacer(Modifier.width(10.dp))
+                                            Text(
+                                                text = item.texto,
+                                                style = if (isSelected) MaterialTheme.typography.labelMedium
+                                                else MaterialTheme.typography.bodySmall,
+                                                color = if (isSelected) BrandPrimary else TextPrimary,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        val newSet = if (isSelected) {
+                                            if (item.isSubassunto) {
+                                                selecionados - item.key - "a:${item.assuntoPaiId}"
+                                            } else {
+                                                val subassuntosDoAssunto = itens
+                                                    .filter { it.assuntoPaiId == item.item.id }
+                                                    .map { it.key }
+                                                    .toSet()
+                                                selecionados - item.key - subassuntosDoAssunto
+                                            }
+                                        } else {
+                                            alternarAssuntoArvoreItem(item, selecionados, itens)
+                                        }
+                                        onSelecionar(newSet)
+                                    },
+                                    modifier = Modifier.background(
+                                        if (isSelected) BrandPrimaryBackground else Color.Transparent
+                                    )
+                                )
+                            }
+                        }
+
+                        if (temMaisAbaixo) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .fillMaxWidth()
+                                    .height(52.dp)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(Color.Transparent, SurfaceWhite)
+                                        )
+                                    ),
+                                contentAlignment = Alignment.BottomCenter
+                            ) {
+                                Text(
+                                    text = "▾",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = TextSecondary,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun DropdownSelector(
     label: String,
     itens: List<CatalogoItem>,
@@ -399,8 +717,8 @@ fun DropdownSelector(
     var expandido by remember { mutableStateOf(false) }
     val isEnabled = enabled && !carregando
     val alpha = if (isEnabled) 1f else 0.5f
-    val listState = rememberLazyListState()
-    val temMaisAbaixo by remember { derivedStateOf { listState.canScrollForward } }
+    val listScroll = rememberScrollState()
+    val temMaisAbaixo by remember { derivedStateOf { listScroll.canScrollForward } }
 
     val hasSelection = if (isMultiMode) multiSelecionados.isNotEmpty() else selecionado != null
 
@@ -488,8 +806,8 @@ fun DropdownSelector(
                     )
                 } else {
                     Box(modifier = Modifier.heightIn(max = 300.dp)) {
-                        LazyColumn(state = listState) {
-                            itemsIndexed(itens) { index, item ->
+                        Column(modifier = Modifier.verticalScroll(listScroll)) {
+                            itens.forEachIndexed { index, item ->
                                 val isSelected = if (isMultiMode)
                                     multiSelecionados.contains(item.id)
                                 else
@@ -501,19 +819,26 @@ fun DropdownSelector(
                                             if (isMultiMode) {
                                                 Checkbox(
                                                     checked = isSelected,
-                                                    onCheckedChange = null,
+                                                    onCheckedChange = { checked ->
+                                                        val newSet = if (checked)
+                                                            multiSelecionados + item.id
+                                                        else
+                                                            multiSelecionados - item.id
+                                                        onMultiSelecionar!!(newSet)
+                                                    },
                                                     colors = CheckboxDefaults.colors(
                                                         checkedColor = BrandPrimary,
-                                                        uncheckedColor = BorderDefault
+                                                        checkmarkColor = TextOnBrand,
+                                                        uncheckedColor = TextSecondary
                                                     ),
-                                                    modifier = Modifier.size(20.dp)
+                                                    modifier = Modifier.size(24.dp)
                                                 )
                                                 Spacer(Modifier.width(10.dp))
                                             }
                                             Text(
                                                 text = "${index + 1}. ${item.nome}",
                                                 style = if (isSelected) MaterialTheme.typography.labelMedium
-                                                        else MaterialTheme.typography.bodySmall,
+                                                else MaterialTheme.typography.bodySmall,
                                                 color = if (isSelected) BrandPrimary else TextPrimary
                                             )
                                         }
@@ -569,9 +894,10 @@ fun DropdownSelector(
 fun CampoTexto(
     valor: String,
     placeholder: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier = modifier) {
         Text(
             text = placeholder,
             style = MaterialTheme.typography.labelMedium,
