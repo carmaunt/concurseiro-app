@@ -119,7 +119,6 @@ fun QuestaoScreen(
                     },
                     onAnterior = { viewModel.anterior() },
                     onProximo = onSolicitarProximaQuestao,
-                    onFiltro = onOpenFiltro,
                     onPodeResolverQuestao = onPodeResolverQuestao
                 )
             }
@@ -226,8 +225,7 @@ fun RodapeQuestao(
     podeAnterior: Boolean,
     podeProximo: Boolean,
     onAnterior: () -> Unit,
-    onProximo: () -> Unit,
-    onFiltro: () -> Unit
+    onProximo: () -> Unit
 ) {
     Surface(
         shadowElevation = 8.dp,
@@ -257,24 +255,6 @@ fun RodapeQuestao(
                     color = if (podeAnterior) TextSecondary else TextPlaceholder,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = if (podeAnterior) FontWeight.SemiBold else FontWeight.Medium,
-                    maxLines = 1
-                )
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            Button(
-                onClick = onFiltro,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.height(40.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
-            ) {
-                Text(
-                    text = "Filtros",
-                    color = TextOnBrand,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1
                 )
             }

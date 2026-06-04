@@ -18,7 +18,6 @@ fun ColumnScope.QuestaoContent(
     onResolvidaComSucesso: () -> Unit,
     onAnterior: () -> Unit,
     onProximo: () -> Unit,
-    onFiltro: () -> Unit,
     onPodeResolverQuestao: (String) -> Boolean
 ) {
 
@@ -48,7 +47,6 @@ fun ColumnScope.QuestaoContent(
         podeAnterior = paginaAtual > 0,
         podeProximo = paginaAtual < (totalQuestoes - 1),
         onAnterior = onAnterior,
-        onProximo = onProximo,
-        onFiltro = onFiltro
+        onProximo = onProximo
     )
 }
