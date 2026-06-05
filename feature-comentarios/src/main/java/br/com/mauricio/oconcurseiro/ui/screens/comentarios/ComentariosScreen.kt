@@ -330,14 +330,6 @@ fun ComentarioItem(
                 )
             }
 
-            Text(
-                text = "⋮",
-                fontSize = 20.sp,
-                color = TextSecondary,
-                modifier = Modifier
-                    .clickable { }
-                    .padding(8.dp)
-            )
         }
 
         Spacer(Modifier.height(10.dp))
