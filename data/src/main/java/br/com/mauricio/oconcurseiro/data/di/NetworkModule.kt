@@ -28,6 +28,7 @@ object NetworkModule {
     @Singleton
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
+            redactHeader("Authorization")
             level = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BODY
             } else {
@@ -61,7 +62,7 @@ object NetworkModule {
 
                 val newRequest = if (!token.isNullOrBlank()) {
                     request.newBuilder()
-                        .addHeader("Authorization", "Bearer $token")
+                        .header("Authorization", "Bearer $token")
                         .build()
                 } else {
                     request
@@ -99,32 +100,59 @@ private class TokenRefreshAuthenticator(
     private val tokenStorage: TokenStorage
 ) : Authenticator {
 
+    private val refreshLock = Any()
+
     override fun authenticate(route: Route?, response: Response): Request? {
         if (responseCount(response) >= 2) {
             return null
         }
 
-        val refreshToken = tokenStorage.refreshToken
-            ?: return null
+        val requestAccessToken = response.request.accessToken()
 
-        val refreshResponse = runCatching {
-            runBlocking {
-                Retrofit.Builder()
-                    .baseUrl(BuildConfig.BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(ConcurseiroApi::class.java)
-                    .refreshToken(RefreshTokenRequestDto(refreshToken))
+        return synchronized(refreshLock) {
+            val currentAccessToken = tokenStorage.accessToken
+            if (!currentAccessToken.isNullOrBlank() && currentAccessToken != requestAccessToken) {
+                return@synchronized response.request.withBearerToken(currentAccessToken)
             }
-        }.getOrNull() ?: return null
 
-        tokenStorage.salvarTokens(
-            accessToken = refreshResponse.accessToken,
-            refreshToken = refreshResponse.refreshToken
-        )
+            val refreshToken = tokenStorage.refreshToken
+                ?: return@synchronized null
 
-        return response.request.newBuilder()
-            .header("Authorization", "Bearer ${refreshResponse.accessToken}")
+            val refreshResponse = refreshAccessToken(refreshToken)
+                ?: return@synchronized null
+
+            tokenStorage.salvarTokens(
+                accessToken = refreshResponse.accessToken,
+                refreshToken = refreshResponse.refreshToken
+            )
+
+            response.request.withBearerToken(refreshResponse.accessToken)
+        }
+    }
+
+    private fun refreshAccessToken(refreshToken: String) = runCatching {
+        runBlocking {
+            Retrofit.Builder()
+                .baseUrl(BuildConfig.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ConcurseiroApi::class.java)
+                .refreshToken(RefreshTokenRequestDto(refreshToken))
+        }
+    }.getOrNull()
+
+    private fun Request.accessToken(): String? {
+        val header = header("Authorization") ?: return null
+        val prefix = "Bearer "
+        return header
+            .takeIf { it.startsWith(prefix) }
+            ?.removePrefix(prefix)
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    private fun Request.withBearerToken(accessToken: String): Request {
+        return newBuilder()
+            .header("Authorization", "Bearer $accessToken")
             .build()
     }
 
