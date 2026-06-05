@@ -29,6 +29,10 @@ kotlin {
     jvmToolchain(17)
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     api(project(":domain"))
     implementation(project(":core"))

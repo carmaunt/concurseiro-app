@@ -1,0 +1,73 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "b86728dac80e54233b60304b3bf6967d",
+    "entities": [
+      {
+        "tableName": "respostas",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `usuarioId` TEXT NOT NULL, `questaoId` TEXT NOT NULL, `disciplina` TEXT NOT NULL, `acertou` INTEGER NOT NULL, `respostaSelecionada` TEXT NOT NULL, `gabarito` TEXT NOT NULL, `respondidaEm` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questaoId",
+            "columnName": "questaoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "disciplina",
+            "columnName": "disciplina",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acertou",
+            "columnName": "acertou",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "respostaSelecionada",
+            "columnName": "respostaSelecionada",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gabarito",
+            "columnName": "gabarito",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "respondidaEm",
+            "columnName": "respondidaEm",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b86728dac80e54233b60304b3bf6967d')"
+    ]
+  }
+}
