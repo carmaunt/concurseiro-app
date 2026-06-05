@@ -30,7 +30,7 @@ object NetworkModule {
         return HttpLoggingInterceptor().apply {
             redactHeader("Authorization")
             level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BODY
+                HttpLoggingInterceptor.Level.BASIC
             } else {
                 HttpLoggingInterceptor.Level.NONE
             }

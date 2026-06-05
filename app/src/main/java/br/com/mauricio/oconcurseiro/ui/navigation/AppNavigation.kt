@@ -47,7 +47,10 @@ fun AppNavigation() {
     }
 
     LaunchedEffect(authViewModel.mensagemSucesso) {
-        authViewModel.mensagemSucesso?.let { snackbarHostState.showSnackbar(it) }
+        authViewModel.mensagemSucesso?.let {
+            snackbarHostState.showSnackbar(it)
+            authViewModel.consumirMensagemSucesso()
+        }
     }
 
     if (authViewModel.mostrarLimiteDialog) {
@@ -150,7 +153,8 @@ fun AppNavigation() {
                     onLoginClick = { navController.navigate(NavRoutes.Login.route) },
                     onAvisoLegal = { navController.navigate(NavRoutes.AvisoLegal.route) },
                     onPrivacidadeDados = { navController.navigate(NavRoutes.Privacidade.route) },
-                    usuarioAutenticado = authViewModel.usuarioAutenticado
+                    usuarioAutenticado = authViewModel.usuarioAutenticado,
+                    nomeUsuario = authViewModel.nomeUsuario
                 )
             }
 

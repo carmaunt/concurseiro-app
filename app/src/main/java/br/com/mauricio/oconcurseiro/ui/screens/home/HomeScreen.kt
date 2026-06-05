@@ -54,7 +54,8 @@ fun HomeScreen(
     onLoginClick: () -> Unit,
     onAvisoLegal: () -> Unit,
     onPrivacidadeDados: () -> Unit,
-    usuarioAutenticado: Boolean
+    usuarioAutenticado: Boolean,
+    nomeUsuario: String
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val erroAtual = uiState.erro
@@ -87,6 +88,7 @@ fun HomeScreen(
             ) {
                 HomeHeader(
                     usuarioAutenticado = usuarioAutenticado,
+                    nomeUsuario = nomeUsuario,
                     onLoginClick = onLoginClick,
                     onLogout = onLogout
                 )
@@ -136,6 +138,7 @@ fun HomeScreen(
 @Composable
 private fun HomeHeader(
     usuarioAutenticado: Boolean,
+    nomeUsuario: String,
     onLoginClick: () -> Unit,
     onLogout: () -> Unit
 ) {
@@ -160,9 +163,14 @@ private fun HomeHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Olá, Concurseiro!",
+                text = if (usuarioAutenticado) "Olá, $nomeUsuario!" else "Olá, Concurseiro!",
                 color = TextOnBrand,
-                style = MaterialTheme.typography.headlineLarge
+                style = MaterialTheme.typography.headlineLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp)
             )
 
             Surface(

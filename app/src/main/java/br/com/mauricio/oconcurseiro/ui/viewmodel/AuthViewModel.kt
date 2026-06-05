@@ -132,6 +132,7 @@ class AuthViewModel @Inject constructor(
                 val token = obterIdTokenGoogle(context)
                 repository.loginComGoogle(token)
                 usuarioAutenticado = repository.estaAutenticado()
+                mensagemSucesso = "Login realizado com sucesso."
                 onSucesso()
             } catch (_: GoogleLoginCanceladoException) {
                 erro = null
@@ -168,5 +169,10 @@ class AuthViewModel @Inject constructor(
         repository.logout()
         usuarioAutenticado = repository.estaAutenticado()
         erro = null
+        mensagemSucesso = null
+    }
+
+    fun consumirMensagemSucesso() {
+        mensagemSucesso = null
     }
 }
