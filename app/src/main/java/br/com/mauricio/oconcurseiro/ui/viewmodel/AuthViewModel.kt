@@ -1,6 +1,5 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
-import android.content.Intent
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,8 +11,6 @@ import br.com.mauricio.oconcurseiro.data.auth.GoogleLoginCanceladoException
 import br.com.mauricio.oconcurseiro.data.auth.obterIdTokenGoogle
 import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
 import com.google.firebase.FirebaseException
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.common.api.ApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -138,29 +135,6 @@ class AuthViewModel @Inject constructor(
                 onSucesso()
             } catch (_: GoogleLoginCanceladoException) {
                 erro = null
-            } catch (e: Exception) {
-                erro = e.message ?: "Erro ao login com Google"
-            } finally {
-                isLoading = false
-            }
-        }
-    }
-
-    fun loginComGoogleIntent(data: Intent?, onSucesso: () -> Unit) {
-        isLoading = true
-        erro = null
-
-        viewModelScope.launch {
-            try {
-                val account = GoogleSignIn.getSignedInAccountFromIntent(data)
-                    .getResult(ApiException::class.java)
-                val token = account.idToken ?: throw Exception("O Google não retornou o token de login")
-
-                repository.loginComGoogle(token)
-                usuarioAutenticado = repository.estaAutenticado()
-                onSucesso()
-            } catch (e: ApiException) {
-                erro = "Erro ao login com Google (código ${e.statusCode})"
             } catch (e: Exception) {
                 erro = e.message ?: "Erro ao login com Google"
             } finally {
