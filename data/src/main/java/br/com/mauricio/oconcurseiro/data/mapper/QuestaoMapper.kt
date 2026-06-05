@@ -12,7 +12,9 @@ object QuestaoMapper {
 
         val alternativas = parseAlternativas(dto.alternativas).toMutableList()
 
-        if (dto.modalidade.equals("CERTO_ERRADO", ignoreCase = true) && alternativas.isEmpty()) {
+        val isAnulada = dto.gabarito.equals("X", ignoreCase = true)
+
+        if (!isAnulada && dto.modalidade.equals("CERTO_ERRADO", ignoreCase = true) && alternativas.isEmpty()) {
             alternativas.add(Alternativa(letra = "C", texto = "Certo"))
             alternativas.add(Alternativa(letra = "E", texto = "Errado"))
         }

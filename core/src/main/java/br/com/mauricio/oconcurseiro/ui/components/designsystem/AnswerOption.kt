@@ -55,7 +55,8 @@ fun AnswerOption(
     text: String,
     state: AnswerState,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val (bgColor, borderColor, letterBg, letterColor, textColor) = when (state) {
         AnswerState.DEFAULT -> AnswerColors(
@@ -94,7 +95,7 @@ fun AnswerOption(
             .clip(RoundedCornerShape(12.dp))
             .background(bgColor)
             .border(1.5.dp, borderColor, RoundedCornerShape(12.dp))
-            .clickable(enabled = state == AnswerState.DEFAULT || state == AnswerState.SELECTED) { onClick() }
+            .clickable(enabled = enabled && (state == AnswerState.DEFAULT || state == AnswerState.SELECTED)) { onClick() }
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

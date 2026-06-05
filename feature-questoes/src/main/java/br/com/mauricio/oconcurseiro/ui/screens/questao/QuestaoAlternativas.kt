@@ -1,13 +1,23 @@
 package br.com.mauricio.oconcurseiro.ui.screens.questao
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.com.mauricio.oconcurseiro.domain.model.Questao
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.AnswerOption
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.AnswerState
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.OConcurseiroButton
+import br.com.mauricio.oconcurseiro.ui.theme.BorderDefault
+import br.com.mauricio.oconcurseiro.ui.theme.SurfaceChip
+import br.com.mauricio.oconcurseiro.ui.theme.TextPrimary
+import br.com.mauricio.oconcurseiro.ui.theme.TextSecondary
 
 @Composable
 fun QuestaoAlternativas(
@@ -18,16 +28,30 @@ fun QuestaoAlternativas(
 ) {
     var selecionada by remember(questao.id) { mutableIntStateOf(-1) }
     var resolvida by remember(questao.id) { mutableStateOf(false) }
+    val isAnulada = questao.isAnulada
 
     Column {
-        questao.alternativas.forEachIndexed { index, alternativa ->
+        if (isAnulada) {
+            QuestaoAnuladaAviso()
+        }
+
+        val alternativas = if (isAnulada && questao.alternativas.isEmpty()) {
+            listOf(
+                br.com.mauricio.oconcurseiro.domain.model.Alternativa(letra = "C", texto = "Certo"),
+                br.com.mauricio.oconcurseiro.domain.model.Alternativa(letra = "E", texto = "Errado")
+            )
+        } else {
+            questao.alternativas
+        }
+
+        alternativas.forEachIndexed { index, alternativa ->
             val correta = alternativa.letra.equals(questao.gabarito, ignoreCase = true)
             val foiClicada = selecionada == index
 
             val estado = when {
-                resolvida && correta -> AnswerState.CORRECT
-                resolvida && foiClicada && !correta -> AnswerState.WRONG
-                !resolvida && foiClicada -> AnswerState.SELECTED
+                !isAnulada && resolvida && correta -> AnswerState.CORRECT
+                !isAnulada && resolvida && foiClicada && !correta -> AnswerState.WRONG
+                !isAnulada && !resolvida && foiClicada -> AnswerState.SELECTED
                 else -> AnswerState.DEFAULT
             }
 
@@ -35,7 +59,8 @@ fun QuestaoAlternativas(
                 letter = alternativa.letra,
                 text = alternativa.texto,
                 state = estado,
-                onClick = { if (!resolvida) selecionada = index }
+                onClick = { if (!isAnulada && !resolvida) selecionada = index },
+                enabled = !isAnulada
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -44,18 +69,48 @@ fun QuestaoAlternativas(
         Spacer(Modifier.height(12.dp))
 
         OConcurseiroButton(
-            text = if (!resolvida) "Resolver" else "✓ Resolvida",
+            text = when {
+                isAnulada -> "Questão anulada"
+                !resolvida -> "Resolver"
+                else -> "✓ Resolvida"
+            },
             onClick = {
-                if (selecionada < 0 || resolvida) return@OConcurseiroButton
+                if (isAnulada || selecionada < 0 || resolvida) return@OConcurseiroButton
                 if (!onPodeResponder()) return@OConcurseiroButton
-                val letraSelecionada = questao.alternativas[selecionada].letra
+                val letraSelecionada = alternativas[selecionada].letra
                 val acertou = letraSelecionada.equals(questao.gabarito, ignoreCase = true)
                 resolvida = true
                 onResponder(letraSelecionada, acertou)
                 onResolvida()
             },
-            enabled = selecionada != -1 && !resolvida,
+            enabled = !isAnulada && selecionada != -1 && !resolvida,
             fullWidth = true
         )
     }
+}
+
+@Composable
+private fun QuestaoAnuladaAviso() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SurfaceChip, RoundedCornerShape(12.dp))
+            .border(1.dp, BorderDefault, RoundedCornerShape(12.dp))
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+    ) {
+        Text(
+            text = "Questão anulada",
+            style = MaterialTheme.typography.labelLarge,
+            color = TextPrimary,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = "Este item está disponível somente para consulta.",
+            style = MaterialTheme.typography.bodySmall,
+            color = TextSecondary
+        )
+    }
+
+    Spacer(Modifier.height(12.dp))
 }

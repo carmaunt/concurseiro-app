@@ -22,6 +22,9 @@ data class Questao(
     val textoApoioTitulo: String? = null,
     val textoApoioConteudo: String? = null
 ) {
+    val isAnulada: Boolean
+        get() = gabarito.equals("X", ignoreCase = true)
+
     val textoAssociado: String
         get() = listOfNotNull(
             textoApoioConteudo?.takeIf { it.isNotBlank() },

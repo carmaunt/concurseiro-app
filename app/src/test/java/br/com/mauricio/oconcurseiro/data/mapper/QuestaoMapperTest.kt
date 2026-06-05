@@ -107,6 +107,16 @@ class QuestaoMapperTest {
     }
 
     @Test
+    fun `fromDto nao injeta alternativas em questao anulada`() {
+        val questao = QuestaoMapper.fromDto(
+            dtoBase(modalidade = "CERTO_ERRADO", alternativas = "", gabarito = "X")
+        )
+
+        assertTrue(questao.isAnulada)
+        assertEquals(0, questao.alternativas.size)
+    }
+
+    @Test
     fun `fromDto nao injeta C_E quando alternativas ja existem em CERTO_ERRADO`() {
         val raw = "A) Certo\nB) Errado"
         val questao = QuestaoMapper.fromDto(
