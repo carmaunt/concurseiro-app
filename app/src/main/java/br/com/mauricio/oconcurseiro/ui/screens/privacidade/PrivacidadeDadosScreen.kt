@@ -6,9 +6,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Gavel
-import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -109,7 +109,7 @@ fun PrivacidadeDadosScreen(
                 icon = Icons.Outlined.PrivacyTip,
                 title = "Política de Privacidade",
                 description = "Leia a política completa publicada oficialmente.",
-                trailingIcon = Icons.Outlined.OpenInNew,
+                trailingIcon = Icons.AutoMirrored.Outlined.OpenInNew,
                 onClick = { uriHandler.openUri(PRIVACY_POLICY_URL) }
             )
 
