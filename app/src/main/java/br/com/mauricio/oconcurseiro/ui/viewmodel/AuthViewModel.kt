@@ -1,6 +1,6 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
-import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -123,13 +123,15 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun loginComGoogleComContexto(context: Context, onSucesso: () -> Unit) {
+    fun iniciarLoginComGoogle() {
         isLoading = true
         erro = null
+    }
 
+    fun concluirLoginComGoogle(resultCode: Int, data: Intent?, onSucesso: () -> Unit) {
         viewModelScope.launch {
             try {
-                val token = obterIdTokenGoogle(context)
+                val token = obterIdTokenGoogle(resultCode, data)
                 repository.loginComGoogle(token)
                 usuarioAutenticado = repository.estaAutenticado()
                 mensagemSucesso = "Login realizado com sucesso."

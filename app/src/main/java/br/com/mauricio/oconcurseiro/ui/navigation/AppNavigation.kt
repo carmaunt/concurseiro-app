@@ -1,5 +1,7 @@
 package br.com.mauricio.oconcurseiro.ui.navigation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -11,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import br.com.mauricio.oconcurseiro.data.auth.criarIntentLoginGoogle
 import br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog
 import br.com.mauricio.oconcurseiro.ui.screens.auth.LoginScreen
 import br.com.mauricio.oconcurseiro.ui.screens.auth.RegisterScreen
@@ -41,6 +44,21 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    var aoConcluirLoginGoogle by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val googleLoginLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        authViewModel.concluirLoginComGoogle(result.resultCode, result.data) {
+            aoConcluirLoginGoogle?.invoke()
+            aoConcluirLoginGoogle = null
+        }
+    }
+
+    fun iniciarLoginGoogle(onSucesso: () -> Unit) {
+        aoConcluirLoginGoogle = onSucesso
+        authViewModel.iniciarLoginComGoogle()
+        googleLoginLauncher.launch(criarIntentLoginGoogle(context))
+    }
 
     LaunchedEffect(authViewModel.usuarioAutenticado) {
         homeViewModel.atualizarDesempenho()
@@ -79,7 +97,7 @@ fun AppNavigation() {
                 navController.navigate(NavRoutes.Register.route)
             },
             onLoginGoogleClick = {
-                authViewModel.loginComGoogleComContexto(context) {
+                iniciarLoginGoogle {
                     val origemComentarios = authViewModel.loginDialogOrigemComentarios
                     authViewModel.fecharDialog()
                     if (!origemComentarios) {
@@ -115,7 +133,7 @@ fun AppNavigation() {
                     },
                     onAbrirCadastro = { navController.navigate(NavRoutes.Register.route) },
                     onLoginGoogleClick = {
-                        authViewModel.loginComGoogleComContexto(context) {
+                        iniciarLoginGoogle {
                             navController.navigate(NavRoutes.Home.route) {
                                 popUpTo(NavRoutes.Login.route) { inclusive = true }
                             }
