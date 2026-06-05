@@ -2,4 +2,7 @@
 <full-backup-content>
     <!-- Não exporta o banco local automaticamente. O histórico deve ser restaurado por sincronização controlada com a API, não por backup bruto do SQLite. -->
     <exclude domain="database" path="concurseiro.db" />
+    <!-- Tokens e limite de visitante não devem ser restaurados entre instalações/dispositivos. -->
+    <exclude domain="sharedpref" path="auth_tokens.xml" />
+    <exclude domain="sharedpref" path="guest_usage.xml" />
 </full-backup-content>

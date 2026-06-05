@@ -3,10 +3,16 @@
     <cloud-backup>
         <!-- Evita exportação automática do banco SQLite para nuvem -->
         <exclude domain="database" path="concurseiro.db" />
+        <!-- Evita backup de sessão autenticada e estado local de visitante -->
+        <exclude domain="sharedpref" path="auth_tokens.xml" />
+        <exclude domain="sharedpref" path="guest_usage.xml" />
     </cloud-backup>
 
     <device-transfer>
         <!-- Evita transferência automática do banco entre dispositivos -->
         <exclude domain="database" path="concurseiro.db" />
+        <!-- Evita transferência de sessão autenticada e estado local de visitante -->
+        <exclude domain="sharedpref" path="auth_tokens.xml" />
+        <exclude domain="sharedpref" path="guest_usage.xml" />
     </device-transfer>
 </data-extraction-rules>
