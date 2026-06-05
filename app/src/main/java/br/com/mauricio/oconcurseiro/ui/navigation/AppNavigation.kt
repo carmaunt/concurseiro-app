@@ -33,11 +33,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import br.com.mauricio.oconcurseiro.data.auth.GoogleAuthConfig
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-
-private const val WEB_CLIENT_ID =
-    "389724825283-44h5hhvdp7ion9ul7srmllej47p0llg8.apps.googleusercontent.com"
 
 @Composable
 fun AppNavigation() {
@@ -51,7 +49,7 @@ fun AppNavigation() {
     var onGoogleLoginSuccess by remember { mutableStateOf<(() -> Unit)?>(null) }
     val googleSignInClient = remember(context) {
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(WEB_CLIENT_ID)
+            .requestIdToken(GoogleAuthConfig.WEB_CLIENT_ID)
             .requestEmail()
             .build()
 

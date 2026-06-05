@@ -12,9 +12,6 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
-private const val WEB_CLIENT_ID =
-    "389724825283-44h5hhvdp7ion9ul7srmllej47p0llg8.apps.googleusercontent.com"
-
 class GoogleLoginCanceladoException : Exception()
 
 class GoogleLoginException(message: String, cause: Throwable? = null) : Exception(message, cause)
@@ -28,7 +25,7 @@ suspend fun obterIdTokenGoogle(context: Context): String {
             context = context,
             request = GetCredentialRequest.Builder()
                 .addCredentialOption(
-                    GetSignInWithGoogleOption.Builder(WEB_CLIENT_ID).build()
+                    GetSignInWithGoogleOption.Builder(GoogleAuthConfig.WEB_CLIENT_ID).build()
                 )
                 .build()
         )
@@ -39,7 +36,7 @@ suspend fun obterIdTokenGoogle(context: Context): String {
             request = GetCredentialRequest.Builder()
                 .addCredentialOption(
                     GetGoogleIdOption.Builder()
-                        .setServerClientId(WEB_CLIENT_ID)
+                        .setServerClientId(GoogleAuthConfig.WEB_CLIENT_ID)
                         .setFilterByAuthorizedAccounts(false)
                         .setAutoSelectEnabled(false)
                         .build()
