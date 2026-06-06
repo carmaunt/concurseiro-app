@@ -3,6 +3,7 @@ package br.com.mauricio.oconcurseiro.ui.screens.questao
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -342,12 +344,158 @@ fun MarkdownCompatText(
     color: Color,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = parseMarkdownCompat(text),
-        style = style,
-        color = color,
-        modifier = modifier
-    )
+    val blocks = remember(text) { parseMarkdownBlocks(text) }
+
+    Column(modifier = modifier) {
+        blocks.forEachIndexed { index, block ->
+            if (index > 0) {
+                Spacer(Modifier.height(10.dp))
+            }
+
+            when (block) {
+                is MarkdownBlock.Paragraph -> {
+                    Text(
+                        text = parseMarkdownCompat(block.text),
+                        style = style,
+                        color = color
+                    )
+                }
+
+                is MarkdownBlock.Table -> {
+                    MarkdownTable(
+                        table = block,
+                        textStyle = style,
+                        color = color
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MarkdownTable(
+    table: MarkdownBlock.Table,
+    textStyle: androidx.compose.ui.text.TextStyle,
+    color: Color
+) {
+    val scrollState = rememberScrollState()
+    val cellPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+    val columnWidths = remember(table.rows) {
+        val columnCount = table.rows.maxOfOrNull { it.size } ?: 0
+        List(columnCount) { columnIndex ->
+            val maxLength = table.rows.maxOfOrNull { row ->
+                row.getOrNull(columnIndex)?.length ?: 0
+            } ?: 0
+
+            when {
+                maxLength <= 2 -> 48.dp
+                maxLength <= 8 -> 80.dp
+                else -> 136.dp
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .horizontalScroll(scrollState)
+            .border(1.dp, BorderDefault, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+    ) {
+        table.rows.forEachIndexed { rowIndex, row ->
+            Row {
+                row.forEachIndexed { columnIndex, cell ->
+                    Box(
+                        modifier = Modifier
+                            .width(columnWidths[columnIndex])
+                            .border(BorderStroke(0.5.dp, BorderDefault))
+                            .background(if (rowIndex == 0) SurfaceCard else Color.Transparent)
+                            .padding(cellPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = parseMarkdownCompat(cell),
+                            style = textStyle,
+                            color = color,
+                            fontWeight = if (rowIndex == 0) FontWeight.SemiBold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private sealed interface MarkdownBlock {
+    data class Paragraph(val text: String) : MarkdownBlock
+    data class Table(val rows: List<List<String>>) : MarkdownBlock
+}
+
+private fun parseMarkdownBlocks(input: String): List<MarkdownBlock> {
+    val lines = input.lines()
+    val blocks = mutableListOf<MarkdownBlock>()
+    val paragraph = mutableListOf<String>()
+    var index = 0
+
+    fun flushParagraph() {
+        val text = paragraph.joinToString("\n").trim()
+        if (text.isNotBlank()) {
+            blocks += MarkdownBlock.Paragraph(text)
+        }
+        paragraph.clear()
+    }
+
+    while (index < lines.size) {
+        val line = lines[index]
+
+        if (isMarkdownTableStart(lines, index)) {
+            flushParagraph()
+
+            val rows = mutableListOf<List<String>>()
+            rows += parseMarkdownTableRow(lines[index])
+            index += 2
+
+            while (index < lines.size && isMarkdownTableRow(lines[index])) {
+                rows += parseMarkdownTableRow(lines[index])
+                index++
+            }
+
+            blocks += MarkdownBlock.Table(rows)
+            continue
+        }
+
+        paragraph += line
+        index++
+    }
+
+    flushParagraph()
+    return blocks
+}
+
+private fun isMarkdownTableStart(lines: List<String>, index: Int): Boolean {
+    return index + 1 < lines.size &&
+        isMarkdownTableRow(lines[index]) &&
+        isMarkdownTableSeparator(lines[index + 1])
+}
+
+private fun isMarkdownTableRow(line: String): Boolean {
+    val trimmed = line.trim()
+    return trimmed.startsWith("|") && trimmed.endsWith("|") && trimmed.count { it == '|' } >= 2
+}
+
+private fun isMarkdownTableSeparator(line: String): Boolean {
+    val cells = parseMarkdownTableRow(line)
+    return cells.isNotEmpty() && cells.all { cell ->
+        cell.isNotBlank() && cell.all { it == '-' || it == ':' || it.isWhitespace() }
+    }
+}
+
+private fun parseMarkdownTableRow(line: String): List<String> {
+    return line.trim()
+        .removePrefix("|")
+        .removeSuffix("|")
+        .split("|")
+        .map { it.trim() }
 }
 
 private fun parseMarkdownCompat(input: String): AnnotatedString {
