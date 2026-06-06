@@ -14,10 +14,10 @@ import br.com.mauricio.oconcurseiro.domain.model.Questao
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.AnswerOption
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.AnswerState
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.OConcurseiroButton
-import br.com.mauricio.oconcurseiro.ui.theme.BorderDefault
-import br.com.mauricio.oconcurseiro.ui.theme.SurfaceChip
 import br.com.mauricio.oconcurseiro.ui.theme.TextPrimary
 import br.com.mauricio.oconcurseiro.ui.theme.TextSecondary
+import br.com.mauricio.oconcurseiro.ui.theme.WarningBar
+import br.com.mauricio.oconcurseiro.ui.theme.WarningBg
 
 @Composable
 fun QuestaoAlternativas(
@@ -91,25 +91,35 @@ fun QuestaoAlternativas(
 
 @Composable
 private fun QuestaoAnuladaAviso() {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(SurfaceChip, RoundedCornerShape(12.dp))
-            .border(1.dp, BorderDefault, RoundedCornerShape(12.dp))
-            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .height(IntrinsicSize.Min)
+            .background(WarningBg, RoundedCornerShape(12.dp))
+            .border(1.dp, WarningBar.copy(alpha = 0.55f), RoundedCornerShape(12.dp))
     ) {
-        Text(
-            text = "Questão anulada",
-            style = MaterialTheme.typography.labelLarge,
-            color = TextPrimary,
-            fontWeight = FontWeight.SemiBold
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(5.dp)
+                .background(WarningBar)
         )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = "Este item está disponível somente para consulta.",
-            style = MaterialTheme.typography.bodySmall,
-            color = TextSecondary
-        )
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)
+        ) {
+            Text(
+                text = "Questão anulada",
+                style = MaterialTheme.typography.labelLarge,
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "Este item foi anulado pela banca e está disponível somente para consulta.",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+        }
     }
 
     Spacer(Modifier.height(12.dp))

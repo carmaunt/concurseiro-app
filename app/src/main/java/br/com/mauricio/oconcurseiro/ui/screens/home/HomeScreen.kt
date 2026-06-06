@@ -162,16 +162,38 @@ private fun HomeHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = if (usuarioAutenticado) "Olá, $nomeUsuario!" else "Olá, Concurseiro!",
-                color = TextOnBrand,
-                style = MaterialTheme.typography.headlineLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 12.dp)
-            )
+            ) {
+                if (usuarioAutenticado) {
+                    Text(
+                        text = "Olá,",
+                        color = TextOnBrand.copy(alpha = 0.82f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = nomeUsuario,
+                        color = TextOnBrand,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 28.sp
+                    )
+                } else {
+                    Text(
+                        text = "Olá, Concurseiro!",
+                        color = TextOnBrand,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
 
             Surface(
                 shape = RoundedCornerShape(12.dp),
