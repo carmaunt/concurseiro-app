@@ -61,6 +61,7 @@ class ComentariosViewModel @Inject constructor(
         }
         isLoading = true
         erro = null
+        erroEnvio = null
 
         viewModelScope.launch {
             try {
@@ -106,6 +107,7 @@ class ComentariosViewModel @Inject constructor(
                     texto = texto
                 )
                 comentarios = listOf(novo) + comentarios
+                erroEnvio = null
                 onSucesso()
             } catch (e: Exception) {
                 erroEnvio = mapErrorMessage(e)

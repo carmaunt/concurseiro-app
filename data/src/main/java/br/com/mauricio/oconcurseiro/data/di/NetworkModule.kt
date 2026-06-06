@@ -116,10 +116,16 @@ private class TokenRefreshAuthenticator(
             }
 
             val refreshToken = tokenStorage.refreshToken
-                ?: return@synchronized null
+            if (refreshToken.isNullOrBlank()) {
+                tokenStorage.limpar()
+                return@synchronized null
+            }
 
             val refreshResponse = refreshAccessToken(refreshToken)
-                ?: return@synchronized null
+            if (refreshResponse == null) {
+                tokenStorage.limpar()
+                return@synchronized null
+            }
 
             tokenStorage.salvarTokens(
                 accessToken = refreshResponse.accessToken,

@@ -37,6 +37,7 @@ fun ComentariosScreen(
     usuarioAutenticado: Boolean,
     nomeUsuario: String = "Usuário",
     onLoginRequired: () -> Unit,
+    onSessionExpired: () -> Unit,
     onBack: () -> Unit
 ) {
     LaunchedEffect(questaoId, usuarioAutenticado) {
@@ -46,6 +47,15 @@ fun ComentariosScreen(
     }
 
     var textoComentario by remember { mutableStateOf("") }
+
+    LaunchedEffect(viewModel.erro, viewModel.erroEnvio) {
+        val mensagemExpirada = "Sessão expirada"
+        if (viewModel.erro?.contains(mensagemExpirada) == true ||
+            viewModel.erroEnvio?.contains(mensagemExpirada) == true
+        ) {
+            onSessionExpired()
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(SurfaceBackground)) {
 

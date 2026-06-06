@@ -49,6 +49,10 @@ class AuthViewModel @Inject constructor(
 
     fun estaAutenticado(): Boolean = usuarioAutenticado
 
+    fun sincronizarAutenticacao() {
+        usuarioAutenticado = repository.estaAutenticado()
+    }
+
     fun abrirDialogLimite(origemComentarios: Boolean = false) {
         loginDialogOrigemComentarios = origemComentarios
         mostrarLimiteDialog = true

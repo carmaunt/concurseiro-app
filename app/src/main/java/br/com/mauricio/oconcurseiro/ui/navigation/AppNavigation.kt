@@ -258,6 +258,10 @@ fun AppNavigation() {
                     usuarioAutenticado = authViewModel.usuarioAutenticado,
                     nomeUsuario = authViewModel.nomeUsuario,
                     onLoginRequired = { authViewModel.abrirDialogLimite(origemComentarios = true) },
+                    onSessionExpired = {
+                        authViewModel.sincronizarAutenticacao()
+                        authViewModel.abrirDialogLimite(origemComentarios = true)
+                    },
                     onBack = { navController.popBackStack() }
                 )
             }
