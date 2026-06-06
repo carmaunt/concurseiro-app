@@ -18,7 +18,7 @@ val localProperties = Properties().apply {
 
 android {
     namespace = "br.com.mauricio.oconcurseiro"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "br.com.mauricio.oconcurseiro"
