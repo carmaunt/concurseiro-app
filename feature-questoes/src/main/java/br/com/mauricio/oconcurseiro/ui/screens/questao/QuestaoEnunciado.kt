@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import br.com.mauricio.oconcurseiro.domain.model.Questao
 import br.com.mauricio.oconcurseiro.ui.theme.*
@@ -180,6 +181,7 @@ private fun BlocoCodigoTextoApoio(titulo: String?, conteudo: String) {
 @Composable
 private fun TabelaTextoApoio(titulo: String?, tabela: TextoApoioTabela) {
     val horizontalScroll = rememberScrollState()
+    val largurasColunas = remember(tabela) { calcularLargurasColunas(tabela) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TituloTextoApoio(titulo)
@@ -188,24 +190,31 @@ private fun TabelaTextoApoio(titulo: String?, tabela: TextoApoioTabela) {
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(horizontalScroll)
-                .border(1.dp, BorderDefault, RoundedCornerShape(12.dp))
         ) {
-            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                Row(modifier = Modifier.background(SurfaceChip)) {
-                    tabela.colunas.forEach { coluna ->
+            Column(
+                modifier = Modifier.border(1.dp, BorderDefault, RoundedCornerShape(12.dp))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(IntrinsicSize.Min)
+                        .background(SurfaceChip)
+                ) {
+                    tabela.colunas.forEachIndexed { index, coluna ->
                         CelulaTabelaTextoApoio(
                             texto = coluna,
-                            destaque = true
+                            destaque = true,
+                            largura = largurasColunas[index]
                         )
                     }
                 }
 
                 tabela.linhas.forEach { linha ->
-                    Row {
+                    Row(modifier = Modifier.height(IntrinsicSize.Min)) {
                         tabela.colunas.forEachIndexed { index, _ ->
                             CelulaTabelaTextoApoio(
                                 texto = linha.getOrNull(index).orEmpty(),
-                                destaque = false
+                                destaque = false,
+                                largura = largurasColunas[index]
                             )
                         }
                     }
@@ -228,15 +237,26 @@ private fun TituloTextoApoio(titulo: String?) {
     }
 }
 
+private fun calcularLargurasColunas(tabela: TextoApoioTabela): List<Dp> {
+    return tabela.colunas.mapIndexed { index, coluna ->
+        val maiorTexto = sequenceOf(coluna)
+            .plus(tabela.linhas.asSequence().map { linha -> linha.getOrNull(index).orEmpty() })
+            .maxOf { it.length }
+
+        (maiorTexto * 9).dp.coerceIn(112.dp, 260.dp)
+    }
+}
+
 @Composable
-private fun CelulaTabelaTextoApoio(texto: String, destaque: Boolean) {
+private fun CelulaTabelaTextoApoio(texto: String, destaque: Boolean, largura: Dp) {
     Text(
         text = texto,
         style = MaterialTheme.typography.bodyMedium,
         fontWeight = if (destaque) FontWeight.Bold else FontWeight.Normal,
         color = TextPrimary,
         modifier = Modifier
-            .widthIn(min = 128.dp)
+            .width(largura)
+            .fillMaxHeight()
             .border(0.5.dp, BorderDefault)
             .padding(horizontal = 10.dp, vertical = 8.dp)
     )
