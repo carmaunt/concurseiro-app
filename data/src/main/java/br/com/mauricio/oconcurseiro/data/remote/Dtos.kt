@@ -46,6 +46,8 @@ data class QuestaoDto(
     val textoApoioId: Long? = null,
     val textoApoioTitulo: String? = null,
     val textoApoioConteudo: String? = null,
+    val textoApoioTipo: String? = null,
+    val textoApoioJson: String? = null,
     val disciplina: String,
     val disciplinaId: Long?,
     val assunto: String,

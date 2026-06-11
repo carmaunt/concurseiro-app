@@ -39,7 +39,9 @@ object QuestaoMapper {
             alternativas = alternativas,
             textoApoioId = dto.textoApoioId,
             textoApoioTitulo = dto.textoApoioTitulo,
-            textoApoioConteudo = dto.textoApoioConteudo
+            textoApoioConteudo = dto.textoApoioConteudo,
+            textoApoioTipo = dto.textoApoioTipo,
+            textoApoioJson = dto.textoApoioJson
         )
     }
 
