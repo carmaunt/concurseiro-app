@@ -30,7 +30,12 @@ data class Questao(
     val textoAssociado: String
         get() = listOfNotNull(
             textoApoioConteudo?.takeIf { it.isNotBlank() },
-            textoApoioJson?.takeIf { textoApoioTipo.equals("TABELA", ignoreCase = true) && it.isNotBlank() },
+            textoApoioJson?.takeIf {
+                (
+                    textoApoioTipo.equals("TABELA", ignoreCase = true) ||
+                        textoApoioTipo.equals("IMAGEM", ignoreCase = true)
+                    ) && it.isNotBlank()
+            },
             enunciado.takeIf { it.isNotBlank() }
         ).joinToString(separator = "\n\n")
 }
