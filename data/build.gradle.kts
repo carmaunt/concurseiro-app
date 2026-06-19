@@ -4,13 +4,16 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+val debugApiBaseUrl = providers.gradleProperty("CONCURSEIRO_BASE_URL")
+    .orElse("https://concurseiro-api-lnae.onrender.com/")
+
 android {
     namespace = "br.com.mauricio.oconcurseiro.data"
     compileSdk = 36
     defaultConfig { minSdk = 24 }
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"https://concurseiro-api-lnae.onrender.com/\"")
+            buildConfigField("String", "BASE_URL", "\"${debugApiBaseUrl.get()}\"")
         }
         release {
             buildConfigField("String", "BASE_URL", "\"https://concurseiro-api-lnae.onrender.com/\"")

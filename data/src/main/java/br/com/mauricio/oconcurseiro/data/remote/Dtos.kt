@@ -7,6 +7,28 @@ data class ApiResponse<T>(
     val path: String? = null
 )
 
+data class AnalyticsEventRequestDto(
+    val eventName: String,
+    val deviceId: String,
+    val sessionId: String,
+    val screenName: String? = null,
+    val filterName: String? = null,
+    val questionId: String? = null,
+    val answerCorrect: Boolean? = null,
+    val disciplinaId: Long? = null,
+    val assuntoId: Long? = null,
+    val subassuntoId: Long? = null,
+    val interactionDurationMs: Long? = null,
+    val appVersion: String,
+    val platform: String = "android",
+    val metadata: Map<String, Any> = emptyMap()
+)
+
+data class AnalyticsEventResponseDto(
+    val id: Long?,
+    val receivedAt: String
+)
+
 data class PageResponse<T>(
     val content: List<T>,
     val number: Int = 0,

@@ -9,21 +9,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import br.com.mauricio.oconcurseiro.ui.navigation.AppNavigation
 import br.com.mauricio.oconcurseiro.ui.theme.OConcurseiroTheme
+import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
 
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var analyticsTracker: AnalyticsTracker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        analyticsTracker.appOpened()
 
         setContent {
             OConcurseiroTheme {
-                AppNavigation()
+                AppNavigation(analyticsTracker)
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        analyticsTracker.startSession()
+    }
+
+    override fun onStop() {
+        analyticsTracker.stopSession()
+        super.onStop()
     }
 }
 

@@ -33,18 +33,27 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(analyticsTracker: AnalyticsTracker? = null) {
     val authViewModel: AuthViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
     val questaoViewModel: QuestaoViewModel = hiltViewModel()
     val comentariosViewModel: ComentariosViewModel = hiltViewModel()
     val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var aoConcluirLoginGoogle by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    LaunchedEffect(currentBackStackEntry?.destination?.route) {
+        currentBackStackEntry?.destination?.route
+            ?.substringBefore('/')
+            ?.let { analyticsTracker?.screenViewed(it) }
+    }
     val googleLoginLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -239,6 +248,7 @@ fun AppNavigation() {
                         if (!authViewModel.usuarioAutenticado && !authViewModel.podeResolverSemLogin()) {
                             authViewModel.abrirDialogLimite()
                         } else {
+                            analyticsTracker?.filtersApplied(novoFiltro)
                             questaoViewModel.aplicarFiltro(novoFiltro)
                             navController.navigate(NavRoutes.Questao.route) {
                                 popUpTo(NavRoutes.Filtro.route) { inclusive = true }

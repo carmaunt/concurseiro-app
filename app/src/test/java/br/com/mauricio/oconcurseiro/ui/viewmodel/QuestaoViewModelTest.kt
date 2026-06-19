@@ -1,6 +1,7 @@
 package br.com.mauricio.oconcurseiro.ui.viewmodel
 
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
 import br.com.mauricio.oconcurseiro.domain.model.Alternativa
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.CatalogosQuestoes
@@ -47,6 +48,7 @@ class QuestaoViewModelTest {
     private lateinit var salvarRespostaQuestaoUseCase: SalvarRespostaQuestaoUseCase
     private lateinit var buscarRespostaAnteriorUseCase: BuscarRespostaAnteriorUseCase
     private lateinit var authRepository: AuthRepository
+    private lateinit var analyticsTracker: AnalyticsTracker
     private lateinit var viewModel: QuestaoViewModel
 
     private val questao = Questao(
@@ -112,6 +114,7 @@ class QuestaoViewModelTest {
         salvarRespostaQuestaoUseCase = mockk()
         buscarRespostaAnteriorUseCase = mockk()
         authRepository = mockk()
+        analyticsTracker = mockk(relaxed = true)
 
         every { authRepository.estaAutenticado() } returns false
         every { authRepository.usuarioIdOuGuest() } returns "guest-id"
@@ -129,7 +132,8 @@ class QuestaoViewModelTest {
             listarSubAssuntosUseCase = listarSubAssuntosUseCase,
             salvarRespostaQuestaoUseCase = salvarRespostaQuestaoUseCase,
             buscarRespostaAnteriorUseCase = buscarRespostaAnteriorUseCase,
-            authRepository = authRepository
+            authRepository = authRepository,
+            analyticsTracker = analyticsTracker
         )
     }
 

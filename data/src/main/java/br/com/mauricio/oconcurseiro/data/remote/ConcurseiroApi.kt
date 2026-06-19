@@ -8,6 +8,11 @@ import retrofit2.http.Query
 
 interface ConcurseiroApi {
 
+    @POST("/api/v1/analytics/events")
+    suspend fun registrarEventoAnalytics(
+        @Body request: AnalyticsEventRequestDto
+    ): ApiResponse<AnalyticsEventResponseDto>
+
     @GET("/api/v1/questoes")
     suspend fun listarQuestoes(
         @Query("page") page: Int = 0,

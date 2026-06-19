@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
+import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.model.RespostaQuestao
@@ -38,7 +39,8 @@ class QuestaoViewModel @Inject constructor(
     private val listarSubAssuntosUseCase: ListarSubAssuntosUseCase,
     private val salvarRespostaQuestaoUseCase: SalvarRespostaQuestaoUseCase,
     private val buscarRespostaAnteriorUseCase: BuscarRespostaAnteriorUseCase,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val analyticsTracker: AnalyticsTracker
 ) : ViewModel() {
 
     var uiState by mutableStateOf(QuestaoUiState())
@@ -115,6 +117,7 @@ class QuestaoViewModel @Inject constructor(
                 )
 
                 if (q != null) {
+                    analyticsTracker.questionViewed(q)
                     verificarRespostaAnterior(q.id)
                 }
 
@@ -165,6 +168,9 @@ class QuestaoViewModel @Inject constructor(
         acertou: Boolean
     ) {
         respondidasNaSessao.add(questaoId)
+        uiState.questao
+            ?.takeIf { it.id == questaoId }
+            ?.let { analyticsTracker.questionAnswered(it, acertou) }
 
         viewModelScope.launch {
             try {
