@@ -78,6 +78,11 @@ interface ConcurseiroApi {
         @Path("id") id: Long
     ): ApiResponse<ComentarioResponseDto>
 
+    @POST("/api/v1/analytics/events")
+    suspend fun registrarAnalyticsEvent(
+        @Body request: AnalyticsEventRequestDto
+    ): ApiResponse<AnalyticsEventResponseDto>
+
     @POST("/api/v1/auth/firebase")
     suspend fun loginComFirebase(
         @Body request: GoogleLoginRequestDto
