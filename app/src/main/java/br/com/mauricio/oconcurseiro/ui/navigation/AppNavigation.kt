@@ -203,6 +203,7 @@ fun AppNavigation() {
             composable(NavRoutes.Questao.route) {
                 QuestaoScreen(
                     viewModel = questaoViewModel,
+                    usuarioAutenticado = authViewModel.usuarioAutenticado,
                     onOpenFiltro = { navController.navigate(NavRoutes.Filtro.route) },
                     onBack = {
                         homeViewModel.atualizarDesempenho()

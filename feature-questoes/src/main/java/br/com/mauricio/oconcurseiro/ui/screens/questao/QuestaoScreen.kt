@@ -18,6 +18,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.CoPresent
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,6 +42,7 @@ import br.com.mauricio.oconcurseiro.ui.viewmodel.RespostaAnterior
 @Composable
 fun QuestaoScreen(
     viewModel: QuestaoViewModel,
+    usuarioAutenticado: Boolean,
     onOpenFiltro: () -> Unit,
     onBack: (() -> Unit)? = null,
     onAbrirComentarios: ((questaoId: String) -> Unit)? = null,
@@ -102,6 +106,7 @@ fun QuestaoScreen(
             questao != null -> {
                 QuestaoContent(
                     questao = questao,
+                    usuarioAutenticado = usuarioAutenticado,
                     respostaAnterior = uiState.respostaAnterior,
                     numeroAtual = uiState.numeroAtual,
                     totalQuestoes = uiState.totalQuestoes,
@@ -132,8 +137,17 @@ fun QuestaoScreen(
 fun TopoResumoQuestao(
     questaoNumero: Int,
     questoesTotal: Int,
-    onAbrirComentarios: () -> Unit = {}
+    explicacaoDisponivel: Boolean = false,
+    explicacaoDesbloqueada: Boolean = false,
+    usuarioAutenticado: Boolean = false,
+    onAbrirComentarios: () -> Unit = {},
+    onAbrirExplicacao: () -> Unit = {}
 ) {
+    val podeAbrirExplicacao = podeAtivarExplicacao(
+        resolveuAgora = explicacaoDesbloqueada,
+        usuarioAutenticado = usuarioAutenticado
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,17 +184,45 @@ fun TopoResumoQuestao(
             modifier = Modifier
                 .size(36.dp)
                 .clip(RoundedCornerShape(10.dp))
+                .background(if (podeAbrirExplicacao) BrandPrimaryBackground else SurfaceCard)
+                .clickable(enabled = podeAbrirExplicacao) { onAbrirExplicacao() },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.CoPresent,
+                contentDescription = when {
+                    podeAbrirExplicacao -> "Abrir explicação do professor"
+                    !usuarioAutenticado -> "Faça login para acessar a explicação"
+                    else -> "Explicação disponível após responder"
+                },
+                tint = if (podeAbrirExplicacao) BrandPrimary else TextPlaceholder,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(10.dp))
                 .background(SurfaceCard)
                 .clickable { onAbrirComentarios() },
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "💬",
-                fontSize = 18.sp
+            Icon(
+                imageVector = Icons.Outlined.ChatBubbleOutline,
+                contentDescription = "Abrir comentários",
+                tint = TextSecondary,
+                modifier = Modifier.size(22.dp)
             )
         }
     }
 }
+
+internal fun podeAtivarExplicacao(
+    resolveuAgora: Boolean,
+    usuarioAutenticado: Boolean
+): Boolean = resolveuAgora && usuarioAutenticado
 
 @Composable
 fun CorpoQuestao(
@@ -188,7 +230,8 @@ fun CorpoQuestao(
     respostaAnterior: RespostaAnterior? = null,
     onPodeResolverQuestao: (questaoId: String) -> Boolean = { true },
     onResolver: (respostaSelecionada: String, acertou: Boolean) -> Unit = { _, _ -> },
-    onResolvidaComSucesso: () -> Unit = {}
+    onResolvidaComSucesso: () -> Unit = {},
+    onTentouResolver: () -> Unit = {}
 ) {
     var bannerVisivel by remember(questao.id) { mutableStateOf(true) }
 
@@ -214,7 +257,8 @@ fun CorpoQuestao(
             questao = questao,
             onPodeResponder = { onPodeResolverQuestao(questao.id) },
             onResponder = onResolver,
-            onResolvida = onResolvidaComSucesso
+            onResolvida = onResolvidaComSucesso,
+            onTentouResolver = onTentouResolver
         )
 
         Spacer(Modifier.height(12.dp))

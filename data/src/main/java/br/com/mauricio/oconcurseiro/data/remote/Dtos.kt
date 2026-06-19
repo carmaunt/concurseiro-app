@@ -43,6 +43,7 @@ data class QuestaoDto(
     val enunciado: String,
     val questao: String,
     val alternativas: String,
+    val explicacao: String? = null,
     val textoApoioId: Long? = null,
     val textoApoioTitulo: String? = null,
     val textoApoioConteudo: String? = null,

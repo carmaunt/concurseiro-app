@@ -149,7 +149,9 @@ class QuestaoViewModel @Inject constructor(
                 )
             }
 
-            uiState = uiState.copy(respostaAnterior = respostaAnterior)
+            if (uiState.questao?.id == questaoId) {
+                uiState = uiState.copy(respostaAnterior = respostaAnterior)
+            }
 
         } catch (_: Exception) {
         }

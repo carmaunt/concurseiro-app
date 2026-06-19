@@ -31,6 +31,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.foundation)
 
     implementation(libs.hilt.android)
@@ -44,4 +45,6 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    testImplementation(libs.junit)
 }

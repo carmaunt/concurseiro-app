@@ -24,7 +24,8 @@ fun QuestaoAlternativas(
     questao: Questao,
     onResponder: (respostaSelecionada: String, acertou: Boolean) -> Unit,
     onResolvida: () -> Unit,
-    onPodeResponder: () -> Boolean
+    onPodeResponder: () -> Boolean,
+    onTentouResolver: () -> Unit = {}
 ) {
     var selecionada by remember(questao.id) { mutableIntStateOf(-1) }
     var resolvida by remember(questao.id) { mutableStateOf(false) }
@@ -80,6 +81,7 @@ fun QuestaoAlternativas(
                 val letraSelecionada = alternativas[selecionada].letra
                 val acertou = letraSelecionada.equals(questao.gabarito, ignoreCase = true)
                 resolvida = true
+                onTentouResolver()
                 onResponder(letraSelecionada, acertou)
                 onResolvida()
             },

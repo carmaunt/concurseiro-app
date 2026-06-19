@@ -115,6 +115,7 @@ fun QuestaoEnunciado(questao: Questao) {
 }
 
 private data class TextoApoioTabela(
+    val intro: String = "",
     val colunas: List<String> = emptyList(),
     val linhas: List<List<String>> = emptyList(),
     val rodape: String = ""
@@ -293,6 +294,15 @@ private fun TabelaTextoApoio(titulo: String?, tabela: TextoApoioTabela) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TituloTextoApoio(titulo)
 
+        if (tabela.intro.isNotBlank()) {
+            MarkdownCompatText(
+                text = tabela.intro,
+                style = MaterialTheme.typography.titleMedium,
+                color = TextPrimary
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             val largurasColunas = remember(tabela, maxWidth) {
                 calcularLargurasColunas(tabela, maxWidth)
@@ -365,13 +375,19 @@ private fun calcularLargurasColunas(
 ): List<Dp> {
     if (tabela.colunas.isEmpty()) return emptyList()
 
-    val larguraMinima = 56.dp
+    val tabelaDensa = tabela.colunas.size >= 6
+    val larguraMinima = if (tabelaDensa) 44.dp else 56.dp
+    val larguraMaxima = if (tabelaDensa) 120.dp else 180.dp
+    val larguraPorCaractere = if (tabelaDensa) 5 else 7
+    val paddingHorizontalTotal = if (tabelaDensa) 10 else 16
+
     val largurasDesejadas = tabela.colunas.mapIndexed { index, coluna ->
         val maiorTexto = sequenceOf(coluna)
             .plus(tabela.linhas.asSequence().map { linha -> linha.getOrNull(index).orEmpty() })
             .maxOf { it.length }
 
-        (maiorTexto * 7 + 16).dp.coerceIn(larguraMinima, 180.dp)
+        (maiorTexto * larguraPorCaractere + paddingHorizontalTotal).dp
+            .coerceIn(larguraMinima, larguraMaxima)
     }
     val totalDesejado = largurasDesejadas.fold(0.dp, Dp::plus)
 
@@ -405,7 +421,7 @@ private fun CelulaTabelaTextoApoio(texto: String, destaque: Boolean, largura: Dp
             .width(largura)
             .fillMaxHeight()
             .border(0.5.dp, BorderDefault)
-            .padding(horizontal = 6.dp, vertical = 6.dp)
+            .padding(horizontal = 4.dp, vertical = 6.dp)
     )
 }
 
@@ -415,6 +431,7 @@ private fun parseTabelaTextoApoio(json: String?): TextoApoioTabela? {
     return runCatching {
         val root = JSONObject(json)
         TextoApoioTabela(
+            intro = root.optString("intro").trim(),
             colunas = root.optJSONArray("colunas").toStringList(),
             linhas = root.optJSONArray("linhas").toNestedStringList(),
             rodape = root.optString("rodape")

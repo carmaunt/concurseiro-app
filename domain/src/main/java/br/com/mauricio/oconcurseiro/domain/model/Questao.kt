@@ -18,6 +18,7 @@ data class Questao(
     val questao: String,
     val gabarito: String,
     val alternativas: List<Alternativa>,
+    val explicacao: String? = null,
     val textoApoioId: Long? = null,
     val textoApoioTitulo: String? = null,
     val textoApoioConteudo: String? = null,
