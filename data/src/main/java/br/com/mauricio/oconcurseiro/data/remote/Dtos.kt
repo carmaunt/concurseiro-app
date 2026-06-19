@@ -84,3 +84,27 @@ data class ComentarioRequestDto(
     val autor: String,
     val texto: String
 )
+
+data class AnalyticsEventRequestDto(
+    val eventName: String,
+    val deviceId: String? = null,
+    val sessionId: String? = null,
+    val screenName: String? = null,
+    val filterName: String? = null,
+    val questionId: String? = null,
+    val acertou: Boolean? = null,
+    val disciplinaId: Long? = null,
+    val disciplinaNome: String? = null,
+    val assuntoId: Long? = null,
+    val assuntoNome: String? = null,
+    val subassuntoId: Long? = null,
+    val subassuntoNome: String? = null,
+    val interactionDurationSeconds: Int? = null,
+    val appVersion: String? = null,
+    val platform: String = "android",
+    val metadataJson: String? = null
+)
+
+data class AnalyticsEventResponseDto(
+    val id: Long
+)
