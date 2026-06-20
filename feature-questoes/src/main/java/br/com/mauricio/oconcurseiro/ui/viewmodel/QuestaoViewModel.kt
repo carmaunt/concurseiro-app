@@ -119,9 +119,12 @@ class QuestaoViewModel @Inject constructor(
                 if (q != null) {
                     analyticsTracker.questionViewed(q)
                     verificarRespostaAnterior(q.id)
+                } else {
+                    analyticsTracker.emptyResult("questao")
                 }
 
             } catch (e: Exception) {
+                analyticsTracker.error(e.javaClass.simpleName, "questao")
                 uiState = uiState.copy(
                     erro = mapErrorMessage(e),
                     questao = null

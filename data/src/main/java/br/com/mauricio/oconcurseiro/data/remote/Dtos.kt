@@ -9,7 +9,8 @@ data class ApiResponse<T>(
 
 data class AnalyticsEventRequestDto(
     val eventName: String,
-    val deviceId: String,
+    val anonymousId: String,
+    val deviceId: String? = null,
     val sessionId: String,
     val screenName: String? = null,
     val filterName: String? = null,
@@ -21,6 +22,11 @@ data class AnalyticsEventRequestDto(
     val interactionDurationMs: Long? = null,
     val appVersion: String,
     val platform: String = "android",
+    val osVersion: String,
+    val eventSchemaVersion: Int = 1,
+    val bancaId: Long? = null,
+    val instituicaoId: Long? = null,
+    val provaId: Long? = null,
     val metadata: Map<String, Any> = emptyMap()
 )
 
