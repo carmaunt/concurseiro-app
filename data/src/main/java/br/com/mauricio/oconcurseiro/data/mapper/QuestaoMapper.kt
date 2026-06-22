@@ -38,6 +38,8 @@ object QuestaoMapper {
             gabarito = dto.gabarito,
             alternativas = alternativas,
             explicacao = dto.explicacao,
+            questaoImagemConteudo = dto.questaoImagemConteudo,
+            questaoImagemJson = dto.questaoImagemJson,
             textoApoioId = dto.textoApoioId,
             textoApoioTitulo = dto.textoApoioTitulo,
             textoApoioConteudo = dto.textoApoioConteudo,
