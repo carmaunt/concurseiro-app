@@ -19,6 +19,8 @@ data class Questao(
     val gabarito: String,
     val alternativas: List<Alternativa>,
     val explicacao: String? = null,
+    val questaoImagemConteudo: String? = null,
+    val questaoImagemJson: String? = null,
     val textoApoioId: Long? = null,
     val textoApoioTitulo: String? = null,
     val textoApoioConteudo: String? = null,
