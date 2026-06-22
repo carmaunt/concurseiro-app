@@ -110,6 +110,16 @@ fun QuestaoEnunciado(questao: Questao) {
             )
         }
 
+        if (!questao.questaoImagemJson.isNullOrBlank()) {
+            Spacer(Modifier.height(14.dp))
+            TextoApoioRenderer(
+                titulo = null,
+                conteudo = questao.questaoImagemConteudo,
+                tipo = "IMAGEM",
+                conteudoJson = questao.questaoImagemJson
+            )
+        }
+
         Spacer(Modifier.height(20.dp))
     }
 }
