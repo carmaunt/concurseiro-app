@@ -72,6 +72,8 @@ data class QuestaoDto(
     val questao: String,
     val alternativas: String,
     val explicacao: String? = null,
+    val questaoImagemConteudo: String? = null,
+    val questaoImagemJson: String? = null,
     val textoApoioId: Long? = null,
     val textoApoioTitulo: String? = null,
     val textoApoioConteudo: String? = null,
