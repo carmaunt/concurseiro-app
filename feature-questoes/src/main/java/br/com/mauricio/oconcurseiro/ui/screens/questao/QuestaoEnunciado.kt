@@ -35,27 +35,20 @@ import org.json.JSONObject
 
 @Composable
 fun QuestaoEnunciado(questao: Questao) {
-
     val textoAssociado = questao.textoAssociado
     var textoAssociadoAberto by remember(questao.id, textoAssociado) { mutableStateOf(false) }
 
     Column {
-
         Text(
-            text = "Ano: ${questao.ano}  Banca: ${questao.banca}\nÓrgão: ${questao.orgao}  Cargo: ${questao.cargo}",
+            text = "Ano: " + questao.ano + "  Banca: " + questao.banca + "\nÓrgão: " + questao.orgao + "  Cargo: " + questao.cargo,
             style = MaterialTheme.typography.bodySmall,
             color = TextSecondary
         )
 
         if (textoAssociado.isNotBlank()) {
             Spacer(Modifier.height(20.dp))
-
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(SurfaceCard, RoundedCornerShape(14.dp))
-                    .clickable { textoAssociadoAberto = !textoAssociadoAberto }
-                    .padding(horizontal = 16.dp, vertical = 14.dp)
+                modifier = Modifier.fillMaxWidth().background(SurfaceCard, RoundedCornerShape(14.dp)).clickable { textoAssociadoAberto = !textoAssociadoAberto }.padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
                 Text(
                     text = questao.textoApoioTitulo?.takeIf { it.isNotBlank() } ?: "Texto associado",
@@ -63,28 +56,18 @@ fun QuestaoEnunciado(questao: Questao) {
                     color = TextPrimary,
                     modifier = Modifier.weight(1f)
                 )
-
-                Text(
-                    text = if (textoAssociadoAberto) "−" else "+",
-                    color = TextSecondary
-                )
+                Text(text = if (textoAssociadoAberto) "−" else "+", color = TextSecondary)
             }
 
-            AnimatedVisibility(
-                visible = textoAssociadoAberto,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
+            AnimatedVisibility(visible = textoAssociadoAberto, enter = expandVertically(), exit = shrinkVertically()) {
                 Column {
                     Spacer(Modifier.height(12.dp))
-
                     TextoApoioRenderer(
                         titulo = null,
                         conteudo = questao.textoApoioConteudo,
                         tipo = questao.textoApoioTipo,
                         conteudoJson = questao.textoApoioJson
                     )
-
                     if (questao.enunciado.isNotBlank()) {
                         Spacer(Modifier.height(12.dp))
                         MarkdownCompatText(
@@ -93,21 +76,15 @@ fun QuestaoEnunciado(questao: Questao) {
                             color = TextPrimary
                         )
                     }
-
                     Spacer(Modifier.height(18.dp))
                 }
             }
-
             Spacer(Modifier.height(if (textoAssociadoAberto) 0.dp else 10.dp))
         }
 
         if (questao.questao.isNotBlank()) {
             Spacer(Modifier.height(14.dp))
-            MarkdownCompatText(
-                text = questao.questao,
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextPrimary
-            )
+            MarkdownCompatText(text = questao.questao, style = MaterialTheme.typography.bodyLarge, color = TextPrimary)
         }
 
         if (!questao.questaoImagemJson.isNullOrBlank()) {
@@ -116,7 +93,8 @@ fun QuestaoEnunciado(questao: Questao) {
                 titulo = null,
                 conteudo = questao.questaoImagemConteudo,
                 tipo = "IMAGEM",
-                conteudoJson = questao.questaoImagemJson
+                conteudoJson = questao.questaoImagemJson,
+                maxImageWidth = 240.dp
             )
         }
 
@@ -124,64 +102,24 @@ fun QuestaoEnunciado(questao: Questao) {
     }
 }
 
-private data class TextoApoioTabela(
-    val intro: String = "",
-    val colunas: List<String> = emptyList(),
-    val linhas: List<List<String>> = emptyList(),
-    val rodape: String = ""
-)
-
-private data class TextoApoioImagem(
-    val url: String,
-    val alt: String,
-    val largura: Int?,
-    val altura: Int?
-)
+private data class TextoApoioTabela(val intro: String = "", val colunas: List<String> = emptyList(), val linhas: List<List<String>> = emptyList(), val rodape: String = "")
+private data class TextoApoioImagem(val url: String, val alt: String, val largura: Int?, val altura: Int?)
 
 @Composable
-fun TextoApoioRenderer(
-    titulo: String?,
-    conteudo: String?,
-    tipo: String?,
-    conteudoJson: String?
-) {
+fun TextoApoioRenderer(titulo: String?, conteudo: String?, tipo: String?, conteudoJson: String?, maxImageWidth: Dp? = null) {
     val tipoNormalizado = tipo?.uppercase() ?: "TEXTO"
     val textoFallback = conteudo.orEmpty()
-
     when (tipoNormalizado) {
         "TABELA" -> {
             val tabela = remember(conteudoJson) { parseTabelaTextoApoio(conteudoJson) }
-            if (tabela != null && tabela.colunas.isNotEmpty()) {
-                TabelaTextoApoio(titulo = titulo, tabela = tabela)
-            } else if (textoFallback.isNotBlank()) {
-                TextoApoioSimples(titulo = titulo, conteudo = textoFallback)
-            }
+            if (tabela != null && tabela.colunas.isNotEmpty()) TabelaTextoApoio(titulo = titulo, tabela = tabela) else if (textoFallback.isNotBlank()) TextoApoioSimples(titulo = titulo, conteudo = textoFallback)
         }
-
-        "CODIGO" -> {
-            if (textoFallback.isNotBlank()) {
-                BlocoCodigoTextoApoio(titulo = titulo, conteudo = textoFallback)
-            }
-        }
-
+        "CODIGO" -> if (textoFallback.isNotBlank()) BlocoCodigoTextoApoio(titulo = titulo, conteudo = textoFallback)
         "IMAGEM" -> {
             val imagem = remember(conteudoJson) { parseImagemTextoApoio(conteudoJson) }
-            if (imagem != null) {
-                ImagemTextoApoio(
-                    titulo = titulo,
-                    imagem = imagem,
-                    textoFallback = textoFallback
-                )
-            } else if (textoFallback.isNotBlank()) {
-                TextoApoioSimples(titulo = titulo, conteudo = textoFallback)
-            }
+            if (imagem != null) ImagemTextoApoio(titulo = titulo, imagem = imagem, textoFallback = textoFallback, maxImageWidth = maxImageWidth) else if (textoFallback.isNotBlank()) TextoApoioSimples(titulo = titulo, conteudo = textoFallback)
         }
-
-        else -> {
-            if (textoFallback.isNotBlank()) {
-                TextoApoioSimples(titulo = titulo, conteudo = textoFallback)
-            }
-        }
+        else -> if (textoFallback.isNotBlank()) TextoApoioSimples(titulo = titulo, conteudo = textoFallback)
     }
 }
 
@@ -189,11 +127,7 @@ fun TextoApoioRenderer(
 private fun TextoApoioSimples(titulo: String?, conteudo: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TituloTextoApoio(titulo)
-        MarkdownCompatText(
-            text = conteudo,
-            style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary
-        )
+        MarkdownCompatText(text = conteudo, style = MaterialTheme.typography.titleMedium, color = TextPrimary)
     }
 }
 
@@ -201,88 +135,39 @@ private fun TextoApoioSimples(titulo: String?, conteudo: String) {
 private fun BlocoCodigoTextoApoio(titulo: String?, conteudo: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TituloTextoApoio(titulo)
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = SurfaceChip,
-            border = BorderStroke(1.dp, BorderDefault),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = conteudo,
-                style = MaterialTheme.typography.bodyMedium,
-                fontFamily = FontFamily.Monospace,
-                color = TextPrimary,
-                modifier = Modifier.padding(12.dp)
-            )
+        Surface(shape = RoundedCornerShape(12.dp), color = SurfaceChip, border = BorderStroke(1.dp, BorderDefault), modifier = Modifier.fillMaxWidth()) {
+            Text(text = conteudo, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, color = TextPrimary, modifier = Modifier.padding(12.dp))
         }
     }
 }
 
 @Composable
-private fun ImagemTextoApoio(
-    titulo: String?,
-    imagem: TextoApoioImagem,
-    textoFallback: String
-) {
+private fun ImagemTextoApoio(titulo: String?, imagem: TextoApoioImagem, textoFallback: String, maxImageWidth: Dp? = null) {
     var carregando by remember(imagem.url) { mutableStateOf(true) }
     var falhou by remember(imagem.url) { mutableStateOf(false) }
     val contexto = LocalContext.current
-
     Column(modifier = Modifier.fillMaxWidth()) {
         TituloTextoApoio(titulo)
-
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             val proporcao = calcularProporcaoImagem(imagem)
-            val alturaImagem = (maxWidth / proporcao).coerceIn(120.dp, 560.dp)
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(alturaImagem)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(SurfaceChip)
-                    .border(1.dp, BorderDefault, RoundedCornerShape(8.dp))
-            ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(contexto)
-                        .data(imagem.url)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = imagem.alt.ifBlank { textoFallback },
-                    contentScale = ContentScale.Fit,
-                    onLoading = {
-                        carregando = true
-                        falhou = false
-                    },
-                    onSuccess = {
-                        carregando = false
-                        falhou = false
-                    },
-                    onError = {
-                        carregando = false
-                        falhou = true
-                    },
-                    modifier = Modifier.matchParentSize()
-                )
-
-                if (carregando) {
-                    CircularProgressIndicator(
-                        color = TextSecondary,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(28.dp)
+            val larguraImagem = maxImageWidth?.let { limite -> minOf(maxWidth, limite) } ?: maxWidth
+            val alturaImagem = (larguraImagem / proporcao).coerceIn(96.dp, 420.dp)
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.width(larguraImagem).height(alturaImagem).clip(RoundedCornerShape(8.dp)).background(SurfaceChip).border(1.dp, BorderDefault, RoundedCornerShape(8.dp))
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(contexto).data(imagem.url).crossfade(true).build(),
+                        contentDescription = imagem.alt.ifBlank { textoFallback },
+                        contentScale = ContentScale.Fit,
+                        onLoading = { carregando = true; falhou = false },
+                        onSuccess = { carregando = false; falhou = false },
+                        onError = { carregando = false; falhou = true },
+                        modifier = Modifier.matchParentSize()
                     )
-                }
-
-                if (falhou) {
-                    Text(
-                        text = imagem.alt.ifBlank {
-                            textoFallback.ifBlank { "Não foi possível carregar a imagem." }
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    if (carregando) CircularProgressIndicator(color = TextSecondary, strokeWidth = 2.dp, modifier = Modifier.size(28.dp))
+                    if (falhou) Text(text = imagem.alt.ifBlank { textoFallback.ifBlank { "Imagem indisponível." } }, style = MaterialTheme.typography.bodyMedium, color = TextSecondary, modifier = Modifier.padding(16.dp))
                 }
             }
         }
@@ -293,127 +178,65 @@ private fun calcularProporcaoImagem(imagem: TextoApoioImagem): Float {
     val largura = imagem.largura ?: return 4f / 3f
     val altura = imagem.altura ?: return 4f / 3f
     if (largura <= 0 || altura <= 0) return 4f / 3f
-
     return (largura.toFloat() / altura.toFloat()).coerceIn(0.45f, 3.5f)
 }
 
 @Composable
 private fun TabelaTextoApoio(titulo: String?, tabela: TextoApoioTabela) {
     val horizontalScroll = rememberScrollState()
-
     Column(modifier = Modifier.fillMaxWidth()) {
         TituloTextoApoio(titulo)
-
         if (tabela.intro.isNotBlank()) {
-            MarkdownCompatText(
-                text = tabela.intro,
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
-            )
+            MarkdownCompatText(text = tabela.intro, style = MaterialTheme.typography.titleMedium, color = TextPrimary)
             Spacer(Modifier.height(12.dp))
         }
-
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            val largurasColunas = remember(tabela, maxWidth) {
-                calcularLargurasColunas(tabela, maxWidth)
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(horizontalScroll)
-            ) {
-                Column(
-                    modifier = Modifier.border(1.dp, BorderDefault, RoundedCornerShape(8.dp))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .height(IntrinsicSize.Min)
-                            .background(SurfaceChip)
-                    ) {
-                        tabela.colunas.forEachIndexed { index, coluna ->
-                            CelulaTabelaTextoApoio(
-                                texto = coluna,
-                                destaque = true,
-                                largura = largurasColunas[index]
-                            )
-                        }
+            val largurasColunas = remember(tabela, maxWidth) { calcularLargurasColunas(tabela, maxWidth) }
+            Box(modifier = Modifier.fillMaxWidth().horizontalScroll(horizontalScroll)) {
+                Column(modifier = Modifier.border(1.dp, BorderDefault, RoundedCornerShape(8.dp))) {
+                    Row(modifier = Modifier.height(IntrinsicSize.Min).background(SurfaceChip)) {
+                        tabela.colunas.forEachIndexed { index, coluna -> CelulaTabelaTextoApoio(texto = coluna, destaque = true, largura = largurasColunas[index]) }
                     }
-
                     tabela.linhas.forEach { linha ->
                         Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-                            tabela.colunas.forEachIndexed { index, _ ->
-                                CelulaTabelaTextoApoio(
-                                    texto = linha.getOrNull(index).orEmpty(),
-                                    destaque = false,
-                                    largura = largurasColunas[index]
-                                )
-                            }
+                            tabela.colunas.forEachIndexed { index, _ -> CelulaTabelaTextoApoio(texto = linha.getOrNull(index).orEmpty(), destaque = false, largura = largurasColunas[index]) }
                         }
                     }
                 }
             }
         }
-
         if (tabela.rodape.isNotBlank()) {
             Spacer(Modifier.height(8.dp))
-            MarkdownCompatText(
-                text = tabela.rodape,
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextPrimary
-            )
+            MarkdownCompatText(text = tabela.rodape, style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
         }
     }
 }
 
 @Composable
 private fun TituloTextoApoio(titulo: String?) {
-    if (!titulo.isNullOrBlank()) {
-        Text(
-            text = titulo,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = TextPrimary,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-    }
+    if (!titulo.isNullOrBlank()) Text(text = titulo, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = TextPrimary, modifier = Modifier.padding(bottom = 8.dp))
 }
 
-private fun calcularLargurasColunas(
-    tabela: TextoApoioTabela,
-    larguraDisponivel: Dp
-): List<Dp> {
+private fun calcularLargurasColunas(tabela: TextoApoioTabela, larguraDisponivel: Dp): List<Dp> {
     if (tabela.colunas.isEmpty()) return emptyList()
-
     val tabelaDensa = tabela.colunas.size >= 6
     val larguraMinima = if (tabelaDensa) 44.dp else 56.dp
     val larguraMaxima = if (tabelaDensa) 120.dp else 180.dp
     val larguraPorCaractere = if (tabelaDensa) 5 else 7
     val paddingHorizontalTotal = if (tabelaDensa) 10 else 16
-
     val largurasDesejadas = tabela.colunas.mapIndexed { index, coluna ->
-        val maiorTexto = sequenceOf(coluna)
-            .plus(tabela.linhas.asSequence().map { linha -> linha.getOrNull(index).orEmpty() })
-            .maxOf { it.length }
-
-        (maiorTexto * larguraPorCaractere + paddingHorizontalTotal).dp
-            .coerceIn(larguraMinima, larguraMaxima)
+        val maiorTexto = sequenceOf(coluna).plus(tabela.linhas.asSequence().map { linha -> linha.getOrNull(index).orEmpty() }).maxOf { it.length }
+        (maiorTexto * larguraPorCaractere + paddingHorizontalTotal).dp.coerceIn(larguraMinima, larguraMaxima)
     }
     val totalDesejado = largurasDesejadas.fold(0.dp, Dp::plus)
-
     if (totalDesejado <= larguraDisponivel) {
         val espacoExtra = (larguraDisponivel - totalDesejado) / tabela.colunas.size
         return largurasDesejadas.map { it + espacoExtra }
     }
-
     val totalMinimo = larguraMinima * tabela.colunas.size
-    if (totalMinimo >= larguraDisponivel) {
-        return List(tabela.colunas.size) { larguraMinima }
-    }
-
+    if (totalMinimo >= larguraDisponivel) return List(tabela.colunas.size) { larguraMinima }
     val reducaoNecessaria = totalDesejado - larguraDisponivel
     val espacoRedutivel = totalDesejado - totalMinimo
-
     return largurasDesejadas.map { largura ->
         val participacao = (largura - larguraMinima) / espacoRedutivel
         largura - reducaoNecessaria * participacao
@@ -427,17 +250,12 @@ private fun CelulaTabelaTextoApoio(texto: String, destaque: Boolean, largura: Dp
         style = MaterialTheme.typography.bodySmall,
         fontWeight = if (destaque) FontWeight.Bold else FontWeight.Normal,
         color = TextPrimary,
-        modifier = Modifier
-            .width(largura)
-            .fillMaxHeight()
-            .border(0.5.dp, BorderDefault)
-            .padding(horizontal = 4.dp, vertical = 6.dp)
+        modifier = Modifier.width(largura).fillMaxHeight().border(0.5.dp, BorderDefault).padding(horizontal = 4.dp, vertical = 6.dp)
     )
 }
 
 private fun parseTabelaTextoApoio(json: String?): TextoApoioTabela? {
     if (json.isNullOrBlank()) return null
-
     return runCatching {
         val root = JSONObject(json)
         TextoApoioTabela(
@@ -451,18 +269,11 @@ private fun parseTabelaTextoApoio(json: String?): TextoApoioTabela? {
 
 private fun parseImagemTextoApoio(json: String?): TextoApoioImagem? {
     if (json.isNullOrBlank()) return null
-
     return runCatching {
         val root = JSONObject(json)
         val url = root.optString("url").trim()
         require(url.isNotBlank())
-
-        TextoApoioImagem(
-            url = url,
-            alt = root.optString("alt").trim(),
-            largura = root.optInt("largura").takeIf { it > 0 },
-            altura = root.optInt("altura").takeIf { it > 0 }
-        )
+        TextoApoioImagem(url = url, alt = root.optString("alt").trim(), largura = root.optInt("largura").takeIf { it > 0 }, altura = root.optInt("altura").takeIf { it > 0 })
     }.getOrNull()
 }
 
@@ -473,7 +284,5 @@ private fun JSONArray?.toStringList(): List<String> {
 
 private fun JSONArray?.toNestedStringList(): List<List<String>> {
     if (this == null) return emptyList()
-    return List(length()) { index ->
-        optJSONArray(index).toStringList()
-    }
+    return List(length()) { index -> optJSONArray(index).toStringList() }
 }
