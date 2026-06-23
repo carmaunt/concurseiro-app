@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import br.com.mauricio.oconcurseiro.ui.navigation.AppNavigation
 import br.com.mauricio.oconcurseiro.ui.theme.OConcurseiroTheme
 import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
@@ -19,7 +18,6 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var analyticsTracker: AnalyticsTracker
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         analyticsTracker.appOpened()
