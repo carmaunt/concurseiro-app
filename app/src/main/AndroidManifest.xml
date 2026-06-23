@@ -20,7 +20,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.OConcurseiro.Splash">
+            android:theme="@style/Theme.OConcurseiro">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
