@@ -1,15 +1,10 @@
 package br.com.mauricio.oconcurseiro.ui.theme
 
-import android.app.Activity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 
 @Composable
 fun OConcurseiroTheme(
@@ -60,25 +55,6 @@ fun OConcurseiroTheme(
             onError = AppWhite,
             errorContainer = Color(0xFFFFE4E6)
         )
-    }
-
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-
-            window.statusBarColor = HeaderBackground.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-
-            val navBarColor = if (darkTheme) {
-                Color(0xFF0F1F30).toArgb()
-            } else {
-                AppBackground.toArgb()
-            }
-
-            window.navigationBarColor = navBarColor
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
-        }
     }
 
     MaterialTheme(
