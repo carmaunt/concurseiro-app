@@ -170,6 +170,8 @@ O aplicativo já possui:
 
 ---
 
-## Licença
+## Direitos autorais
 
-MIT
+Copyright © 2026 Mauricio. Todos os direitos reservados.
+
+Este repositório é disponibilizado publicamente apenas para fins de demonstração e colaboração autorizada. Nenhuma parte do código pode ser copiada, modificada, redistribuída ou utilizada sem autorização expressa do autor.
