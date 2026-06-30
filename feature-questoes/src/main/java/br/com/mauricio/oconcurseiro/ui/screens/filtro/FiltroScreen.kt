@@ -295,8 +295,8 @@ fun FiltroScreen(
                         assuntoRestaurado = true
                         assuntoKeysSelecionadas = keys
                     },
-                    onCarregarSubAssuntos = {
-                        viewModel.carregarSubAssuntosDosAssuntos(viewModel.assuntos.map { it.id })
+                    onCarregarSubAssuntos = { assuntoId ->
+                        viewModel.carregarSubAssuntosDosAssuntos(listOf(assuntoId))
                     },
                     enabled = disciplinaSelecionada != null,
                     carregando = disciplinaSelecionada != null && viewModel.assuntos.isEmpty(),
@@ -458,7 +458,7 @@ private fun DropdownAssuntoArvore(
     itens: List<AssuntoArvoreItem>,
     selecionados: Set<String>,
     onSelecionar: (Set<String>) -> Unit,
-    onCarregarSubAssuntos: () -> Unit,
+    onCarregarSubAssuntos: (Long) -> Unit,
     enabled: Boolean = true,
     carregando: Boolean = false,
     carregandoSubassuntos: Boolean = false,
@@ -466,15 +466,18 @@ private fun DropdownAssuntoArvore(
 ) {
     var expandido by remember { mutableStateOf(false) }
     var busca by remember { mutableStateOf("") }
+    var assuntosExpandidos by remember { mutableStateOf<Set<Long>>(emptySet()) }
     val isEnabled = enabled && !carregando
     val alpha = if (isEnabled) 1f else 0.5f
     val listScroll = rememberScrollState()
     val temMaisAbaixo by remember { derivedStateOf { listScroll.canScrollForward } }
     val buscaNormalizada by remember(busca) { derivedStateOf { normalizarBusca(busca) } }
-    val itensFiltrados by remember(itens, buscaNormalizada) {
+    val itensFiltrados by remember(itens, buscaNormalizada, assuntosExpandidos) {
         derivedStateOf {
             if (buscaNormalizada.isBlank()) {
-                itens
+                itens.filter { item ->
+                    !item.isSubassunto || item.assuntoPaiId in assuntosExpandidos
+                }
             } else {
                 val assuntoIdsComSubassuntoEncontrado = itens
                     .filter { item ->
@@ -489,10 +492,6 @@ private fun DropdownAssuntoArvore(
                 }
             }
         }
-    }
-
-    LaunchedEffect(expandido) {
-        if (expandido) onCarregarSubAssuntos()
     }
 
     val displayText = when {
@@ -607,6 +606,7 @@ private fun DropdownAssuntoArvore(
                         Column(modifier = Modifier.verticalScroll(listScroll)) {
                             itensFiltrados.forEach { item ->
                                 val isSelected = item.key in selecionados || item.selecionadoPorAssuntoPai(selecionados)
+                                val assuntoExpandido = !item.isSubassunto && item.item.id in assuntosExpandidos
 
                                 DropdownMenuItem(
                                     text = {
@@ -646,8 +646,28 @@ private fun DropdownAssuntoArvore(
                                                 else MaterialTheme.typography.bodySmall,
                                                 color = if (isSelected) BrandPrimary else TextPrimary,
                                                 maxLines = 2,
-                                                overflow = TextOverflow.Ellipsis
+                                                overflow = TextOverflow.Ellipsis,
+                                                modifier = Modifier.weight(1f)
                                             )
+                                            if (!item.isSubassunto) {
+                                                Text(
+                                                    text = if (assuntoExpandido) "−" else "+",
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    color = TextSecondary,
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(999.dp))
+                                                        .clickable {
+                                                            val assuntoId = item.item.id
+                                                            assuntosExpandidos = if (assuntoExpandido) {
+                                                                assuntosExpandidos - assuntoId
+                                                            } else {
+                                                                onCarregarSubAssuntos(assuntoId)
+                                                                assuntosExpandidos + assuntoId
+                                                            }
+                                                        }
+                                                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                                                )
+                                            }
                                         }
                                     },
                                     onClick = {
