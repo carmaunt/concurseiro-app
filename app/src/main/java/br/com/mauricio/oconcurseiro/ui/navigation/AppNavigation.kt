@@ -1,5 +1,9 @@
 package br.com.mauricio.oconcurseiro.ui.navigation
 
+import android.Manifest
+import android.os.Build
+import android.content.pm.PackageManager
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -13,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import br.com.mauricio.oconcurseiro.data.auth.criarIntentLoginGoogle
 import br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog
 import br.com.mauricio.oconcurseiro.ui.screens.auth.LoginScreen
@@ -38,7 +43,11 @@ import androidx.navigation.navArgument
 import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
 
 @Composable
-fun AppNavigation(analyticsTracker: AnalyticsTracker? = null) {
+fun AppNavigation(
+    analyticsTracker: AnalyticsTracker? = null,
+    openQuestionsFromNotification: Boolean = false,
+    onNotificationNavigationHandled: () -> Unit = {}
+) {
     val authViewModel: AuthViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
     val questaoViewModel: QuestaoViewModel = hiltViewModel()
@@ -48,6 +57,7 @@ fun AppNavigation(analyticsTracker: AnalyticsTracker? = null) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var aoConcluirLoginGoogle by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var abrirQuestoesPelaNotificacao by remember { mutableStateOf(openQuestionsFromNotification) }
 
     LaunchedEffect(currentBackStackEntry?.destination?.route) {
         currentBackStackEntry?.destination?.route
@@ -63,14 +73,67 @@ fun AppNavigation(analyticsTracker: AnalyticsTracker? = null) {
         }
     }
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { }
+
     fun iniciarLoginGoogle(onSucesso: () -> Unit) {
         aoConcluirLoginGoogle = onSucesso
         authViewModel.iniciarLoginComGoogle()
         googleLoginLauncher.launch(criarIntentLoginGoogle(context))
     }
 
+    fun solicitarPermissaoNotificacaoSeNecessario() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
+        val jaPermitido = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!jaPermitido) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    fun abrirQuestoesDaNotificacao() {
+        if (!questaoViewModel.uiState.jaCarregou) {
+            questaoViewModel.carregarQuestao()
+        }
+        navController.navigate(NavRoutes.Home.route) {
+            popUpTo(0)
+            launchSingleTop = true
+        }
+        navController.navigate(NavRoutes.Questao.route) {
+            launchSingleTop = true
+        }
+        abrirQuestoesPelaNotificacao = false
+        onNotificationNavigationHandled()
+    }
+
+    fun voltarQuestaoParaHome() {
+        homeViewModel.atualizarDesempenho()
+        val voltou = navController.popBackStack()
+        if (!voltou) {
+            navController.navigate(NavRoutes.Home.route) {
+                popUpTo(0)
+                launchSingleTop = true
+            }
+        }
+    }
+
     LaunchedEffect(authViewModel.usuarioAutenticado) {
         homeViewModel.atualizarDesempenho()
+    }
+
+    LaunchedEffect(openQuestionsFromNotification) {
+        if (openQuestionsFromNotification) {
+            abrirQuestoesPelaNotificacao = true
+            val rotaAtual = currentBackStackEntry?.destination?.route
+            if (rotaAtual != null && rotaAtual != NavRoutes.Splash.route) {
+                abrirQuestoesDaNotificacao()
+            }
+        }
     }
 
     LaunchedEffect(authViewModel.mensagemSucesso) {
@@ -125,8 +188,23 @@ fun AppNavigation(analyticsTracker: AnalyticsTracker? = null) {
             composable(NavRoutes.Splash.route) {
                 SplashScreen(
                     onFinished = {
-                        navController.navigate(NavRoutes.Home.route) {
-                            popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                        if (abrirQuestoesPelaNotificacao) {
+                            if (!questaoViewModel.uiState.jaCarregou) {
+                                questaoViewModel.carregarQuestao()
+                            }
+                            navController.navigate(NavRoutes.Home.route) {
+                                popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                            navController.navigate(NavRoutes.Questao.route) {
+                                launchSingleTop = true
+                            }
+                            abrirQuestoesPelaNotificacao = false
+                            onNotificationNavigationHandled()
+                        } else {
+                            navController.navigate(NavRoutes.Home.route) {
+                                popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                            }
                         }
                     }
                 )
@@ -163,6 +241,7 @@ fun AppNavigation(analyticsTracker: AnalyticsTracker? = null) {
                 HomeScreen(
                     viewModel = homeViewModel,
                     onStartPractice = {
+                        solicitarPermissaoNotificacaoSeNecessario()
                         if (!authViewModel.usuarioAutenticado && !authViewModel.podeResolverSemLogin()) {
                             authViewModel.abrirDialogLimite()
                         } else {
@@ -210,14 +289,15 @@ fun AppNavigation(analyticsTracker: AnalyticsTracker? = null) {
             }
 
             composable(NavRoutes.Questao.route) {
+                BackHandler {
+                    voltarQuestaoParaHome()
+                }
+
                 QuestaoScreen(
                     viewModel = questaoViewModel,
                     usuarioAutenticado = authViewModel.usuarioAutenticado,
                     onOpenFiltro = { navController.navigate(NavRoutes.Filtro.route) },
-                    onBack = {
-                        homeViewModel.atualizarDesempenho()
-                        navController.popBackStack()
-                    },
+                    onBack = { voltarQuestaoParaHome() },
                     onAbrirComentarios = { questaoId ->
                         navController.navigate(NavRoutes.Comentarios.createRoute(questaoId))
                     },

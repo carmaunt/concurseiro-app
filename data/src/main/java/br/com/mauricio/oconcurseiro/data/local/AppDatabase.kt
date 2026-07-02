@@ -16,8 +16,23 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // Nenhuma alteração de schema entre v1 e v2.
-                // Migration declarada para evitar apagamento de dados em upgrades futuros.
+                val temUsuarioId = db.query("PRAGMA table_info(respostas)").use { cursor ->
+                    val nameIndex = cursor.getColumnIndex("name")
+                    var found = false
+                    while (cursor.moveToNext()) {
+                        if (cursor.getString(nameIndex) == "usuarioId") {
+                            found = true
+                            break
+                        }
+                    }
+                    found
+                }
+
+                if (!temUsuarioId) {
+                    db.execSQL(
+                        "ALTER TABLE respostas ADD COLUMN usuarioId TEXT NOT NULL DEFAULT 'guest'"
+                    )
+                }
             }
         }
 

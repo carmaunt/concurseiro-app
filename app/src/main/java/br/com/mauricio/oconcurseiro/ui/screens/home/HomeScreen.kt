@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,8 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.*
@@ -39,10 +43,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.domain.model.DesempenhoDisciplina
+import br.com.mauricio.oconcurseiro.domain.model.MissaoDiariaStatus
+import br.com.mauricio.oconcurseiro.domain.model.StatusMissaoDiaria
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.ErrorState
 import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
 import br.com.mauricio.oconcurseiro.ui.theme.*
 import br.com.mauricio.oconcurseiro.ui.viewmodel.HomeViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,6 +118,10 @@ fun HomeScreen(
                     Spacer(Modifier.height(12.dp))
 
                     DesempenhoSection(uiState)
+
+                    Spacer(Modifier.height(20.dp))
+
+                    MissaoSemanalSection(uiState)
 
                     Spacer(Modifier.height(20.dp))
 
@@ -265,6 +276,153 @@ private fun ResolverQuestoesCard(onClick: () -> Unit) {
                 modifier = Modifier.size(28.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun MissaoSemanalSection(uiState: HomeUiState) {
+    val dias = uiState.missaoSemanal.ifEmpty { missaoSemanalPadrao() }
+
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                text = "Missão da semana",
+                style = MaterialTheme.typography.titleSmall,
+                color = TextPrimary
+            )
+
+            Text(
+                text = "Semana atual",
+                style = MaterialTheme.typography.labelMedium,
+                color = TextSecondary
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = SurfaceWhite,
+            shadowElevation = 1.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                dias.forEach { dia ->
+                    MissaoDiaItem(dia)
+                }
+            }
+        }
+    }
+}
+
+private fun missaoSemanalPadrao(): List<MissaoDiariaStatus> {
+    val hoje = Calendar.getInstance()
+    val inicioHoje = (hoje.clone() as Calendar).apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+
+    val inicioSemana = (inicioHoje.clone() as Calendar).apply {
+        firstDayOfWeek = Calendar.MONDAY
+        while (get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            add(Calendar.DAY_OF_YEAR, -1)
+        }
+    }
+
+    val labels = listOf("Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom")
+
+    return labels.mapIndexed { index, label ->
+        val dia = (inicioSemana.clone() as Calendar).apply {
+            add(Calendar.DAY_OF_YEAR, index)
+        }
+
+        MissaoDiariaStatus(
+            diaSemana = label,
+            resolvidas = 0,
+            status = if (dia.before(inicioHoje)) {
+                StatusMissaoDiaria.NAO_CUMPRIDA
+            } else {
+                StatusMissaoDiaria.PENDENTE
+            }
+        )
+    }
+}
+
+@Composable
+private fun MissaoDiaItem(dia: MissaoDiariaStatus) {
+    val markerColor = when (dia.status) {
+        StatusMissaoDiaria.CUMPRIDA -> SuccessBorder
+        StatusMissaoDiaria.NAO_CUMPRIDA -> ErrorBorder
+        StatusMissaoDiaria.PENDENTE -> TextPlaceholder
+    }
+
+    val markerBg = when (dia.status) {
+        StatusMissaoDiaria.CUMPRIDA -> SuccessBg
+        StatusMissaoDiaria.NAO_CUMPRIDA -> ErrorBg
+        StatusMissaoDiaria.PENDENTE -> SurfaceChip
+    }
+
+    val icon = when (dia.status) {
+        StatusMissaoDiaria.CUMPRIDA -> Icons.Outlined.Check
+        StatusMissaoDiaria.NAO_CUMPRIDA -> Icons.Outlined.Close
+        StatusMissaoDiaria.PENDENTE -> Icons.Outlined.MoreHoriz
+    }
+
+    Column(
+        modifier = Modifier.width(40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = dia.diaSemana,
+            style = MaterialTheme.typography.labelMedium,
+            color = TextSecondary,
+            fontSize = 11.sp,
+            maxLines = 1
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(markerBg)
+                .border(BorderStroke(1.dp, markerColor.copy(alpha = 0.35f)), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = when (dia.status) {
+                    StatusMissaoDiaria.CUMPRIDA -> "Missão cumprida"
+                    StatusMissaoDiaria.NAO_CUMPRIDA -> "Missão não cumprida"
+                    StatusMissaoDiaria.PENDENTE -> "Missão pendente"
+                },
+                tint = markerColor,
+                modifier = Modifier.size(19.dp)
+            )
+        }
+
+        Spacer(Modifier.height(7.dp))
+
+        Text(
+            text = "${dia.resolvidas.coerceAtMost(5)}/5",
+            style = MaterialTheme.typography.labelMedium,
+            color = TextPlaceholder,
+            fontSize = 10.sp,
+            maxLines = 1
+        )
     }
 }
 
@@ -564,6 +722,14 @@ private fun RadarDisciplinasSection(uiState: HomeUiState) {
             color = TextPrimary
         )
 
+        Spacer(Modifier.height(4.dp))
+
+        Text(
+            text = "Últimos 7 dias por disciplina",
+            style = MaterialTheme.typography.labelMedium,
+            color = TextSecondary
+        )
+
         Spacer(Modifier.height(12.dp))
 
         Surface(
@@ -660,7 +826,7 @@ private fun DisciplinaProgressRow(item: DesempenhoDisciplina) {
                 Spacer(Modifier.width(8.dp))
 
                 Text(
-                    text = "${item.total} questão${if (item.total != 1) "ões" else ""}",
+                    text = pluralQuestoes(item.total),
                     style = MaterialTheme.typography.labelMedium,
                     color = TextSecondary,
                     fontSize = 11.sp
@@ -685,5 +851,13 @@ private fun DisciplinaProgressRow(item: DesempenhoDisciplina) {
                 )
             }
         }
+    }
+}
+
+private fun pluralQuestoes(total: Int): String {
+    return if (total == 1) {
+        "1 questão"
+    } else {
+        "$total questões"
     }
 }

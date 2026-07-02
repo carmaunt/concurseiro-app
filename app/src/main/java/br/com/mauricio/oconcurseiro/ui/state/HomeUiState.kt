@@ -1,6 +1,7 @@
 package br.com.mauricio.oconcurseiro.ui.state
 
 import br.com.mauricio.oconcurseiro.domain.model.DesempenhoDisciplina
+import br.com.mauricio.oconcurseiro.domain.model.MissaoDiariaStatus
 
 data class HomeUiState(
     val isLoading: Boolean = false,
@@ -15,5 +16,6 @@ data class HomeUiState(
     val erros7dias: Int = 0,
     val totalResolvidas: Int = 0,
     val totalAcertos: Int = 0,
-    val desempenhoPorDisciplina: List<DesempenhoDisciplina> = emptyList()
+    val desempenhoPorDisciplina: List<DesempenhoDisciplina> = emptyList(),
+    val missaoSemanal: List<MissaoDiariaStatus> = emptyList()
 )
