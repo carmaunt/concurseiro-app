@@ -6,6 +6,7 @@ enum class AnalyticsEventName(val wireName: String) {
     EXPLANATION_VIEWED("explanation_viewed"), FILTER_APPLIED("filter_applied"), SEARCH_PERFORMED("search_performed"),
     EMPTY_RESULT_VIEWED("empty_result_viewed"), DISCIPLINE_OPENED("discipline_opened"), SUBJECT_OPENED("subject_opened"),
     SUBSUBJECT_OPENED("subsubject_opened"), COMMENT_VIEWED("comment_viewed"), COMMENT_CREATED("comment_created"),
+    APP_INSTALL_ATTRIBUTED("app_install_attributed"), INSTALL_REFERRER_UNAVAILABLE("install_referrer_unavailable"),
     ERROR_OCCURRED("error_occurred")
 }
 

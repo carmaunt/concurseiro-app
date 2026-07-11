@@ -5,6 +5,7 @@ coreKtx = "1.16.0"
 coreSplashscreen = "1.2.0"
 firebaseBom = "34.11.0"
 playServicesAuth = "21.6.0"
+installReferrer = "2.2"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -51,6 +52,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+install-referrer = { module = "com.android.installreferrer:installreferrer", version.ref = "installReferrer" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }

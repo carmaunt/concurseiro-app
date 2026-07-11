@@ -2,11 +2,13 @@ package br.com.mauricio.oconcurseiro.data.analytics
 
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import br.com.mauricio.oconcurseiro.data.remote.AnalyticsEventRequestDto
 import br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.model.Questao
+import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,11 +19,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AnalyticsTracker @Inject constructor(@ApplicationContext private val context: Context, private val api: ConcurseiroApi, private val sessions: SessionManager) {
+class AnalyticsTracker @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val api: ConcurseiroApi,
+    private val sessions: SessionManager,
+) {
     private val scope=CoroutineScope(SupervisorJob()+Dispatchers.IO)
     private val preferences=context.getSharedPreferences("analytics_preferences",Context.MODE_PRIVATE)
     private val anonymousId=preferences.getString(ANONYMOUS_ID_KEY,null) ?: UUID.randomUUID().toString().also{preferences.edit().putString(ANONYMOUS_ID_KEY,it).apply()}
     private val appVersion by lazy { runCatching{context.packageManager.getPackageInfo(context.packageName,0).versionName}.getOrNull()?:"unknown" }
+    private val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(context) }
 
     fun appOpened()=track(AnalyticsEvent(AnalyticsEventName.APP_OPENED))
     fun startSession(){if(sessions.active)return;sessions.start();track(AnalyticsEvent(AnalyticsEventName.SESSION_STARTED))}
@@ -36,8 +43,43 @@ class AnalyticsTracker @Inject constructor(@ApplicationContext private val conte
     }
     fun emptyResult(screen:String)=track(AnalyticsEvent(AnalyticsEventName.EMPTY_RESULT_VIEWED,screen,metadata=mapOf("has_results" to false)))
     fun error(type:String,screen:String?=null)=track(AnalyticsEvent(AnalyticsEventName.ERROR_OCCURRED,screen,metadata=mapOf("error_type" to type.take(80))))
+    fun installAttributed(metadata: Map<String, Any>) {
+        track(AnalyticsEvent(AnalyticsEventName.APP_INSTALL_ATTRIBUTED, metadata = metadata))
+    }
+    fun installReferrerUnavailable(reason: String, metadata: Map<String, Any> = emptyMap()) {
+        track(AnalyticsEvent(AnalyticsEventName.INSTALL_REFERRER_UNAVAILABLE, metadata = metadata + ("reason" to reason.take(80))))
+    }
 
     private fun questionEvent(name:AnalyticsEventName,q:Questao)=AnalyticsEvent(name,"questao",questionId=q.id,disciplinaId=q.disciplinaId,assuntoId=q.assuntoId,bancaId=q.bancaId,instituicaoId=q.orgaoId,metadata=mapOf("question_id" to q.id))
-    fun track(event:AnalyticsEvent){val sessionId=sessions.sessionId;scope.launch{runCatching{api.registrarEventoAnalytics(AnalyticsEventRequestDto(event.name.wireName,anonymousId,null,sessionId,event.screenName,event.filterName,event.questionId,event.answerCorrect,event.disciplinaId,event.assuntoId,event.subassuntoId,null,appVersion,"android",Build.VERSION.RELEASE,1,event.bancaId,event.instituicaoId,event.provaId,event.metadata))}.onSuccess{Log.d(TAG,"Evento enviado: ${event.name.wireName}")}.onFailure{Log.w(TAG,"Falha em ${event.name.wireName}: ${it.javaClass.simpleName}")}}}
+    fun track(event:AnalyticsEvent){
+        val sessionId=sessions.sessionId
+        firebaseAnalytics.logEvent(event.name.wireName, event.firebaseBundle())
+        scope.launch{runCatching{api.registrarEventoAnalytics(AnalyticsEventRequestDto(event.name.wireName,anonymousId,null,sessionId,event.screenName,event.filterName,event.questionId,event.answerCorrect,event.disciplinaId,event.assuntoId,event.subassuntoId,null,appVersion,"android",Build.VERSION.RELEASE,1,event.bancaId,event.instituicaoId,event.provaId,event.metadata))}.onSuccess{Log.d(TAG,"Evento enviado: ${event.name.wireName}")}.onFailure{Log.w(TAG,"Falha em ${event.name.wireName}: ${it.javaClass.simpleName}")}}
+    }
+
+    private fun AnalyticsEvent.firebaseBundle() = Bundle().apply {
+        screenName?.let { putString("screen_name", it) }
+        filterName?.let { putString("filter_name", it) }
+        questionId?.let { putString("question_id", it) }
+        answerCorrect?.let { putString("answer_correct", it.toString()) }
+        disciplinaId?.let { putLong("disciplina_id", it) }
+        assuntoId?.let { putLong("assunto_id", it) }
+        subassuntoId?.let { putLong("subassunto_id", it) }
+        bancaId?.let { putLong("banca_id", it) }
+        instituicaoId?.let { putLong("instituicao_id", it) }
+        provaId?.let { putLong("prova_id", it) }
+        metadata.forEach { (key, value) ->
+            val safeKey = key.take(40).replace(Regex("[^A-Za-z0-9_]"), "_")
+            when (value) {
+                is String -> putString(safeKey, value.take(100))
+                is Int -> putLong(safeKey, value.toLong())
+                is Long -> putLong(safeKey, value)
+                is Float -> putDouble(safeKey, value.toDouble())
+                is Double -> putDouble(safeKey, value)
+                is Boolean -> putString(safeKey, value.toString())
+                else -> putString(safeKey, value.toString().take(100))
+            }
+        }
+    }
     private companion object{const val TAG="ConcurseiroAnalytics";const val ANONYMOUS_ID_KEY="anonymous_id_v1"}
 }

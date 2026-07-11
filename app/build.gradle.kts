@@ -25,10 +25,10 @@ android {
         minSdk = 24
         targetSdk = 36
         // Incrementar sempre que enviar uma nova versão para a Play Store.
-        versionCode = 16
+        versionCode = 17
 
         // Versão visível para o usuário na loja e nas configurações do app.
-        versionName = "2.0.3"
+        versionName = "2.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -126,6 +126,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+    implementation(libs.install.referrer)
     implementation(project(":domain"))
     implementation(project(":core"))
     implementation(project(":data"))
