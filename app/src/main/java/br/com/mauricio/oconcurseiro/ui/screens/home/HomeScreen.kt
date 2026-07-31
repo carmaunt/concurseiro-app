@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.Quiz
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import br.com.mauricio.oconcurseiro.domain.model.DesempenhoDisciplina
 import br.com.mauricio.oconcurseiro.domain.model.MissaoDiariaStatus
 import br.com.mauricio.oconcurseiro.domain.model.StatusMissaoDiaria
+import br.com.mauricio.oconcurseiro.ads.AdMobBanner
 import br.com.mauricio.oconcurseiro.ui.components.designsystem.ErrorState
 import br.com.mauricio.oconcurseiro.ui.state.HomeUiState
 import br.com.mauricio.oconcurseiro.ui.theme.*
@@ -55,6 +57,7 @@ import java.util.Calendar
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    adsReady: Boolean = false,
     onStartPractice: () -> Unit,
     onOpenFilters: () -> Unit,
     onLogout: () -> Unit,
@@ -113,7 +116,10 @@ fun HomeScreen(
                         onRetry = { viewModel.carregarEstatisticas() }
                     )
                 } else {
-                    ResolverQuestoesCard(onStartPractice)
+                    MissaoDiariaCard(
+                        uiState = uiState,
+                        onClick = onStartPractice
+                    )
 
                     Spacer(Modifier.height(12.dp))
 
@@ -139,6 +145,13 @@ fun HomeScreen(
                 }
             }
         }
+
+        AdMobBanner(
+            adsReady = adsReady,
+            modifier = Modifier
+                .background(SurfaceWhite)
+                .padding(vertical = 8.dp)
+        )
 
         BottomNavBar(
             onOpenFilters = onOpenFilters
@@ -228,7 +241,16 @@ private fun HomeHeader(
 }
 
 @Composable
-private fun ResolverQuestoesCard(onClick: () -> Unit) {
+private fun MissaoDiariaCard(
+    uiState: HomeUiState,
+    onClick: () -> Unit
+) {
+    val meta = uiState.metaDiaria.coerceAtLeast(1)
+    val resolvidas = uiState.resolvidasHoje.coerceAtLeast(0)
+    val restantes = (meta - resolvidas).coerceAtLeast(0)
+    val concluida = restantes == 0
+    val progresso = (resolvidas.toFloat() / meta.toFloat()).coerceIn(0f, 1f)
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -239,42 +261,99 @@ private fun ResolverQuestoesCard(onClick: () -> Unit) {
         shadowElevation = 4.dp,
         onClick = onClick
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 18.dp, vertical = 18.dp),
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(CircleShape)
-                    .background(BrandPrimaryBackground),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Quiz,
-                    contentDescription = null,
-                    tint = BrandPrimary,
-                    modifier = Modifier.size(24.dp)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "PLANO DE HOJE",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = BrandPrimary,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.8.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = when {
+                            concluida -> "Meta concluída. Excelente constância!"
+                            resolvidas == 0 -> "Sua primeira missão está pronta"
+                            restantes == 1 -> "Falta só 1 questão"
+                            else -> "Faltam $restantes questões"
+                        },
+                        style = MaterialTheme.typography.titleSmall,
+                        color = TextPrimary
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = if (uiState.sequenciaAtual > 0) WarningBg else SurfaceChip
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.LocalFireDepartment,
+                            contentDescription = null,
+                            tint = if (uiState.sequenciaAtual > 0) WarningBar else TextPlaceholder,
+                            modifier = Modifier.size(17.dp)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = "${uiState.sequenciaAtual} ${if (uiState.sequenciaAtual == 1) "dia" else "dias"}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = TextSecondary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
             }
 
-            Spacer(Modifier.width(14.dp))
+            Spacer(Modifier.height(16.dp))
 
-            Text(
-                text = "Resolver questões",
-                style = MaterialTheme.typography.titleSmall,
-                color = TextPrimary,
-                modifier = Modifier.weight(1f)
+            LinearProgressIndicator(
+                progress = { progresso },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(999.dp)),
+                color = if (concluida) SuccessBorder else LogoGreen,
+                trackColor = BorderDefault
             )
 
-            Icon(
-                imageVector = Icons.Outlined.ChevronRight,
-                contentDescription = null,
-                tint = TextPlaceholder,
-                modifier = Modifier.size(28.dp)
-            )
+            Spacer(Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "$resolvidas de $meta questões",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = if (concluida) "Continuar praticando" else if (resolvidas == 0) "Começar agora" else "Continuar",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = BrandPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.width(3.dp))
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = BrandPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
@@ -290,7 +369,7 @@ private fun MissaoSemanalSection(uiState: HomeUiState) {
             verticalAlignment = Alignment.Bottom
         ) {
             Text(
-                text = "Missão da semana",
+                text = "Consistência da semana",
                 style = MaterialTheme.typography.titleSmall,
                 color = TextPrimary
             )
@@ -318,7 +397,10 @@ private fun MissaoSemanalSection(uiState: HomeUiState) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 dias.forEach { dia ->
-                    MissaoDiaItem(dia)
+                    MissaoDiaItem(
+                        dia = dia,
+                        metaDiaria = uiState.metaDiaria
+                    )
                 }
             }
         }
@@ -361,16 +443,19 @@ private fun missaoSemanalPadrao(): List<MissaoDiariaStatus> {
 }
 
 @Composable
-private fun MissaoDiaItem(dia: MissaoDiariaStatus) {
+private fun MissaoDiaItem(
+    dia: MissaoDiariaStatus,
+    metaDiaria: Int
+) {
     val markerColor = when (dia.status) {
         StatusMissaoDiaria.CUMPRIDA -> SuccessBorder
-        StatusMissaoDiaria.NAO_CUMPRIDA -> ErrorBorder
+        StatusMissaoDiaria.NAO_CUMPRIDA -> TextPlaceholder
         StatusMissaoDiaria.PENDENTE -> TextPlaceholder
     }
 
     val markerBg = when (dia.status) {
         StatusMissaoDiaria.CUMPRIDA -> SuccessBg
-        StatusMissaoDiaria.NAO_CUMPRIDA -> ErrorBg
+        StatusMissaoDiaria.NAO_CUMPRIDA -> SurfaceChip
         StatusMissaoDiaria.PENDENTE -> SurfaceChip
     }
 
@@ -417,7 +502,7 @@ private fun MissaoDiaItem(dia: MissaoDiariaStatus) {
         Spacer(Modifier.height(7.dp))
 
         Text(
-            text = "${dia.resolvidas.coerceAtMost(5)}/5",
+            text = "${dia.resolvidas.coerceAtMost(metaDiaria)}/$metaDiaria",
             style = MaterialTheme.typography.labelMedium,
             color = TextPlaceholder,
             fontSize = 10.sp,

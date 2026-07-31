@@ -1,6 +1,7 @@
 package br.com.mauricio.oconcurseiro.ui.navigation
 
 import android.Manifest
+import android.app.Activity
 import android.os.Build
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
@@ -19,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import br.com.mauricio.oconcurseiro.data.auth.criarIntentLoginGoogle
+import br.com.mauricio.oconcurseiro.ads.AdsManager
 import br.com.mauricio.oconcurseiro.ui.screens.auth.GuestLimitLoginDialog
 import br.com.mauricio.oconcurseiro.ui.screens.auth.LoginScreen
 import br.com.mauricio.oconcurseiro.ui.screens.auth.RegisterScreen
@@ -26,6 +28,7 @@ import br.com.mauricio.oconcurseiro.ui.screens.aviso.AvisoLegalScreen
 import br.com.mauricio.oconcurseiro.ui.screens.comentarios.ComentariosScreen
 import br.com.mauricio.oconcurseiro.ui.screens.filtro.FiltroScreen
 import br.com.mauricio.oconcurseiro.ui.screens.home.HomeScreen
+import br.com.mauricio.oconcurseiro.ui.screens.onboarding.OnboardingScreen
 import br.com.mauricio.oconcurseiro.ui.screens.privacidade.PrivacidadeDadosScreen
 import br.com.mauricio.oconcurseiro.ui.screens.questao.QuestaoScreen
 import br.com.mauricio.oconcurseiro.ui.screens.splash.SplashScreen
@@ -41,10 +44,16 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
+import br.com.mauricio.oconcurseiro.data.preferences.StudyPlanPreferences
+import br.com.mauricio.oconcurseiro.data.preferences.StudyReminder
+import br.com.mauricio.oconcurseiro.notification.DailyMissionNotificationScheduler
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation(
     analyticsTracker: AnalyticsTracker? = null,
+    studyPlanPreferences: StudyPlanPreferences? = null,
+    adsManager: AdsManager? = null,
     openQuestionsFromNotification: Boolean = false,
     onNotificationNavigationHandled: () -> Unit = {}
 ) {
@@ -56,6 +65,10 @@ fun AppNavigation(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val adsReady = adsManager?.adsReady?.collectAsState()?.value ?: false
+    val privacyOptionsRequired =
+        adsManager?.privacyOptionsRequired?.collectAsState()?.value ?: false
     var aoConcluirLoginGoogle by remember { mutableStateOf<(() -> Unit)?>(null) }
     var abrirQuestoesPelaNotificacao by remember { mutableStateOf(openQuestionsFromNotification) }
 
@@ -75,7 +88,18 @@ fun AppNavigation(
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { }
+    ) { granted ->
+        analyticsTracker?.notificationPermissionResult(granted)
+        if (granted) {
+            DailyMissionNotificationScheduler.schedule(
+                context = context,
+                replaceExisting = true
+            )
+        } else {
+            studyPlanPreferences?.disableReminder()
+            DailyMissionNotificationScheduler.cancel(context)
+        }
+    }
 
     fun iniciarLoginGoogle(onSucesso: () -> Unit) {
         aoConcluirLoginGoogle = onSucesso
@@ -83,20 +107,57 @@ fun AppNavigation(
         googleLoginLauncher.launch(criarIntentLoginGoogle(context))
     }
 
-    fun solicitarPermissaoNotificacaoSeNecessario() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+    fun ativarLembreteSePermitido() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            DailyMissionNotificationScheduler.schedule(
+                context = context,
+                replaceExisting = true
+            )
+            return
+        }
 
         val jaPermitido = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
 
-        if (!jaPermitido) {
+        if (jaPermitido) {
+            analyticsTracker?.notificationPermissionResult(true)
+            DailyMissionNotificationScheduler.schedule(
+                context = context,
+                replaceExisting = true
+            )
+        } else {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
+    fun concluirOnboarding(
+        dailyGoal: Int,
+        reminder: StudyReminder?
+    ) {
+        studyPlanPreferences?.savePlan(dailyGoal, reminder)
+        analyticsTracker?.studyPlanCreated(dailyGoal, reminder != null)
+        analyticsTracker?.onboardingCompleted()
+
+        if (reminder != null) {
+            ativarLembreteSePermitido()
+        } else {
+            DailyMissionNotificationScheduler.cancel(context)
+        }
+
+        analyticsTracker?.dailyMissionStarted("onboarding")
+        if (!questaoViewModel.uiState.jaCarregou) {
+            questaoViewModel.carregarQuestao()
+        }
+        navController.navigate(NavRoutes.Questao.route) {
+            popUpTo(NavRoutes.Onboarding.route) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
     fun abrirQuestoesDaNotificacao() {
+        analyticsTracker?.dailyMissionStarted("reminder")
         if (!questaoViewModel.uiState.jaCarregou) {
             questaoViewModel.carregarQuestao()
         }
@@ -189,6 +250,7 @@ fun AppNavigation(
                 SplashScreen(
                     onFinished = {
                         if (abrirQuestoesPelaNotificacao) {
+                            analyticsTracker?.dailyMissionStarted("reminder")
                             if (!questaoViewModel.uiState.jaCarregou) {
                                 questaoViewModel.carregarQuestao()
                             }
@@ -201,11 +263,30 @@ fun AppNavigation(
                             }
                             abrirQuestoesPelaNotificacao = false
                             onNotificationNavigationHandled()
+                        } else if (studyPlanPreferences?.isOnboardingCompleted() == false) {
+                            navController.navigate(NavRoutes.Onboarding.route) {
+                                popUpTo(NavRoutes.Splash.route) { inclusive = true }
+                            }
                         } else {
                             navController.navigate(NavRoutes.Home.route) {
                                 popUpTo(NavRoutes.Splash.route) { inclusive = true }
                             }
                         }
+                    }
+                )
+            }
+
+            composable(NavRoutes.Onboarding.route) {
+                LaunchedEffect(Unit) {
+                    analyticsTracker?.onboardingStarted()
+                }
+
+                OnboardingScreen(
+                    onStart = { dailyGoal, reminder ->
+                        concluirOnboarding(dailyGoal, reminder)
+                    },
+                    onSkipReminder = { dailyGoal ->
+                        concluirOnboarding(dailyGoal, null)
                     }
                 )
             }
@@ -240,11 +321,12 @@ fun AppNavigation(
             composable(NavRoutes.Home.route) {
                 HomeScreen(
                     viewModel = homeViewModel,
+                    adsReady = adsReady,
                     onStartPractice = {
-                        solicitarPermissaoNotificacaoSeNecessario()
                         if (!authViewModel.usuarioAutenticado && !authViewModel.podeResolverSemLogin()) {
                             authViewModel.abrirDialogLimite()
                         } else {
+                            analyticsTracker?.dailyMissionStarted("home")
                             if (!questaoViewModel.uiState.jaCarregou) {
                                 questaoViewModel.carregarQuestao()
                             }
@@ -275,8 +357,23 @@ fun AppNavigation(
                     usuarioAutenticado = authViewModel.usuarioAutenticado,
                     isLoading = authViewModel.isLoading,
                     erro = authViewModel.erro,
+                    mostrarOpcoesAnuncios = privacyOptionsRequired,
                     onBack = { navController.popBackStack() },
                     onAvisoLegal = { navController.navigate(NavRoutes.AvisoLegal.route) },
+                    onOpcoesAnuncios = {
+                        val activity = context as? Activity
+                        if (activity != null) {
+                            adsManager?.showPrivacyOptions(activity) { errorMessage ->
+                                if (!errorMessage.isNullOrBlank()) {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Não foi possível abrir as opções de anúncios. Tente novamente."
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    },
                     onExcluirConta = { onSucesso ->
                         authViewModel.excluirConta {
                             navController.navigate(NavRoutes.Home.route) {
@@ -305,6 +402,7 @@ fun AppNavigation(
                         authViewModel.usuarioAutenticado || authViewModel.podeResolverQuestao(questaoId)
                     },
                     onResolvidaComSucesso = { questaoId ->
+                        adsManager?.recordQuestionAnswered()
                         if (!authViewModel.usuarioAutenticado) {
                             authViewModel.registrarResolucao(questaoId)
                             homeViewModel.atualizarDesempenho()
@@ -314,7 +412,14 @@ fun AppNavigation(
                         if (!authViewModel.usuarioAutenticado && !authViewModel.podeResolverSemLogin()) {
                             authViewModel.abrirDialogLimite()
                         } else {
-                            questaoViewModel.proxima()
+                            val activity = context as? Activity
+                            if (activity != null && adsManager != null) {
+                                adsManager.showInterstitialIfEligible(activity) {
+                                    questaoViewModel.proxima()
+                                }
+                            } else {
+                                questaoViewModel.proxima()
+                            }
                         }
                     }
                 )

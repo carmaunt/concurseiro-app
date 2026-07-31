@@ -7,12 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
+import br.com.mauricio.oconcurseiro.data.preferences.StudyPlanPreferences
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.model.RespostaQuestao
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarProgressoDiarioUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
@@ -39,8 +41,10 @@ class QuestaoViewModel @Inject constructor(
     private val listarSubAssuntosUseCase: ListarSubAssuntosUseCase,
     private val salvarRespostaQuestaoUseCase: SalvarRespostaQuestaoUseCase,
     private val buscarRespostaAnteriorUseCase: BuscarRespostaAnteriorUseCase,
+    private val carregarProgressoDiarioUseCase: CarregarProgressoDiarioUseCase,
     private val authRepository: AuthRepository,
-    private val analyticsTracker: AnalyticsTracker
+    private val analyticsTracker: AnalyticsTracker,
+    private val studyPlanPreferences: StudyPlanPreferences
 ) : ViewModel() {
 
     var uiState by mutableStateOf(QuestaoUiState())
@@ -187,9 +191,29 @@ class QuestaoViewModel @Inject constructor(
                         gabarito = gabarito
                     )
                 )
+
+                val progresso = carregarProgressoDiarioUseCase(
+                    authRepository.usuarioIdOuGuest()
+                )
+                val concluiuAgora = progresso.completed &&
+                        studyPlanPreferences.markMissionCompletionIfFirstToday()
+
+                uiState = uiState.copy(
+                    resolvidasHoje = progresso.answered,
+                    metaDiaria = progresso.goal,
+                    mostrarMissaoConcluida = concluiuAgora
+                )
+
+                if (concluiuAgora) {
+                    analyticsTracker.dailyMissionCompleted(progresso.goal)
+                }
             } catch (_: Exception) {
             }
         }
+    }
+
+    fun consumirMissaoConcluida() {
+        uiState = uiState.copy(mostrarMissaoConcluida = false)
     }
 
     fun recarregar() {

@@ -4,35 +4,57 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import br.com.mauricio.oconcurseiro.data.preferences.StudyPlanPreferences
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 object DailyMissionNotificationScheduler {
 
     private const val WORK_NAME = "daily_mission_notification"
-    private const val NOTIFICATION_HOUR = 19
-    private const val NOTIFICATION_MINUTE = 30
 
-    fun schedule(context: Context) {
+    fun schedule(
+        context: Context,
+        replaceExisting: Boolean = false
+    ) {
+        val preferences = StudyPlanPreferences(context.applicationContext)
+        preferences.initializeForCurrentInstall()
+        val reminder = preferences.reminder
+
+        if (reminder == null) {
+            cancel(context)
+            return
+        }
+
         val request = PeriodicWorkRequestBuilder<DailyMissionNotificationWorker>(
             1,
             TimeUnit.DAYS
         )
-            .setInitialDelay(delayUntilNextNotification(), TimeUnit.MILLISECONDS)
+            .setInitialDelay(
+                delayUntilNextNotification(reminder.hour, reminder.minute),
+                TimeUnit.MILLISECONDS
+            )
             .build()
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            if (replaceExisting) {
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE
+            } else {
+                ExistingPeriodicWorkPolicy.KEEP
+            },
             request
         )
     }
 
-    private fun delayUntilNextNotification(): Long {
+    fun cancel(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+    }
+
+    private fun delayUntilNextNotification(hour: Int, minute: Int): Long {
         val now = Calendar.getInstance()
         val scheduled = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, NOTIFICATION_HOUR)
-            set(Calendar.MINUTE, NOTIFICATION_MINUTE)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 

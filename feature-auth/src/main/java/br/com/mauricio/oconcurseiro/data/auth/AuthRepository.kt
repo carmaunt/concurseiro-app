@@ -1,6 +1,8 @@
 package br.com.mauricio.oconcurseiro.data.auth
 
 import br.com.mauricio.oconcurseiro.data.remote.GoogleLoginRequestDto
+import br.com.mauricio.oconcurseiro.data.remote.ExcluirContaRequestDto
+import br.com.mauricio.oconcurseiro.data.local.RespostaDao
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
@@ -9,7 +11,8 @@ class AuthRepository(
     private val context: android.content.Context,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val api: br.com.mauricio.oconcurseiro.data.remote.ConcurseiroApi,
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+    private val respostaDao: RespostaDao
 ) {
     init {
         tokenStorage.carregarTokens()
@@ -72,11 +75,13 @@ class AuthRepository(
 
     suspend fun excluirConta() {
         val user = auth.currentUser ?: throw Exception("Nenhum usuário autenticado")
+        val usuarioId = user.uid
+        val firebaseIdToken = user.getIdToken(true).await().token
+            ?: throw Exception("Não foi possível confirmar sua identidade. Faça login novamente.")
 
-        // TODO: quando o backend disponibilizar endpoint de exclusão de conta,
-        // chamar a API antes de remover a conta do Firebase. O endpoint deve remover
-        // ou anonimizar dados do usuário conforme a Política de Privacidade.
-        user.delete().await()
+        api.excluirConta(ExcluirContaRequestDto(firebaseIdToken))
+
+        respostaDao.excluirRespostasDoUsuario(usuarioId)
         tokenStorage.limpar()
         auth.signOut()
     }

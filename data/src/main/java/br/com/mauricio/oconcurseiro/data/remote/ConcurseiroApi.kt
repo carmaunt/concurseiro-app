@@ -2,6 +2,7 @@ package br.com.mauricio.oconcurseiro.data.remote
 
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -87,6 +88,11 @@ interface ConcurseiroApi {
     suspend fun loginComFirebase(
         @Body request: GoogleLoginRequestDto
     ): ApiResponse<AuthResponseDto>
+
+    @HTTP(method = "DELETE", path = "/api/v1/account", hasBody = true)
+    suspend fun excluirConta(
+        @Body request: ExcluirContaRequestDto
+    )
 
     @POST("/api/v1/auth/refresh")
     suspend fun refreshToken(

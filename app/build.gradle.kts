@@ -16,6 +16,44 @@ val localProperties = Properties().apply {
     }
 }
 
+fun releaseSetting(name: String): String? {
+    return localProperties.getProperty(name)?.takeIf { it.isNotBlank() }
+        ?: System.getenv(name)?.takeIf { it.isNotBlank() }
+}
+
+val googleSampleAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
+val googleSampleBannerAdUnitId = "ca-app-pub-3940256099942544/9214589741"
+val googleSampleInterstitialAdUnitId = "ca-app-pub-3940256099942544/1033173712"
+
+val releaseAdMobAppId = releaseSetting("ADMOB_APP_ID")
+val releaseBannerAdUnitId = releaseSetting("ADMOB_BANNER_AD_UNIT_ID")
+val releaseInterstitialAdUnitId = releaseSetting("ADMOB_INTERSTITIAL_AD_UNIT_ID")
+
+val adMobAppIdPattern = Regex("""ca-app-pub-\d+~\d+""")
+val adMobUnitIdPattern = Regex("""ca-app-pub-\d+/\d+""")
+
+releaseAdMobAppId?.let {
+    require(adMobAppIdPattern.matches(it)) {
+        "ADMOB_APP_ID inválido. Use o formato ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY."
+    }
+}
+listOf(
+    "ADMOB_BANNER_AD_UNIT_ID" to releaseBannerAdUnitId,
+    "ADMOB_INTERSTITIAL_AD_UNIT_ID" to releaseInterstitialAdUnitId
+).forEach { (name, value) ->
+    value?.let {
+        require(adMobUnitIdPattern.matches(it)) {
+            "$name inválido. Use o formato ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ."
+        }
+    }
+}
+require(
+    releaseAdMobAppId != null ||
+        (releaseBannerAdUnitId == null && releaseInterstitialAdUnitId == null)
+) {
+    "Configure ADMOB_APP_ID antes de informar unidades de anúncio de produção."
+}
+
 android {
     namespace = "br.com.mauricio.oconcurseiro"
     compileSdk = 37
@@ -25,20 +63,20 @@ android {
         minSdk = 24
         targetSdk = 36
         // Incrementar sempre que enviar uma nova versão para a Play Store.
-        versionCode = 17
+        versionCode = 18
 
         // Versão visível para o usuário na loja e nas configurações do app.
-        versionName = "2.0.4"
+        versionName = "2.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         create("release") {
-            val releaseStoreFile = localProperties.getProperty("RELEASE_STORE_FILE")
-            val releaseStorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
-            val releaseKeyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
-            val releaseKeyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+            val releaseStoreFile = releaseSetting("RELEASE_STORE_FILE")
+            val releaseStorePassword = releaseSetting("RELEASE_STORE_PASSWORD")
+            val releaseKeyAlias = releaseSetting("RELEASE_KEY_ALIAS")
+            val releaseKeyPassword = releaseSetting("RELEASE_KEY_PASSWORD")
 
             if (
                 !releaseStoreFile.isNullOrBlank() &&
@@ -57,6 +95,9 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "BASE_URL", "\"https://concurseiro-api-lnae.onrender.com/\"")
+            buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"$googleSampleBannerAdUnitId\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_AD_UNIT_ID", "\"$googleSampleInterstitialAdUnitId\"")
+            manifestPlaceholders["admobAppId"] = googleSampleAdMobAppId
         }
         release {
             signingConfig = signingConfigs.getByName("release")
@@ -70,6 +111,19 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "BASE_URL", "\"https://concurseiro-api-lnae.onrender.com/\"")
+            buildConfigField(
+                "String",
+                "ADMOB_BANNER_AD_UNIT_ID",
+                "\"${releaseBannerAdUnitId.orEmpty()}\""
+            )
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_AD_UNIT_ID",
+                "\"${releaseInterstitialAdUnitId.orEmpty()}\""
+            )
+            // O ID de amostra evita crash de inicialização. Sem unidades reais,
+            // o AdsManager mantém anúncios desativados no release.
+            manifestPlaceholders["admobAppId"] = releaseAdMobAppId ?: googleSampleAdMobAppId
         }
     }
     compileOptions {
@@ -94,6 +148,7 @@ kotlin {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -139,4 +194,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.google.mobile.ads)
+    implementation(libs.google.user.messaging.platform)
 }

@@ -4,6 +4,10 @@ data class GoogleLoginRequestDto(
     val idToken: String
 )
 
+data class ExcluirContaRequestDto(
+    val firebaseIdToken: String
+)
+
 data class RefreshTokenRequestDto(
     val refreshToken: String
 )

@@ -13,12 +13,14 @@ import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarDesempenhoHomeUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarProgressoDiarioUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CriarComentarioUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CurtirComentarioUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.DescurtirComentarioUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarComentariosUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.MigrarProgressoVisitanteUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
@@ -43,13 +45,15 @@ object AppModule {
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         firebaseAuth: FirebaseAuth,
         api: ConcurseiroApi,
-        tokenStorage: TokenStorage
+        tokenStorage: TokenStorage,
+        respostaDao: RespostaDao
     ): AuthRepository {
         return AuthRepository(
             context = context,
             auth = firebaseAuth,
             api = api,
-            tokenStorage = tokenStorage
+            tokenStorage = tokenStorage,
+            respostaDao = respostaDao
         )
     }
 
@@ -100,6 +104,22 @@ object AppModule {
         repository: RespostaRepositoryContract
     ): CarregarDesempenhoHomeUseCase {
         return CarregarDesempenhoHomeUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCarregarProgressoDiarioUseCase(
+        repository: RespostaRepositoryContract
+    ): CarregarProgressoDiarioUseCase {
+        return CarregarProgressoDiarioUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMigrarProgressoVisitanteUseCase(
+        repository: RespostaRepositoryContract
+    ): MigrarProgressoVisitanteUseCase {
+        return MigrarProgressoVisitanteUseCase(repository)
     }
 
     @Provides

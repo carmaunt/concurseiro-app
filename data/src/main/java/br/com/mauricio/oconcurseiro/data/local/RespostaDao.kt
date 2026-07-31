@@ -12,6 +12,19 @@ interface RespostaDao {
     suspend fun inserir(resposta: RespostaEntity)
 
     @Query("""
+        UPDATE respostas
+        SET usuarioId = :usuarioId
+        WHERE usuarioId = :guestId
+    """)
+    suspend fun migrarRespostasDoVisitante(
+        usuarioId: String,
+        guestId: String = "guest"
+    ): Int
+
+    @Query("DELETE FROM respostas WHERE usuarioId = :usuarioId")
+    suspend fun excluirRespostasDoUsuario(usuarioId: String): Int
+
+    @Query("""
         SELECT COUNT(*) FROM (
             SELECT questaoId, MAX(respondidaEm) AS ultimaResposta
             FROM respostas

@@ -80,4 +80,11 @@ class GuestUsageManager(context: Context) {
         val ids = obterQuestoesResolvidasHoje()
         return (DAILY_LIMIT - ids.size).coerceAtLeast(0)
     }
+
+    fun limparAposMigracao() {
+        prefs.edit()
+            .putString(KEY_DATE, hoje())
+            .putString(KEY_QUESTIONS, "[]")
+            .apply()
+    }
 }

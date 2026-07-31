@@ -9,8 +9,11 @@ import androidx.lifecycle.viewModelScope
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.auth.GoogleLoginCanceladoException
 import br.com.mauricio.oconcurseiro.data.auth.obterIdTokenGoogle
+import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
 import br.com.mauricio.oconcurseiro.data.local.GuestUsageManager
+import br.com.mauricio.oconcurseiro.domain.usecase.MigrarProgressoVisitanteUseCase
 import com.google.firebase.FirebaseException
+import br.com.mauricio.oconcurseiro.util.mapErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,7 +21,9 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository,
-    private val guestManager: GuestUsageManager
+    private val guestManager: GuestUsageManager,
+    private val migrarProgressoVisitanteUseCase: MigrarProgressoVisitanteUseCase,
+    private val analyticsTracker: AnalyticsTracker
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
@@ -82,7 +87,9 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.loginComEmail(email, senha)
+                val migradas = preservarProgressoVisitante()
                 usuarioAutenticado = repository.estaAutenticado()
+                mensagemSucesso = mensagemDeAcesso(migradas)
                 onSucesso()
             } catch (e: Exception) {
                 erro = e.message ?: "Erro ao fazer login"
@@ -99,8 +106,14 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.cadastrarComEmail(email, senha)
-                repository.logout()
+                repository.loginComEmail(email, senha)
+                val migradas = preservarProgressoVisitante()
                 usuarioAutenticado = repository.estaAutenticado()
+                mensagemSucesso = if (migradas > 0) {
+                    "Conta criada e progresso preservado."
+                } else {
+                    "Conta criada com sucesso."
+                }
                 onSucesso()
             } catch (e: Exception) {
                 erro = e.message ?: "Erro ao cadastrar"
@@ -117,7 +130,9 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.loginComGoogle(idToken)
+                val migradas = preservarProgressoVisitante()
                 usuarioAutenticado = repository.estaAutenticado()
+                mensagemSucesso = mensagemDeAcesso(migradas)
                 onSucesso()
             } catch (e: Exception) {
                 erro = "Erro ao login com Google"
@@ -137,8 +152,9 @@ class AuthViewModel @Inject constructor(
             try {
                 val token = obterIdTokenGoogle(resultCode, data)
                 repository.loginComGoogle(token)
+                val migradas = preservarProgressoVisitante()
                 usuarioAutenticado = repository.estaAutenticado()
-                mensagemSucesso = "Login realizado com sucesso."
+                mensagemSucesso = mensagemDeAcesso(migradas)
                 onSucesso()
             } catch (_: GoogleLoginCanceladoException) {
                 erro = null
@@ -164,7 +180,7 @@ class AuthViewModel @Inject constructor(
             } catch (e: FirebaseException) {
                 erro = "Por segurança, faça login novamente antes de excluir sua conta."
             } catch (e: Exception) {
-                erro = e.message ?: "Erro ao excluir conta"
+                erro = mapErrorMessage(e)
             } finally {
                 isLoading = false
             }
@@ -180,5 +196,28 @@ class AuthViewModel @Inject constructor(
 
     fun consumirMensagemSucesso() {
         mensagemSucesso = null
+    }
+
+    private suspend fun preservarProgressoVisitante(): Int {
+        val usuarioId = repository.usuarioIdOuGuest()
+        if (usuarioId == "guest") return 0
+
+        val migradas = runCatching {
+            migrarProgressoVisitanteUseCase(usuarioId)
+        }.getOrDefault(0)
+
+        if (migradas > 0) {
+            guestManager.limparAposMigracao()
+            analyticsTracker.guestProgressMigrated(migradas)
+        }
+        return migradas
+    }
+
+    private fun mensagemDeAcesso(respostasMigradas: Int): String {
+        return if (respostasMigradas > 0) {
+            "Login realizado. Seu progresso foi preservado."
+        } else {
+            "Login realizado com sucesso."
+        }
     }
 }

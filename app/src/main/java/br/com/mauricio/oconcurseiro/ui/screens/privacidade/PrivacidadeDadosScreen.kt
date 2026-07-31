@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.PrivacyTip
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,8 +31,10 @@ fun PrivacidadeDadosScreen(
     usuarioAutenticado: Boolean,
     isLoading: Boolean,
     erro: String?,
+    mostrarOpcoesAnuncios: Boolean = false,
     onBack: () -> Unit,
     onAvisoLegal: () -> Unit,
+    onOpcoesAnuncios: () -> Unit = {},
     onExcluirConta: (onSucesso: () -> Unit) -> Unit
 ) {
     val uriHandler = LocalUriHandler.current
@@ -43,7 +46,7 @@ fun PrivacidadeDadosScreen(
             title = { Text("Excluir minha conta?") },
             text = {
                 Text(
-                    "Esta ação é permanente. Os dados da sua conta serão removidos ou anonimizados conforme a Política de Privacidade. Confirme apenas se deseja continuar."
+                    "Esta ação é permanente e não pode ser desfeita. Seu acesso, perfil, histórico de respostas, comentários vinculados e eventos associados à conta serão excluídos."
                 )
             },
             confirmButton = {
@@ -56,7 +59,7 @@ fun PrivacidadeDadosScreen(
                         }
                     }
                 ) {
-                    Text("Excluir conta")
+                    Text("Excluir definitivamente")
                 }
             },
             dismissButton = {
@@ -101,6 +104,7 @@ fun PrivacidadeDadosScreen(
 
                 PrivacyParagraph("O app usa autenticação para permitir login, comentários e interações entre estudantes.")
                 PrivacyParagraph("Podemos usar dados técnicos para estabilidade, diagnóstico de falhas e melhoria do aplicativo.")
+                PrivacyParagraph("Usamos o Google AdMob para exibir publicidade, respeitando suas escolhas de privacidade.")
                 PrivacyParagraph("Você pode solicitar ou executar a exclusão da sua conta quando estiver logado.")
                 PrivacyParagraph("O Concurseiro é independente e não representa órgão público, entidade governamental ou banca organizadora.")
             }
@@ -128,11 +132,28 @@ fun PrivacidadeDadosScreen(
                 onClick = onAvisoLegal
             )
 
+            PrivacyActionItem(
+                icon = Icons.AutoMirrored.Outlined.OpenInNew,
+                title = "Como excluir uma conta",
+                description = "Consulte as opções dentro e fora do aplicativo.",
+                trailingIcon = Icons.AutoMirrored.Outlined.OpenInNew,
+                onClick = { uriHandler.openUri(ACCOUNT_DELETION_URL) }
+            )
+
+            if (mostrarOpcoesAnuncios) {
+                PrivacyActionItem(
+                    icon = Icons.Outlined.Tune,
+                    title = "Opções de privacidade dos anúncios",
+                    description = "Revise suas escolhas de consentimento para publicidade.",
+                    onClick = onOpcoesAnuncios
+                )
+            }
+
             if (usuarioAutenticado) {
                 PrivacyActionItem(
                     icon = Icons.Outlined.DeleteOutline,
                     title = "Excluir minha conta",
-                    description = "Remover acesso, sessão local e dados vinculados quando aplicável.",
+                    description = "Excluir definitivamente o perfil e todos os dados vinculados.",
                     danger = true,
                     onClick = { mostrarConfirmacaoExclusao = true }
                 )

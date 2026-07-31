@@ -11,9 +11,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import br.com.mauricio.oconcurseiro.ads.AdsManager
 import br.com.mauricio.oconcurseiro.ui.navigation.AppNavigation
 import br.com.mauricio.oconcurseiro.ui.theme.OConcurseiroTheme
 import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
+import br.com.mauricio.oconcurseiro.data.preferences.StudyPlanPreferences
 
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -21,6 +23,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var analyticsTracker: AnalyticsTracker
+    @Inject lateinit var studyPlanPreferences: StudyPlanPreferences
+    @Inject lateinit var adsManager: AdsManager
     private var openQuestionsFromNotification by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,11 +34,16 @@ class MainActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
         )
         analyticsTracker.appOpened()
+        if (openQuestionsFromNotification) {
+            analyticsTracker.reminderOpened()
+        }
 
         setContent {
             OConcurseiroTheme {
                 AppNavigation(
                     analyticsTracker = analyticsTracker,
+                    studyPlanPreferences = studyPlanPreferences,
+                    adsManager = adsManager,
                     openQuestionsFromNotification = openQuestionsFromNotification,
                     onNotificationNavigationHandled = {
                         openQuestionsFromNotification = false
@@ -42,12 +51,15 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+
+        adsManager.requestConsent(this)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         if (intent.shouldOpenQuestions()) {
+            analyticsTracker.reminderOpened()
             openQuestionsFromNotification = true
         }
     }

@@ -2,6 +2,7 @@ package br.com.mauricio.oconcurseiro.ui.navigation
 
 sealed class NavRoutes(val route: String) {
     object Splash : NavRoutes("splash")
+    object Onboarding : NavRoutes("onboarding")
     object Home : NavRoutes("home")
     object Login : NavRoutes("login")
     object Register : NavRoutes("register")

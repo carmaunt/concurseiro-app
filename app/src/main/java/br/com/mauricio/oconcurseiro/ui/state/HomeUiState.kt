@@ -17,5 +17,8 @@ data class HomeUiState(
     val totalResolvidas: Int = 0,
     val totalAcertos: Int = 0,
     val desempenhoPorDisciplina: List<DesempenhoDisciplina> = emptyList(),
-    val missaoSemanal: List<MissaoDiariaStatus> = emptyList()
+    val missaoSemanal: List<MissaoDiariaStatus> = emptyList(),
+    val resolvidasHoje: Int = 0,
+    val metaDiaria: Int = 5,
+    val sequenciaAtual: Int = 0
 )

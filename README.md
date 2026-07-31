@@ -67,6 +67,7 @@ O projeto está modularizado em múltiplos módulos Android:
 - Pull-to-refresh
 - Crashlytics
 - Analytics
+- Monetização com Google AdMob e consentimento UMP
 
 ---
 
@@ -139,6 +140,10 @@ RELEASE_STORE_PASSWORD=
 RELEASE_KEY_ALIAS=
 RELEASE_KEY_PASSWORD=
 ```
+
+Os IDs de produção do AdMob também são fornecidos fora do repositório.
+Consulte o guia [docs/ADMOB.md](docs/ADMOB.md) antes de gerar a versão para a
+Play Store.
 
 ---
 

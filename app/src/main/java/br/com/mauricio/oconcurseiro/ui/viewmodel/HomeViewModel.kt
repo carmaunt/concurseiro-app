@@ -155,7 +155,10 @@ class HomeViewModel @Inject constructor(
                 totalResolvidas = desempenho.totalResolvidas,
                 totalAcertos = desempenho.totalAcertos,
                 desempenhoPorDisciplina = desempenho.desempenhoPorDisciplina,
-                missaoSemanal = desempenho.missaoSemanal
+                missaoSemanal = desempenho.missaoSemanal,
+                resolvidasHoje = desempenho.resolvidasHoje,
+                metaDiaria = desempenho.metaDiaria,
+                sequenciaAtual = desempenho.sequenciaAtual
             )
         }
     }

@@ -21,6 +21,7 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.CoPresent
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -131,6 +132,71 @@ fun QuestaoScreen(
             }
         }
     }
+
+    if (uiState.mostrarMissaoConcluida) {
+        MissaoConcluidaDialog(
+            metaDiaria = uiState.metaDiaria,
+            onContinuar = { viewModel.consumirMissaoConcluida() },
+            onVoltarInicio = {
+                viewModel.consumirMissaoConcluida()
+                onBack?.invoke()
+            }
+        )
+    }
+}
+
+@Composable
+private fun MissaoConcluidaDialog(
+    metaDiaria: Int,
+    onContinuar: () -> Unit,
+    onVoltarInicio: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onContinuar,
+        icon = {
+            Box(
+                modifier = Modifier
+                    .size(54.dp)
+                    .background(SuccessBg, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.EmojiEvents,
+                    contentDescription = null,
+                    tint = SuccessBorder,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+        },
+        title = {
+            Text(
+                text = "Meta de hoje concluída",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+        },
+        text = {
+            Text(
+                text = "Você completou $metaDiaria questões. Amanhã, uma nova missão ajuda a manter seu ritmo — sem perder o que já conquistou.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onContinuar) {
+                Text("Continuar praticando")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onVoltarInicio) {
+                Text("Ver meu progresso")
+            }
+        },
+        shape = RoundedCornerShape(20.dp),
+        containerColor = SurfaceWhite
+    )
 }
 
 @Composable

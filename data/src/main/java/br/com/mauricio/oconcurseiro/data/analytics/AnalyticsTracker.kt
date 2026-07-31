@@ -49,12 +49,31 @@ class AnalyticsTracker @Inject constructor(
     fun installReferrerUnavailable(reason: String, metadata: Map<String, Any> = emptyMap()) {
         track(AnalyticsEvent(AnalyticsEventName.INSTALL_REFERRER_UNAVAILABLE, metadata = metadata + ("reason" to reason.take(80))))
     }
+    fun onboardingStarted()=track(AnalyticsEvent(AnalyticsEventName.ONBOARDING_STARTED,"onboarding"))
+    fun studyPlanCreated(goal:Int,reminderEnabled:Boolean){
+        track(AnalyticsEvent(AnalyticsEventName.GOAL_SELECTED,"onboarding",metadata=mapOf("daily_goal" to goal)))
+        track(AnalyticsEvent(AnalyticsEventName.STUDY_PLAN_CREATED,"onboarding",metadata=mapOf("daily_goal" to goal,"reminder_enabled" to reminderEnabled)))
+    }
+    fun onboardingCompleted()=track(AnalyticsEvent(AnalyticsEventName.ONBOARDING_COMPLETED,"onboarding"))
+    fun notificationPermissionResult(granted:Boolean)=track(AnalyticsEvent(AnalyticsEventName.NOTIFICATION_PERMISSION_RESULT,"onboarding",metadata=mapOf("granted" to granted)))
+    fun dailyMissionStarted(source:String)=track(AnalyticsEvent(AnalyticsEventName.DAILY_MISSION_STARTED,"home",metadata=mapOf("source" to source.take(40))))
+    fun dailyMissionCompleted(goal:Int)=track(AnalyticsEvent(AnalyticsEventName.DAILY_MISSION_COMPLETED,"questao",metadata=mapOf("daily_goal" to goal)))
+    fun reminderOpened()=track(AnalyticsEvent(AnalyticsEventName.REMINDER_OPENED,"questao"))
+    fun guestProgressMigrated(total:Int)=track(AnalyticsEvent(AnalyticsEventName.GUEST_PROGRESS_MIGRATED,metadata=mapOf("answers_migrated" to total)))
+    fun setAcquisitionId(value: String?) {
+        val acquisitionId = AcquisitionAttribution.normalize(value) ?: return
+        preferences.edit().putString(AcquisitionAttribution.PREFERENCE_KEY, acquisitionId).apply()
+    }
 
     private fun questionEvent(name:AnalyticsEventName,q:Questao)=AnalyticsEvent(name,"questao",questionId=q.id,disciplinaId=q.disciplinaId,assuntoId=q.assuntoId,bancaId=q.bancaId,instituicaoId=q.orgaoId,metadata=mapOf("question_id" to q.id))
     fun track(event:AnalyticsEvent){
+        val enrichedEvent = event.copy(metadata = AcquisitionAttribution.enrich(
+            event.metadata,
+            preferences.getString(AcquisitionAttribution.PREFERENCE_KEY, null),
+        ))
         val sessionId=sessions.sessionId
-        firebaseAnalytics.logEvent(event.name.wireName, event.firebaseBundle())
-        scope.launch{runCatching{api.registrarEventoAnalytics(AnalyticsEventRequestDto(event.name.wireName,anonymousId,null,sessionId,event.screenName,event.filterName,event.questionId,event.answerCorrect,event.disciplinaId,event.assuntoId,event.subassuntoId,null,appVersion,"android",Build.VERSION.RELEASE,1,event.bancaId,event.instituicaoId,event.provaId,event.metadata))}.onSuccess{Log.d(TAG,"Evento enviado: ${event.name.wireName}")}.onFailure{Log.w(TAG,"Falha em ${event.name.wireName}: ${it.javaClass.simpleName}")}}
+        firebaseAnalytics.logEvent(enrichedEvent.name.wireName, enrichedEvent.firebaseBundle())
+        scope.launch{runCatching{api.registrarEventoAnalytics(AnalyticsEventRequestDto(enrichedEvent.name.wireName,anonymousId,null,sessionId,enrichedEvent.screenName,enrichedEvent.filterName,enrichedEvent.questionId,enrichedEvent.answerCorrect,enrichedEvent.disciplinaId,enrichedEvent.assuntoId,enrichedEvent.subassuntoId,null,appVersion,"android",Build.VERSION.RELEASE,1,enrichedEvent.bancaId,enrichedEvent.instituicaoId,enrichedEvent.provaId,enrichedEvent.metadata))}.onSuccess{Log.d(TAG,"Evento enviado: ${enrichedEvent.name.wireName}")}.onFailure{Log.w(TAG,"Falha em ${enrichedEvent.name.wireName}: ${it.javaClass.simpleName}")}}
     }
 
     private fun AnalyticsEvent.firebaseBundle() = Bundle().apply {

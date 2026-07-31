@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
+import br.com.mauricio.oconcurseiro.data.analytics.AcquisitionAttribution
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -70,9 +71,12 @@ class InstallReferrerTracker @Inject constructor(
             val response = client.installReferrer
             val rawReferrer = response.installReferrer.orEmpty()
             val referrerParams = parseReferrer(rawReferrer)
+            analyticsTracker.setAcquisitionId(
+                AcquisitionAttribution.normalize(referrerParams["referrer_landing_session_id"]),
+            )
             val metadata = buildMap {
-                put("install_referrer", rawReferrer.take(MAX_REFERRER_LENGTH))
                 put("referrer_found", rawReferrer.isNotBlank())
+                put("referrer_parameter_count", referrerParams.size)
                 put("referrer_click_timestamp_seconds", response.referrerClickTimestampSeconds)
                 put("install_begin_timestamp_seconds", response.installBeginTimestampSeconds)
                 put("google_play_instant", response.googlePlayInstantParam)
@@ -130,7 +134,6 @@ class InstallReferrerTracker @Inject constructor(
         const val TAG = "InstallReferrerTracker"
         const val PREFERENCES_NAME = "install_referrer_preferences"
         const val KEY_TRACKED = "install_referrer_tracked_v1"
-        const val MAX_REFERRER_LENGTH = 500
         const val FRESH_INSTALL_WINDOW_MS = 30 * 60 * 1000L
         val TRACKED_REFERRER_KEYS = setOf(
             "utm_source",

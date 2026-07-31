@@ -2,9 +2,11 @@ package br.com.mauricio.oconcurseiro.ui.viewmodel
 
 import br.com.mauricio.oconcurseiro.data.auth.AuthRepository
 import br.com.mauricio.oconcurseiro.data.analytics.AnalyticsTracker
+import br.com.mauricio.oconcurseiro.data.preferences.StudyPlanPreferences
 import br.com.mauricio.oconcurseiro.domain.model.Alternativa
 import br.com.mauricio.oconcurseiro.domain.model.CatalogoItem
 import br.com.mauricio.oconcurseiro.domain.model.CatalogosQuestoes
+import br.com.mauricio.oconcurseiro.domain.model.DailyStudyProgress
 import br.com.mauricio.oconcurseiro.domain.model.FiltroParams
 import br.com.mauricio.oconcurseiro.domain.model.PaginaResultado
 import br.com.mauricio.oconcurseiro.domain.model.Questao
@@ -12,6 +14,7 @@ import br.com.mauricio.oconcurseiro.domain.model.RespostaAnteriorQuestao
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarPaginaQuestoesUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.BuscarRespostaAnteriorUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.CarregarCatalogosQuestoesUseCase
+import br.com.mauricio.oconcurseiro.domain.usecase.CarregarProgressoDiarioUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarAssuntosPorDisciplinaUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.ListarSubAssuntosUseCase
 import br.com.mauricio.oconcurseiro.domain.usecase.SalvarRespostaQuestaoUseCase
@@ -47,8 +50,10 @@ class QuestaoViewModelTest {
     private lateinit var listarSubAssuntosUseCase: ListarSubAssuntosUseCase
     private lateinit var salvarRespostaQuestaoUseCase: SalvarRespostaQuestaoUseCase
     private lateinit var buscarRespostaAnteriorUseCase: BuscarRespostaAnteriorUseCase
+    private lateinit var carregarProgressoDiarioUseCase: CarregarProgressoDiarioUseCase
     private lateinit var authRepository: AuthRepository
     private lateinit var analyticsTracker: AnalyticsTracker
+    private lateinit var studyPlanPreferences: StudyPlanPreferences
     private lateinit var viewModel: QuestaoViewModel
 
     private val questao = Questao(
@@ -113,8 +118,10 @@ class QuestaoViewModelTest {
         listarSubAssuntosUseCase = mockk()
         salvarRespostaQuestaoUseCase = mockk()
         buscarRespostaAnteriorUseCase = mockk()
+        carregarProgressoDiarioUseCase = mockk()
         authRepository = mockk()
         analyticsTracker = mockk(relaxed = true)
+        studyPlanPreferences = mockk()
 
         every { authRepository.estaAutenticado() } returns false
         every { authRepository.usuarioIdOuGuest() } returns "guest-id"
@@ -124,6 +131,11 @@ class QuestaoViewModelTest {
         coEvery { listarSubAssuntosUseCase(any()) } returns emptyList()
         coEvery { salvarRespostaQuestaoUseCase(any()) } returns Unit
         coEvery { buscarRespostaAnteriorUseCase(any(), any()) } returns null
+        coEvery { carregarProgressoDiarioUseCase(any()) } returns DailyStudyProgress(
+            answered = 1,
+            goal = 5
+        )
+        every { studyPlanPreferences.markMissionCompletionIfFirstToday() } returns false
 
         viewModel = QuestaoViewModel(
             buscarPaginaQuestoesUseCase = buscarPaginaQuestoesUseCase,
@@ -132,8 +144,10 @@ class QuestaoViewModelTest {
             listarSubAssuntosUseCase = listarSubAssuntosUseCase,
             salvarRespostaQuestaoUseCase = salvarRespostaQuestaoUseCase,
             buscarRespostaAnteriorUseCase = buscarRespostaAnteriorUseCase,
+            carregarProgressoDiarioUseCase = carregarProgressoDiarioUseCase,
             authRepository = authRepository,
-            analyticsTracker = analyticsTracker
+            analyticsTracker = analyticsTracker,
+            studyPlanPreferences = studyPlanPreferences
         )
     }
 
