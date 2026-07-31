@@ -65,7 +65,7 @@ Usar telas reais da versão 2.1.1, sem números inventados e com pouco texto:
 
 ## Checklist manual da Play Console
 
-- [ ] Subir o AAB da versão 2.1.1 (`versionCode 19`) primeiro no teste interno.
+- [ ] Subir o AAB da versão 2.1.1 (`versionCode 20`) em produção.
 - [ ] Substituir a descrição atual pelo texto desta ficha.
 - [ ] Substituir a nota sobre “pixel do Facebook” pelas notas da versão acima.
 - [ ] Trocar a Política de Privacidade do GitHub por `https://appoconcurseiro.com.br/privacidade`.

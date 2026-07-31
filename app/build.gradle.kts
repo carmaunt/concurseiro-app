@@ -63,7 +63,7 @@ android {
         minSdk = 24
         targetSdk = 36
         // Incrementar sempre que enviar uma nova versão para a Play Store.
-        versionCode = 19
+        versionCode = 20
 
         // Versão visível para o usuário na loja e nas configurações do app.
         versionName = "2.1.1"
