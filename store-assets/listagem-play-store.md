@@ -1,6 +1,6 @@
 # O Concurseiro — ficha de publicação Google Play
 
-Material revisado para a versão **2.1.0**. Só publicar esta ficha junto com a versão que contém meta diária, sequência e onboarding.
+Material revisado para a versão **2.1.1**. Só publicar esta ficha junto com a versão que contém meta diária, sequência e onboarding.
 
 ## Nome do app
 
@@ -41,7 +41,7 @@ Política de Privacidade: https://appoconcurseiro.com.br/privacidade
 
 Exclusão de conta e dados: https://appoconcurseiro.com.br/exclusao-de-conta
 
-## O que há de novo — versão 2.1.0
+## O que há de novo — versão 2.1.1
 
 Crie uma meta diária de estudos e acompanhe seu progresso com mais clareza.
 
@@ -55,7 +55,7 @@ Crie uma meta diária de estudos e acompanhe seu progresso com mais clareza.
 
 ## Narrativa recomendada para novas screenshots
 
-Usar telas reais da versão 2.1.0, sem números inventados e com pouco texto:
+Usar telas reais da versão 2.1.1, sem números inventados e com pouco texto:
 
 1. **Crie uma rotina que cabe no seu dia** — tela de escolha da meta.
 2. **Veja exatamente o que falta hoje** — card de progresso diário.
@@ -65,7 +65,7 @@ Usar telas reais da versão 2.1.0, sem números inventados e com pouco texto:
 
 ## Checklist manual da Play Console
 
-- [ ] Subir o AAB da versão 2.1.0 (`versionCode 18`) primeiro no teste interno.
+- [ ] Subir o AAB da versão 2.1.1 (`versionCode 19`) primeiro no teste interno.
 - [ ] Substituir a descrição atual pelo texto desta ficha.
 - [ ] Substituir a nota sobre “pixel do Facebook” pelas notas da versão acima.
 - [ ] Trocar a Política de Privacidade do GitHub por `https://appoconcurseiro.com.br/privacidade`.
